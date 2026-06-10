@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom';
 import { useAuthStore } from './store';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { ToastProvider } from './components/Toast';
+import { ToastProvider, toast } from './components/Toast';
 import { AdminRoute } from './components/AdminRoute';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { api } from './utils/api';
@@ -137,6 +137,13 @@ function MobileOrderRedirect() {
   return <Navigate to={`/appointments/${appointmentId}${location.hash}`} replace />;
 }
 
+function PricingRedirect() {
+  useEffect(() => {
+    toast.info('Pricing is now handled automatically in the Review step.');
+  }, []);
+  return <Navigate to="/appointments" replace />;
+}
+
 import { useDiagnosticRecorder } from './hooks/useDiagnosticRecorder';
 
 export default function App() {
@@ -266,7 +273,7 @@ export default function App() {
 
                 {/* ── Admin / Manager only routes ── */}
                 <Route path="/analytics" element={<AdminRoute><LazyPage><AnalyticsPage /></LazyPage></AdminRoute>} />
-                <Route path="/profitability" element={<AdminRoute><LazyPage><ProfitabilityPage /></LazyPage></AdminRoute>} />
+                <Route path="/profitability" element={<PricingRedirect />} />
 
                 <Route path="/pricing-import" element={<AdminRoute><LazyPage><PricingImportPage /></LazyPage></AdminRoute>} />
                 <Route path="/rules" element={<AdminRoute><LazyPage><RuleEngineAdminPage /></LazyPage></AdminRoute>} />
@@ -283,6 +290,7 @@ export default function App() {
                 <Route path="/qa" element={<Navigate to="/manager-dashboard" replace />} />
 
                 {/* ── OLD ROUTE REDIRECTS — No competing workflows ── */}
+                <Route path="/pricing" element={<PricingRedirect />} />
                 <Route path="/forms" element={<Navigate to="/appointments" replace />} />
                 <Route path="/forms/order/:appointmentId" element={<Navigate to="/appointments" replace />} />
                 <Route path="/proposals" element={<Navigate to="/appointments" replace />} />

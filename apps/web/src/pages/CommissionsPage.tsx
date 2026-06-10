@@ -217,6 +217,10 @@ export function CommissionsPage() {
   }, []);
 
   const isManager = ['manager', 'admin', 'super_admin'].includes(userRole);
+  const visibleTabs = TABS.filter(t => {
+    if (t === 'dashboard' || t === 'records') return true;
+    return isManager;
+  });
 
   // ── Loaders ───────────────────────────────────────────────────────────────
 
@@ -408,7 +412,7 @@ export function CommissionsPage() {
 
       {/* ── Tab Bar ─────────────────────────────────────────── */}
       <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
-        {TABS.map(t => (
+        {visibleTabs.map(t => (
           <button key={t} id={`tab-${t}`} className={`btn btn-sm ${tab === t ? 'btn-primary' : 'btn-secondary'}`}
             onClick={() => setTab(t)}>
             {t === 'dashboard' ? '📊 Dashboard'

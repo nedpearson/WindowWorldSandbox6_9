@@ -166,7 +166,7 @@ export function PricingReview({ appointment, onRecalculate, onSave, onAddProject
       )}
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h2>💰 Pricing</h2>
+        <h2>💰 Review Price</h2>
         <button
           className="btn btn-secondary btn-sm"
           onClick={handleRecalculate}

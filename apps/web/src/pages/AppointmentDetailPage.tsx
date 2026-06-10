@@ -58,7 +58,7 @@ import { WorkbookManagementPanel } from "../components/WorkbookManagementPanel";
 const STEPS = [
   "Customer",
   "Sketch",
-  "Review",
+  "Review / Price",
   "Workbook",
 ];
 
@@ -626,7 +626,7 @@ export function AppointmentDetailPage() {
           {([
             { icon: '👤', label: 'Customer', steps: [0], jump: 0 },
             { icon: '📐', label: 'Sketch',   steps: [1], jump: 1 },
-            { icon: '🔍', label: 'Review',   steps: [2], jump: 2 },
+            { icon: '🔍', label: 'Review / Price', steps: [2], jump: 2 },
             { icon: '📊', label: 'Workbook', steps: [3], jump: 3 },
           ] as { icon: string; label: string; steps: number[]; jump: number }[]).map((tab) => {
             const isActive = tab.steps.includes(step);

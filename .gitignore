@@ -66,6 +66,7 @@ server/inspect_*.js
 # Customer artifacts
 *.pdf
 *.xlsx
+*.docx
 customer/
 photos/
 annotations/

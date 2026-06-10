@@ -12,6 +12,7 @@ import {
   checkMeasurementExportReadiness,
   MEASUREMENT_RULES,
   MeasurementAdjustment,
+  MeasurementRule,
 } from '../utils/measurementRules';
 
 import { parseMeasurement, toFractionDisplay } from '../utils/measurementParser';
@@ -97,6 +98,89 @@ describe('Measurement Rule Application', () => {
     const rule = { ...MEASUREMENT_RULES[0], widthTakeoffDecimal: 999 };
     const adj = applyMeasurementRule(10, 10, rule);
     expect(adj.adjustedWidth).toBeGreaterThanOrEqual(0);
+  });
+
+  test('actionType "warn" does not deduct and adds warning', () => {
+    const rule: MeasurementRule = {
+      id: 'test-warn-rule',
+      name: 'Test Warn Rule',
+      description: 'Trigger alert warning',
+      status: 'verified',
+      actionType: 'warn',
+      widthTakeoffDecimal: 2.5,
+      heightTakeoffDecimal: 2.5,
+      requiresConfirmation: false,
+      requiresPhoto: false,
+      requiresNote: false,
+      severity: 'medium',
+      version: 1,
+    };
+    const adj = applyMeasurementRule(36, 60, rule);
+    expect(adj.adjustedWidth).toBe(36);
+    expect(adj.adjustedHeight).toBe(60);
+    expect(adj.widthTakeoff).toBe(0);
+    expect(adj.warnings.some(w => w.includes('[Warning]'))).toBe(true);
+  });
+
+  test('actionType "block" does not deduct and adds blocker warning', () => {
+    const rule: MeasurementRule = {
+      id: 'test-block-rule',
+      name: 'Test Block Rule',
+      description: 'Prevent export',
+      status: 'verified',
+      actionType: 'block',
+      widthTakeoffDecimal: 2.5,
+      heightTakeoffDecimal: 2.5,
+      requiresConfirmation: false,
+      requiresPhoto: false,
+      requiresNote: false,
+      severity: 'blocker',
+      version: 1,
+    };
+    const adj = applyMeasurementRule(36, 60, rule);
+    expect(adj.adjustedWidth).toBe(36);
+    expect(adj.adjustedHeight).toBe(60);
+    expect(adj.widthTakeoff).toBe(0);
+    expect(adj.warnings.some(w => w.includes('[BLOCKER]'))).toBe(true);
+  });
+
+  test('actionType "require_photo" sets requiresPhoto to true', () => {
+    const rule: MeasurementRule = {
+      id: 'test-photo-rule',
+      name: 'Test Photo Rule',
+      description: 'Require photo',
+      status: 'verified',
+      actionType: 'require_photo',
+      widthTakeoffDecimal: 0,
+      heightTakeoffDecimal: 0,
+      requiresConfirmation: false,
+      requiresPhoto: false,
+      requiresNote: false,
+      severity: 'medium',
+      version: 1,
+    };
+    const adj = applyMeasurementRule(36, 60, rule);
+    expect(adj.requiresPhoto).toBe(true);
+    expect(adj.warnings.some(w => w.includes('Photo verification required'))).toBe(true);
+  });
+
+  test('actionType "require_note" sets requiresNote/warning', () => {
+    const rule: MeasurementRule = {
+      id: 'test-note-rule',
+      name: 'Test Note Rule',
+      description: 'Require note',
+      status: 'verified',
+      actionType: 'require_note',
+      widthTakeoffDecimal: 0,
+      heightTakeoffDecimal: 0,
+      requiresConfirmation: false,
+      requiresPhoto: false,
+      requiresNote: false,
+      severity: 'medium',
+      version: 1,
+    };
+    const adj = applyMeasurementRule(36, 60, rule);
+    expect(adj.warnings.some(w => w.includes('Install note required'))).toBe(true);
   });
 });
 

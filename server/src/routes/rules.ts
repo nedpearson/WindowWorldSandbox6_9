@@ -104,6 +104,160 @@ rulesRoutes.get('/', async (_req, res) => {
   }
 });
 
+// Suggest rules from guideline document
+rulesRoutes.get('/suggest', async (_req, res) => {
+  try {
+    let textContent = '';
+    const pathsToTry = [
+      join(__dirname, '../../reference/window-world/2026-btr-pricing-guidelines-text-only.md'),
+      'C:/dev/github/personal/WindowWorldSandbox6_9/server/reference/window-world/2026-btr-pricing-guidelines-text-only.md'
+    ];
+    for (const p of pathsToTry) {
+      if (existsSync(p)) {
+        textContent = readFileSync(p, 'utf-8');
+        break;
+      }
+    }
+
+    const suggestions: any[] = [];
+    const lowerText = textContent.toLowerCase();
+    
+    if (lowerText.includes('oriel')) {
+      suggestions.push({
+        id: 'sug-oriel-dh',
+        name: '3000 DH Oriel Max 50 Inches',
+        category: 'oriel',
+        sourceSection: '3000 Model Rules and Exceptions',
+        sourcePage: '17',
+        triggerField: 'series',
+        operator: 'equals',
+        triggerValue: '3000',
+        actionType: 'block_final',
+        actionField: 'orielHeight',
+        actionValue: '50',
+        message: '3000 DH oriel windows can be max 50 inches. Oriel over 50 inches requires 03A0 Single Hung.',
+        fieldRepGuidance: 'Oriel window over 50 inches requires changing the model series to 03A0 Single Hung.',
+        installerNoteTemplate: 'Oriel height check required.',
+        orderFormImpact: 'Blocker on order form generation',
+        contractImpact: 'Forced model change if over limit',
+        pricingImpact: 'None',
+        validationSeverity: 'Block Final Workbook',
+        confidence: 98,
+        recommendedTestCase: 'DH Window with Oriel selected and height 52 inches',
+      });
+    }
+
+    if (lowerText.includes('trim')) {
+      suggestions.push({
+        id: 'sug-inside-set-trim',
+        name: 'Inside Set → Trim Required',
+        category: 'exterior_install',
+        sourceSection: 'Labor Requirement Memos (Trim)',
+        sourcePage: '102',
+        triggerField: 'insideSet',
+        operator: 'equals',
+        triggerValue: 'true',
+        actionType: 'require_field',
+        actionField: 'trim',
+        actionValue: 'Required',
+        message: 'Trim is required when windows are inside set unless the exterior is wood.',
+        fieldRepGuidance: 'Trim is required when windows are inside set unless the exterior is wood.',
+        installerNoteTemplate: 'Inside set windows - vinyl trim required.',
+        orderFormImpact: 'Order Form labor section - trim checked',
+        contractImpact: 'Trim line item added',
+        pricingImpact: 'Standard trim pricing applies',
+        validationSeverity: 'Block Final Workbook',
+        confidence: 95,
+        recommendedTestCase: 'Inside set window with brick exterior and trim omitted',
+      });
+    }
+
+    if (lowerText.includes('flashing')) {
+      suggestions.push({
+        id: 'sug-siding-flashing',
+        name: 'Siding → Header Flashing Suggested',
+        category: 'exterior_install',
+        sourceSection: 'Labor Requirement Memos (Header Flashing)',
+        sourcePage: '102',
+        triggerField: 'exteriorType',
+        operator: 'equals',
+        triggerValue: 'Siding',
+        actionType: 'suggest_field',
+        actionField: 'headerFlashing',
+        actionValue: 'Suggested',
+        message: 'When exterior is siding, header flashing is commonly needed unless protected by covering.',
+        fieldRepGuidance: 'When exterior is siding, header flashing is commonly needed unless protected by covering.',
+        installerNoteTemplate: 'Confirm if header flashing is required.',
+        orderFormImpact: 'Order Form labor section note',
+        contractImpact: 'Header flashing option suggestion',
+        pricingImpact: 'Surcharge if selected',
+        validationSeverity: 'Warning',
+        confidence: 90,
+        recommendedTestCase: 'Siding exterior window with header flashing omitted',
+      });
+    }
+
+    if (lowerText.includes('wells fargo')) {
+      suggestions.push({
+        id: 'sug-wells-fargo',
+        name: 'Wells Fargo Finance Device Check',
+        category: 'final_export',
+        sourceSection: 'Audit Wells Fargo Memos',
+        sourcePage: '120',
+        triggerField: 'financeProvider',
+        operator: 'equals',
+        triggerValue: 'Wells Fargo',
+        actionType: 'add_warning',
+        actionField: 'customerDeviceFinance',
+        actionValue: 'false',
+        message: 'Wells Fargo customer must complete remote authorization on customer device.',
+        fieldRepGuidance: 'Wells Fargo customer must complete remote authorization on customer device. Do not let salesperson complete Wells Fargo remote application on salesperson device.',
+        installerNoteTemplate: 'Confirm remote authorization was done on customer device.',
+        orderFormImpact: 'Blocker on order finalization',
+        contractImpact: 'Verification warning',
+        pricingImpact: 'None',
+        validationSeverity: 'Block Final Workbook',
+        confidence: 96,
+        recommendedTestCase: 'Wells Fargo financing chosen and customer device auth flag is unchecked',
+      });
+    }
+
+    if (lowerText.includes('tempering')) {
+      suggestions.push({
+        id: 'sug-tempered-door',
+        name: 'Tempered Adjacent Door',
+        category: 'tempered_glass',
+        sourceSection: 'Tempering Guidelines',
+        sourcePage: '115',
+        triggerField: 'adjacentToDoor',
+        operator: 'equals',
+        triggerValue: 'true',
+        actionType: 'require_field',
+        actionField: 'temperedRequired',
+        actionValue: 'true',
+        message: 'Safety glass required adjacent to door.',
+        fieldRepGuidance: 'Glazing adjacent to door (within 24 inches) with bottom exposed edge < 60 inches above floor requires tempered glass.',
+        installerNoteTemplate: 'Tempered glass near door.',
+        orderFormImpact: 'Glass option set to Tempered',
+        contractImpact: 'Tempered glass surcharge',
+        pricingImpact: 'Separately itemized tempering surcharge',
+        validationSeverity: 'Block Final Workbook',
+        confidence: 95,
+        recommendedTestCase: 'Window adjacent to door within 24 inches with bottom edge 30 inches off floor',
+      });
+    }
+
+    res.json(suggestions);
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to suggest rules', details: err.message });
+  }
+});
+
+rulesRoutes.post('/suggest', async (req, res) => {
+  // forward POST to GET for compatibility
+  res.redirect(307, '/api/rules/suggest');
+});
+
 // Get single rule
 rulesRoutes.get('/:id', async (req, res) => {
   try {

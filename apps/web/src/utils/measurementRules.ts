@@ -20,6 +20,7 @@ export interface MeasurementRule {
   name: string;
   description: string;
   status: MeasurementRuleStatus;
+  actionType?: string;
   windowType?: string;        // 'oriel' | 'double_hung' | 'picture' | etc.
   exteriorType?: ExteriorType | null;
   installType?: InstallType | null;
@@ -280,8 +281,9 @@ export function applyMeasurementRule(
 
   const widthTakeoff = rule.widthTakeoffDecimal ?? 0;
   const heightTakeoff = rule.heightTakeoffDecimal ?? 0;
-  const adjustedWidth = Math.max(0, rawWidth - widthTakeoff);
-  const adjustedHeight = Math.max(0, rawHeight - heightTakeoff);
+  
+  let adjustedWidth = Math.max(0, rawWidth - widthTakeoff);
+  let adjustedHeight = Math.max(0, rawHeight - heightTakeoff);
 
   const notes: string[] = [];
   const warnings: string[] = [];
@@ -289,21 +291,47 @@ export function applyMeasurementRule(
   if (rule.status === 'needs_verification') {
     warnings.push(`⚠️ Rule "${rule.name}" is marked NEEDS_VERIFICATION. Confirm with Window World before finalizing.`);
   }
-  if (widthTakeoff > 0) notes.push(`Width deduction: ${widthTakeoff}" (${rule.widthTakeoffFraction || widthTakeoff + '"'})`);
-  if (heightTakeoff > 0) notes.push(`Height deduction: ${heightTakeoff}" (${rule.heightTakeoffFraction || heightTakeoff + '"'})`);
-  if (widthTakeoff === 0 && heightTakeoff === 0) notes.push('No deduction applied — measure is order-ready size.');
-  if (rule.requiresNote) warnings.push('📝 This rule requires an install note.');
-  if (rule.requiresPhoto) warnings.push('📷 This rule requires a measurement photo.');
+
+  const action = (rule.actionType || 'deduct').toLowerCase();
+
+  if (action === 'warn') {
+    adjustedWidth = rawWidth;
+    adjustedHeight = rawHeight;
+    warnings.push(`⚠️ [Warning] ${rule.description || `${rule.name} triggered.`}`);
+  } else if (action === 'block') {
+    adjustedWidth = rawWidth;
+    adjustedHeight = rawHeight;
+    warnings.push(`🛑 [BLOCKER] ${rule.description || `${rule.name} prevents final export.`}`);
+  } else if (action === 'require_photo') {
+    warnings.push(`📷 Photo verification required: ${rule.name}`);
+  } else if (action === 'require_note') {
+    warnings.push(`📝 Install note required: ${rule.name}`);
+  } else if (action === 'require_confirmation') {
+    warnings.push(`✅ Rep confirmation required: ${rule.name}`);
+  } else {
+    // Default 'deduct' action
+    if (widthTakeoff > 0) notes.push(`Width deduction: ${widthTakeoff}" (${rule.widthTakeoffFraction || widthTakeoff + '"'})`);
+    if (heightTakeoff > 0) notes.push(`Height deduction: ${heightTakeoff}" (${rule.heightTakeoffFraction || heightTakeoff + '"'})`);
+    if (widthTakeoff === 0 && heightTakeoff === 0) notes.push('No deduction applied — measure is order-ready size.');
+  }
+
+  const requiresConfirmation = rule.requiresConfirmation || action === 'require_confirmation';
+  const requiresPhoto = rule.requiresPhoto || action === 'require_photo';
+  const requiresNote = rule.requiresNote || action === 'require_note';
+
+  if (requiresNote) warnings.push('📝 This rule requires an install note.');
+  if (requiresPhoto) warnings.push('📷 This rule requires a measurement photo.');
 
   return {
     rawWidth, rawHeight,
     adjustedWidth, adjustedHeight,
-    widthTakeoff, heightTakeoff,
+    widthTakeoff: action === 'deduct' ? widthTakeoff : 0,
+    heightTakeoff: action === 'deduct' ? heightTakeoff : 0,
     ruleId: rule.id,
     ruleName: rule.name,
     ruleStatus: rule.status,
-    requiresConfirmation: rule.requiresConfirmation,
-    requiresPhoto: rule.requiresPhoto,
+    requiresConfirmation,
+    requiresPhoto,
     notes, warnings,
     approved: false,
   };

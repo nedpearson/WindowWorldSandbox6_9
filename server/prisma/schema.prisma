@@ -1162,6 +1162,7 @@ model BusinessRule {
   isActive               Boolean   @default(true)
   severity               String    @default("high") // blocker | high | medium | low | info
   triggerField           String?
+  operator               String?   // equals | not_equals | greater_than | less_than | contains | is_empty | is_not_empty
   triggerValue           String?
   triggerConditionJson   Json? // complex trigger conditions
   actionType             String // set_field | warn | require_confirmation | add_price | add_note | expand_abbreviation
@@ -1175,6 +1176,24 @@ model BusinessRule {
   effectiveDate          DateTime?
   needsVerification      Boolean   @default(false)
   companyId              String?
+
+  // Guideline Metadata and Lifecycle
+  priority               Int       @default(0)
+  sourceDocument         String?
+  sourceSection          String?
+  sourcePage             String?
+  fieldRepGuidance       String?
+  installerNoteTemplate  String?
+  orderFormImpact        String?
+  contractImpact         String?
+  pricingImpact          String?
+  workbookMappingKey     String?
+  appliesToAllReps       Boolean   @default(true)
+  region                 String?
+  createdBy              String?
+  updatedBy              String?
+  lastTestedAt           DateTime?
+
   createdAt              DateTime  @default(now())
   updatedAt              DateTime  @updatedAt
 

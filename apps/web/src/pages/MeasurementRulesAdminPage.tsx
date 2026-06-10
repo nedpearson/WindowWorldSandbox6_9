@@ -30,6 +30,7 @@ interface DbRule {
   version: number;
   active: boolean;
   companyId?: string | null;
+  actionType?: string | null;
 }
 
 const STATUS_INFO: Record<string, { bg: string; color: string; label: string }> = {
@@ -56,6 +57,7 @@ const EMPTY_FORM = {
   windowType: '',
   exteriorType: '',
   installType: '',
+  removalType: '',
   widthTakeoffDecimal: 0,
   heightTakeoffDecimal: 0,
   status: 'needs_verification' as string,
@@ -63,8 +65,156 @@ const EMPTY_FORM = {
   requiresPhoto: false,
   requiresNote: false,
   severity: 'high',
+  actionType: 'deduct',
   notes: '',
 };
+
+const MEAS_PRESETS = [
+  {
+    name: 'Oriel — Top Sash Measurement',
+    description: 'Oriel windows must always be measured using the TOP SASH. No width/height deduction is applied.',
+    windowType: 'oriel',
+    exteriorType: '',
+    installType: '',
+    removalType: '',
+    widthTakeoffDecimal: 0,
+    heightTakeoffDecimal: 0,
+    requiresConfirmation: true,
+    requiresPhoto: true,
+    requiresNote: true,
+    severity: 'blocker',
+    actionType: 'require_confirmation',
+    notes: 'Oriel: always use top sash measurement as-is for the order form.',
+  },
+  {
+    name: 'Insert Install / Brick — Standard Takeoff',
+    description: 'Standard insert into brick opening. Apply 1/4" takeoff to width and height.',
+    windowType: '',
+    exteriorType: 'brick',
+    installType: 'INT',
+    removalType: '',
+    widthTakeoffDecimal: 0.25,
+    heightTakeoffDecimal: 0.25,
+    requiresConfirmation: true,
+    requiresPhoto: false,
+    requiresNote: false,
+    severity: 'high',
+    actionType: 'deduct',
+    notes: 'Standard brick insert takeoff.',
+  },
+  {
+    name: 'Full Frame Install / Siding — No Deduction',
+    description: 'Full frame replacement in siding opening. Measure rough opening width and height. No takeoff applied.',
+    windowType: '',
+    exteriorType: 'siding',
+    installType: 'EXT',
+    removalType: '',
+    widthTakeoffDecimal: 0,
+    heightTakeoffDecimal: 0,
+    requiresConfirmation: true,
+    requiresPhoto: false,
+    requiresNote: true,
+    severity: 'medium',
+    actionType: 'deduct',
+    notes: 'Full frame siding replacement.',
+  },
+  {
+    name: 'EXT Install / Brick — No Takeoff',
+    description: 'EXT (exterior) install in brick. Measure from the existing frame. No standard deduction.',
+    windowType: '',
+    exteriorType: 'brick',
+    installType: 'EXT',
+    removalType: '',
+    widthTakeoffDecimal: 0,
+    heightTakeoffDecimal: 0,
+    requiresConfirmation: true,
+    requiresPhoto: false,
+    requiresNote: true,
+    severity: 'medium',
+    actionType: 'deduct',
+    notes: 'Exterior install in brick opening.',
+  },
+  {
+    name: 'Circle Top — Radius Measurement',
+    description: 'Circle top windows require width, leg height, and rise measurement. App computes radius.',
+    windowType: 'circle_top',
+    exteriorType: '',
+    installType: '',
+    removalType: '',
+    widthTakeoffDecimal: 0,
+    heightTakeoffDecimal: 0,
+    requiresConfirmation: true,
+    requiresPhoto: true,
+    requiresNote: false,
+    severity: 'high',
+    actionType: 'require_confirmation',
+    notes: 'Circle top radius measurements.',
+  },
+  {
+    name: 'Eyebrow Window — Width + Rise + Leg Height',
+    description: 'Eyebrow windows require width, rise (center height), and left/right leg heights.',
+    windowType: 'eyebrow',
+    exteriorType: '',
+    installType: '',
+    removalType: '',
+    widthTakeoffDecimal: 0,
+    heightTakeoffDecimal: 0,
+    requiresConfirmation: true,
+    requiresPhoto: true,
+    requiresNote: true,
+    severity: 'high',
+    actionType: 'require_confirmation',
+    notes: 'Eyebrow takeoff rules.',
+  },
+  {
+    name: 'Arch / Half Round — Width + Height + Rise',
+    description: 'Full arch/half-round: measure overall width and height. Rise = height.',
+    windowType: 'arch',
+    exteriorType: '',
+    installType: '',
+    removalType: '',
+    widthTakeoffDecimal: 0,
+    heightTakeoffDecimal: 0,
+    requiresConfirmation: true,
+    requiresPhoto: true,
+    requiresNote: false,
+    severity: 'high',
+    actionType: 'require_confirmation',
+    notes: 'Arch/half-round takeoff rules.',
+  },
+  {
+    name: 'Quarter Arch — Width + Height + Leg Heights',
+    description: 'Quarter arch: width, height, left leg height, right leg height required.',
+    windowType: 'quarter_arch',
+    exteriorType: '',
+    installType: '',
+    removalType: '',
+    widthTakeoffDecimal: 0,
+    heightTakeoffDecimal: 0,
+    requiresConfirmation: true,
+    requiresPhoto: true,
+    requiresNote: true,
+    severity: 'high',
+    actionType: 'require_confirmation',
+    notes: 'Quarter arch takeoff rules.',
+  },
+  {
+    name: 'Patio Door — Rough Opening Measurement',
+    description: 'Patio doors: measure rough opening width and height. Confirm door swing direction.',
+    windowType: 'patio_door',
+    exteriorType: '',
+    installType: '',
+    removalType: '',
+    widthTakeoffDecimal: 0,
+    heightTakeoffDecimal: 0,
+    requiresConfirmation: true,
+    requiresPhoto: false,
+    requiresNote: true,
+    severity: 'high',
+    actionType: 'require_confirmation',
+    notes: 'Patio door takeoff rules.',
+  }
+];
 
 export function MeasurementRulesAdminPage() {
   const user = useAuthStore((s: { user: User | null }) => s.user);
@@ -160,6 +310,8 @@ export function MeasurementRulesAdminPage() {
         windowType:           editing.windowType || null,
         exteriorType:         editing.exteriorType || null,
         installType:          editing.installType || null,
+        removalType:          editing.removalType || null,
+        actionType:           editing.actionType || 'deduct',
       });
       setRules(prev => prev.map(r => r.id === updated.id ? updated : r));
       setEditing(null);
@@ -204,6 +356,7 @@ export function MeasurementRulesAdminPage() {
         windowType:   form.windowType || null,
         exteriorType: form.exteriorType || null,
         installType:  form.installType || null,
+        removalType:  form.removalType || null,
       });
       setRules(prev => [...prev, created]);
       setShowAdd(false);
@@ -375,10 +528,10 @@ export function MeasurementRulesAdminPage() {
                       </div>
                     </td>
                     <td style={{ padding: '0.75rem', fontFamily: 'monospace', fontWeight: 700 }}>
-                      {formatTakeoff(rule.widthTakeoffFraction, rule.widthTakeoffDecimal)}
+                      {rule.actionType && rule.actionType !== 'deduct' ? `[${rule.actionType.toUpperCase()}]` : formatTakeoff(rule.widthTakeoffFraction, rule.widthTakeoffDecimal)}
                     </td>
                     <td style={{ padding: '0.75rem', fontFamily: 'monospace', fontWeight: 700 }}>
-                      {formatTakeoff(rule.heightTakeoffFraction, rule.heightTakeoffDecimal)}
+                      {rule.actionType && rule.actionType !== 'deduct' ? '—' : formatTakeoff(rule.heightTakeoffFraction, rule.heightTakeoffDecimal)}
                     </td>
                     <td style={{ padding: '0.75rem' }}>
                       <span style={{ padding: '0.25rem 0.625rem', borderRadius: 999, background: statusInfo.bg, color: statusInfo.color, fontWeight: 700, fontSize: '0.6875rem' }}>
@@ -456,24 +609,67 @@ export function MeasurementRulesAdminPage() {
                 <span className="form-label">Description</span>
                 <textarea className="form-input" rows={2} value={editing.description || ''} onChange={e => setEditing({ ...editing, description: e.target.value })} />
               </label>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem' }}>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                 <label className="form-group">
                   <span className="form-label">Window Type</span>
-                  <input className="form-input" value={editing.windowType || ''} onChange={e => setEditing({ ...editing, windowType: e.target.value })} placeholder="oriel, arch…" />
+                  <select className="form-input" value={editing.windowType || ''} onChange={e => setEditing({ ...editing, windowType: e.target.value || null })}>
+                    <option value="">(All Window Types)</option>
+                    <option value="double_hung">Double Hung</option>
+                    <option value="single_hung">Single Hung</option>
+                    <option value="picture">Picture Window</option>
+                    <option value="slider">Slider</option>
+                    <option value="3_lite_slider">3-Lite Slider</option>
+                    <option value="casement">Casement</option>
+                    <option value="oriel">Oriel Window</option>
+                    <option value="circle_top">Circle Top</option>
+                    <option value="eyebrow">Eyebrow</option>
+                    <option value="arch">Arch / Half Round</option>
+                    <option value="quarter_arch">Quarter Arch</option>
+                    <option value="patio_door">Patio Door</option>
+                    <option value="custom_shape">Custom / Geometric Shape</option>
+                  </select>
                 </label>
                 <label className="form-group">
                   <span className="form-label">Exterior Type</span>
-                  <input className="form-input" value={editing.exteriorType || ''} onChange={e => setEditing({ ...editing, exteriorType: e.target.value })} placeholder="brick, siding…" />
-                </label>
-                <label className="form-group">
-                  <span className="form-label">Install Type</span>
-                  <select className="form-input" value={editing.installType || ''} onChange={e => setEditing({ ...editing, installType: e.target.value })}>
-                    <option value="">Any</option>
-                    <option value="INT">INT (Insert)</option>
-                    <option value="EXT">EXT (Full Frame)</option>
+                  <select className="form-input" value={editing.exteriorType || ''} onChange={e => setEditing({ ...editing, exteriorType: e.target.value || null })}>
+                    <option value="">(All Exteriors)</option>
+                    <option value="brick">Brick</option>
+                    <option value="siding">Siding</option>
+                    <option value="wood">Wood</option>
+                    <option value="stucco">Stucco</option>
+                    <option value="vinyl">Vinyl</option>
+                    <option value="other">Other</option>
                   </select>
                 </label>
               </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <label className="form-group">
+                  <span className="form-label">Install Type</span>
+                  <select className="form-input" value={editing.installType || ''} onChange={e => setEditing({ ...editing, installType: e.target.value || null })}>
+                    <option value="">(All Installs)</option>
+                    <option value="INT">INT (Insert)</option>
+                    <option value="EXT">EXT (Exterior Full Frame)</option>
+                    <option value="full_frame">Full Frame</option>
+                    <option value="insert">Insert</option>
+                    <option value="replacement">Replacement</option>
+                    <option value="other">Other</option>
+                  </select>
+                </label>
+                <label className="form-group">
+                  <span className="form-label">Removal Type</span>
+                  <select className="form-input" value={editing.removalType || ''} onChange={e => setEditing({ ...editing, removalType: e.target.value || null })}>
+                    <option value="">(All Removals)</option>
+                    <option value="ALUM">ALUM</option>
+                    <option value="wood">WOOD</option>
+                    <option value="vinyl">VINYL</option>
+                    <option value="full_frame">FULL FRAME</option>
+                    <option value="none">NONE</option>
+                  </select>
+                </label>
+              </div>
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
                 <label className="form-group">
                   <span className="form-label">Width Takeoff (inches)</span>
@@ -486,15 +682,40 @@ export function MeasurementRulesAdminPage() {
                     onChange={e => setEditing({ ...editing, heightTakeoffDecimal: parseFloat(e.target.value) || 0 })} />
                 </label>
               </div>
-              <label className="form-group">
-                <span className="form-label">Status</span>
-                <select className="form-input" value={editing.status} onChange={e => setEditing({ ...editing, status: e.target.value as DbStatus })}>
-                  <option value="verified">✅ Verified</option>
-                  <option value="needs_verification">⚠️ Needs Verification</option>
-                  <option value="draft">📝 Draft</option>
-                  <option value="inactive">— Inactive</option>
-                </select>
-              </label>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem' }}>
+                <label className="form-group">
+                  <span className="form-label">Action Type *</span>
+                  <select className="form-input" value={editing.actionType || 'deduct'} onChange={e => setEditing({ ...editing, actionType: e.target.value })}>
+                    <option value="deduct">Deduct (takeoff)</option>
+                    <option value="warn">Warn (trigger alert)</option>
+                    <option value="block">Block (prevent export)</option>
+                    <option value="require_photo">Require Photo</option>
+                    <option value="require_note">Require Note</option>
+                    <option value="require_confirmation">Require Confirmation</option>
+                  </select>
+                </label>
+                <label className="form-group">
+                  <span className="form-label">Severity *</span>
+                  <select className="form-input" value={editing.severity || 'high'} onChange={e => setEditing({ ...editing, severity: e.target.value })}>
+                    <option value="info">Info</option>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="blocker">Blocker</option>
+                  </select>
+                </label>
+                <label className="form-group">
+                  <span className="form-label">Status *</span>
+                  <select className="form-input" value={editing.status} onChange={e => setEditing({ ...editing, status: e.target.value as DbStatus })}>
+                    <option value="verified">✅ Verified</option>
+                    <option value="needs_verification">⚠️ Needs Verification</option>
+                    <option value="draft">📝 Draft</option>
+                    <option value="inactive">— Inactive</option>
+                  </select>
+                </label>
+              </div>
+
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', cursor: 'pointer', fontSize: '0.875rem' }}>
                   <input type="checkbox" checked={editing.requiresConfirmation} onChange={e => setEditing({ ...editing, requiresConfirmation: e.target.checked })} />
@@ -539,6 +760,45 @@ export function MeasurementRulesAdminPage() {
             </button>
             <h3 style={{ margin: '0 0 1rem', paddingRight: '2rem' }}>➕ Add Measurement Rule</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              
+              {/* Presets Selector */}
+              <label className="form-group">
+                <span className="form-label" style={{ fontWeight: 'bold', color: 'var(--primary-color)' }}>⚡ Load Preset Template</span>
+                <select
+                  className="form-input"
+                  value=""
+                  onChange={e => {
+                    const preset = MEAS_PRESETS.find(p => p.name === e.target.value);
+                    if (preset) {
+                      setForm({
+                        ...form,
+                        name: preset.name,
+                        description: preset.description,
+                        windowType: preset.windowType,
+                        exteriorType: preset.exteriorType,
+                        installType: preset.installType,
+                        removalType: preset.removalType,
+                        widthTakeoffDecimal: preset.widthTakeoffDecimal,
+                        heightTakeoffDecimal: preset.heightTakeoffDecimal,
+                        requiresConfirmation: preset.requiresConfirmation,
+                        requiresPhoto: preset.requiresPhoto,
+                        requiresNote: preset.requiresNote,
+                        severity: preset.severity,
+                        actionType: preset.actionType,
+                        notes: preset.notes,
+                      });
+                    }
+                  }}
+                >
+                  <option value="">-- Choose a Preset to Autofill --</option>
+                  {MEAS_PRESETS.map((p, idx) => (
+                    <option key={idx} value={p.name}>
+                      {p.name} ({p.actionType})
+                    </option>
+                  ))}
+                </select>
+              </label>
+
               <label className="form-group">
                 <span className="form-label">Rule Name *</span>
                 <input className="form-input" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="e.g. Insert Install / Brick — Standard Takeoff" />
@@ -547,24 +807,67 @@ export function MeasurementRulesAdminPage() {
                 <span className="form-label">Description</span>
                 <textarea className="form-input" rows={2} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
               </label>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem' }}>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                 <label className="form-group">
                   <span className="form-label">Window Type</span>
-                  <input className="form-input" value={form.windowType} onChange={e => setForm({ ...form, windowType: e.target.value })} placeholder="oriel, arch…" />
+                  <select className="form-input" value={form.windowType} onChange={e => setForm({ ...form, windowType: e.target.value })}>
+                    <option value="">(All Window Types)</option>
+                    <option value="double_hung">Double Hung</option>
+                    <option value="single_hung">Single Hung</option>
+                    <option value="picture">Picture Window</option>
+                    <option value="slider">Slider</option>
+                    <option value="3_lite_slider">3-Lite Slider</option>
+                    <option value="casement">Casement</option>
+                    <option value="oriel">Oriel Window</option>
+                    <option value="circle_top">Circle Top</option>
+                    <option value="eyebrow">Eyebrow</option>
+                    <option value="arch">Arch / Half Round</option>
+                    <option value="quarter_arch">Quarter Arch</option>
+                    <option value="patio_door">Patio Door</option>
+                    <option value="custom_shape">Custom / Geometric Shape</option>
+                  </select>
                 </label>
                 <label className="form-group">
                   <span className="form-label">Exterior Type</span>
-                  <input className="form-input" value={form.exteriorType} onChange={e => setForm({ ...form, exteriorType: e.target.value })} placeholder="brick, siding…" />
-                </label>
-                <label className="form-group">
-                  <span className="form-label">Install Type</span>
-                  <select className="form-input" value={form.installType} onChange={e => setForm({ ...form, installType: e.target.value })}>
-                    <option value="">Any</option>
-                    <option value="INT">INT (Insert)</option>
-                    <option value="EXT">EXT (Full Frame)</option>
+                  <select className="form-input" value={form.exteriorType} onChange={e => setForm({ ...form, exteriorType: e.target.value })}>
+                    <option value="">(All Exteriors)</option>
+                    <option value="brick">Brick</option>
+                    <option value="siding">Siding</option>
+                    <option value="wood">Wood</option>
+                    <option value="stucco">Stucco</option>
+                    <option value="vinyl">Vinyl</option>
+                    <option value="other">Other</option>
                   </select>
                 </label>
               </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <label className="form-group">
+                  <span className="form-label">Install Type</span>
+                  <select className="form-input" value={form.installType} onChange={e => setForm({ ...form, installType: e.target.value })}>
+                    <option value="">(All Installs)</option>
+                    <option value="INT">INT (Insert)</option>
+                    <option value="EXT">EXT (Exterior Full Frame)</option>
+                    <option value="full_frame">Full Frame</option>
+                    <option value="insert">Insert</option>
+                    <option value="replacement">Replacement</option>
+                    <option value="other">Other</option>
+                  </select>
+                </label>
+                <label className="form-group">
+                  <span className="form-label">Removal Type</span>
+                  <select className="form-input" value={form.removalType} onChange={e => setForm({ ...form, removalType: e.target.value })}>
+                    <option value="">(All Removals)</option>
+                    <option value="ALUM">ALUM</option>
+                    <option value="wood">WOOD</option>
+                    <option value="vinyl">VINYL</option>
+                    <option value="full_frame">FULL FRAME</option>
+                    <option value="none">NONE</option>
+                  </select>
+                </label>
+              </div>
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
                 <label className="form-group">
                   <span className="form-label">Width Takeoff (inches)</span>
@@ -577,14 +880,40 @@ export function MeasurementRulesAdminPage() {
                     onChange={e => setForm({ ...form, heightTakeoffDecimal: parseFloat(e.target.value) || 0 })} />
                 </label>
               </div>
-              <label className="form-group">
-                <span className="form-label">Status</span>
-                <select className="form-input" value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
-                  <option value="needs_verification">⚠️ Needs Verification</option>
-                  <option value="verified">✅ Verified</option>
-                  <option value="draft">📝 Draft</option>
-                </select>
-              </label>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem' }}>
+                <label className="form-group">
+                  <span className="form-label">Action Type *</span>
+                  <select className="form-input" value={form.actionType || 'deduct'} onChange={e => setForm({ ...form, actionType: e.target.value })}>
+                    <option value="deduct">Deduct (takeoff)</option>
+                    <option value="warn">Warn (trigger alert)</option>
+                    <option value="block">Block (prevent export)</option>
+                    <option value="require_photo">Require Photo</option>
+                    <option value="require_note">Require Note</option>
+                    <option value="require_confirmation">Require Confirmation</option>
+                  </select>
+                </label>
+                <label className="form-group">
+                  <span className="form-label">Severity *</span>
+                  <select className="form-input" value={form.severity || 'high'} onChange={e => setForm({ ...form, severity: e.target.value })}>
+                    <option value="info">Info</option>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="blocker">Blocker</option>
+                  </select>
+                </label>
+                <label className="form-group">
+                  <span className="form-label">Status *</span>
+                  <select className="form-input" value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
+                    <option value="verified">✅ Verified</option>
+                    <option value="needs_verification">⚠️ Needs Verification</option>
+                    <option value="draft">📝 Draft</option>
+                    <option value="inactive">— Inactive</option>
+                  </select>
+                </label>
+              </div>
+
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', cursor: 'pointer', fontSize: '0.875rem' }}>
                   <input type="checkbox" checked={form.requiresConfirmation} onChange={e => setForm({ ...form, requiresConfirmation: e.target.checked })} />

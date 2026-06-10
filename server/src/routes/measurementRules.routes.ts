@@ -68,7 +68,7 @@ measurementRulesRoutes.post('/', requireAuth, requireAdmin, async (req: AuthRequ
       name, description, status, windowType, exteriorType, installType, removalType,
       widthTakeoffFraction, heightTakeoffFraction, widthTakeoffDecimal, heightTakeoffDecimal,
       minDeduction, maxDeduction, requiresConfirmation, requiresPhoto, requiresNote,
-      severity, notes, version,
+      severity, notes, version, actionType,
     } = req.body;
 
     if (!name?.trim()) return res.status(400).json({ error: 'Rule name is required' });
@@ -93,6 +93,7 @@ measurementRulesRoutes.post('/', requireAuth, requireAdmin, async (req: AuthRequ
         requiresPhoto: requiresPhoto ?? false,
         requiresNote: requiresNote ?? false,
         severity: severity || 'high',
+        actionType: actionType || 'deduct',
         notes: notes || null,
         version: version ?? 1,
         createdBy: req.user!.userId,
@@ -120,7 +121,7 @@ measurementRulesRoutes.patch('/:id', requireAuth, requireAdmin, async (req: Auth
       'name', 'description', 'status', 'windowType', 'exteriorType', 'installType',
       'removalType', 'widthTakeoffFraction', 'heightTakeoffFraction', 'widthTakeoffDecimal',
       'heightTakeoffDecimal', 'minDeduction', 'maxDeduction', 'requiresConfirmation',
-      'requiresPhoto', 'requiresNote', 'severity', 'notes', 'version', 'active',
+      'requiresPhoto', 'requiresNote', 'severity', 'notes', 'version', 'active', 'actionType',
     ];
     const data: Record<string, unknown> = {};
     for (const key of allowed) {

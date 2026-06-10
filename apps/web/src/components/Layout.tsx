@@ -40,43 +40,36 @@ export function Layout({ children }: { children: ReactNode }) {
   const isTouchDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
     (window.innerWidth <= 1024 && ('ontouchstart' in window || navigator.maxTouchPoints > 0));
 
-  // Core links visible to ALL authenticated reps
-  const coreLinks = [
-    { to: '/mobile', label: '📱 Field App' },
+  // Links for Sales Reps (non-admin)
+  const repLinks = [
     { to: '/', label: '🏠 Today', end: true },
     { to: '/appointments', label: '📅 Appointments' },
     { to: '/customers', label: '👤 Customers' },
-    { to: '/whos-calling', label: "\uD83D\uDCDE Who's Calling" },
-    { to: '/self-gen', label: '\uD83C\uDF31 Self Gen' },
-    { to: '/job-visits', label: '\u2705 Job Visits' },
-    { to: '/reports', label: '\uD83D\uDCC4 Reports' },
-    { to: '/quick-quote', label: '⚡ Quick Estimate' },
     { to: '/commissions', label: '💰 My Money' },
     { to: '/manual', label: '📖 Field Manual' },
   ];
-
   if ((window as any).electronAPI) {
-    coreLinks.push({ to: '/surface-settings', label: '💻 Surface Settings' });
+    repLinks.push({ to: '/surface-settings', label: '💻 Surface Settings' });
   }
 
-
-  // Tools visible to all but hidden by default (not admin-specific)
-  const advancedLinks = isAdmin ? [
-    { to: '/profitability', label: '💹 Profit Calculator' },
-    { to: '/analytics', label: '📊 Knowledge Base' },
-  ] : [];
-
-  // Admin-only links — hidden from sales reps in the UI
-  // (backend routes are also protected independently)
-  const adminLinks = isAdmin ? [
-    { to: '/manager-dashboard', label: '🛡️ Manager Dashboard' },
+  // Links for Operations / Installers / Managers (admin/manager)
+  const opsLinks = [
+    { to: '/manager-dashboard', label: '📊 Operations Dashboard', end: true },
     { to: '/office', label: '🏢 Office Queue' },
+    { to: '/appointments', label: '📅 Appointments' },
+    { to: '/customers', label: '👤 Customers' },
     { to: '/finance-options', label: '💳 Finance Catalog' },
+  ];
+
+  // System settings/configuration links for admins
+  const systemSettingsLinks = [
     { to: '/pricing', label: '💲 Pricing Admin' },
     { to: '/pricing-import', label: '📦 Pricing Import' },
     { to: '/rules', label: '⚡ Rule Engine' },
     { to: '/measurement-rules', label: '📐 Measurement Rules' },
-  ] : [];
+    { to: '/profitability', label: '💹 Profit Calculator' },
+    { to: '/analytics', label: '📊 Knowledge Base' },
+  ];
 
   // Fetch the real LAN IP when the QR panel is first opened (only locally)
   useEffect(() => {
@@ -128,39 +121,41 @@ export function Layout({ children }: { children: ReactNode }) {
           </div>
 
           <nav className="sidebar-nav">
-            {coreLinks.map((l) => (
+            {/* Sales Rep Sidebar */}
+            {!isAdmin && repLinks.map((l) => (
               <NavLink key={l.to} to={l.to} end={l.end || l.to === '/'} onClick={() => setSidebarOpen(false)}>
                 {l.label}
               </NavLink>
             ))}
 
-            {/* Advanced toggle */}
-            {advancedLinks.length > 0 && (
+            {/* Operations / Installers Sidebar */}
+            {isAdmin && (
               <>
+                {opsLinks.map((l) => (
+                  <NavLink key={l.to} to={l.to} end={l.end || l.to === '/manager-dashboard'} onClick={() => setSidebarOpen(false)}>
+                    {l.label}
+                  </NavLink>
+                ))}
+                
+                <div style={{ borderTop: '1px solid var(--border)', margin: '0.5rem 1rem', opacity: 0.3 }} />
                 <button onClick={() => setShowAdvanced(!showAdvanced)} style={{
                   width: '100%', textAlign: 'left', padding: '0.5rem 1rem', background: 'none',
                   border: 'none', color: 'var(--text-muted)', fontSize: '0.75rem', cursor: 'pointer',
-                  fontWeight: 600, marginTop: '0.25rem',
+                  fontWeight: 600, display: 'flex', justifyContent: 'space-between', alignItems: 'center'
                 }}>
-                  {showAdvanced ? '▾ Fewer tools' : '▸ More tools'}
+                  <span>⚙️ System Settings</span>
+                  <span style={{ fontSize: '0.625rem', opacity: 0.7 }}>{showAdvanced ? '▲' : '▼'}</span>
                 </button>
-                {showAdvanced && advancedLinks.map((l) => (
-                  <NavLink key={l.to} to={l.to} onClick={() => setSidebarOpen(false)}>
-                    {l.label}
-                  </NavLink>
-                ))}
-              </>
-            )}
 
-            {isAdmin && adminLinks.length > 0 && (
-              <>
-                <div style={{ borderTop: '1px solid var(--border)', margin: '0.375rem 1rem', opacity: 0.3 }} />
-                <div style={{ padding: '0.25rem 1rem', fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Admin Tools</div>
-                {adminLinks.map((l) => (
-                  <NavLink key={l.to} to={l.to} onClick={() => setSidebarOpen(false)}>
-                    {l.label}
-                  </NavLink>
-                ))}
+                {showAdvanced && (
+                  <div style={{ display: 'flex', flexDirection: 'column', paddingLeft: '0.5rem' }}>
+                    {systemSettingsLinks.map((l) => (
+                      <NavLink key={l.to} to={l.to} onClick={() => setSidebarOpen(false)} style={{ fontSize: '0.8125rem', padding: '0.375rem 1rem' }}>
+                        {l.label}
+                      </NavLink>
+                    ))}
+                  </div>
+                )}
               </>
             )}
           </nav>

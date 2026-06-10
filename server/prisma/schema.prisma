@@ -69,6 +69,14 @@ model User {
   reviewActionLogs           ReviewActionLog[]
   emailsSent                 EmailLog[]
 
+  windowWorldEmail     String?
+  docusignAccountId    String?
+  docusignUserId        String?
+  docusignBaseUri      String?
+  docusignAccessToken  String?
+  docusignRefreshToken String?
+  docusignExpiresAt    DateTime?
+
   @@index([companyId])
 }
 
@@ -3237,6 +3245,17 @@ model GeneratedDocument {
   metadataJson         Json?
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
+
+  docusignEnvelopeId     String?
+  docusignStatus         String?
+  docusignSentAt         DateTime?
+  docusignSentBy         String?
+  docusignSenderEmail    String?
+  docusignRecipientName  String?
+  docusignRecipientEmail String?
+  docusignCompletedAt    DateTime?
+  docusignSignedPath     String?
+  docusignAuditTrailPath String?
 
   appointment        Appointment   @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
   sourceSketchExport SketchExport? @relation(fields: [sourceSketchExportId], references: [id], onDelete: SetNull)

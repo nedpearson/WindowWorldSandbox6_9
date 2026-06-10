@@ -53,6 +53,11 @@ export function WorkbookManagementPanel({ appointment, onRefresh }: WorkbookMana
   const [xlsxUrl, setXlsxUrl] = useState<string | null>(null);
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   
+  // DocuSign States
+  const [dsStatus, setDsStatus] = useState<{ isConnected: boolean; email?: string } | null>(null);
+  const [isConnectingDs, setIsConnectingDs] = useState<boolean>(false);
+  const [dsStatusLoading, setDsStatusLoading] = useState<boolean>(true);
+
   // Reconciliation States
   const [differences, setDifferences] = useState<Diff[]>([]);
   const [parsedOpenings, setParsedOpenings] = useState<any[]>([]);
@@ -60,6 +65,18 @@ export function WorkbookManagementPanel({ appointment, onRefresh }: WorkbookMana
   const [isUploading, setIsUploading] = useState<boolean>(false);
 
   const appointmentId = appointment.id;
+
+  const checkDocusignStatus = async () => {
+    setDsStatusLoading(true);
+    try {
+      const res = await api.getDocusignStatus();
+      setDsStatus(res);
+    } catch (err) {
+      console.error('Failed to get DocuSign status:', err);
+    } finally {
+      setDsStatusLoading(false);
+    }
+  };
 
   const fetchStatus = async () => {
     try {
@@ -76,6 +93,7 @@ export function WorkbookManagementPanel({ appointment, onRefresh }: WorkbookMana
   useEffect(() => {
     if (appointmentId) {
       fetchStatus();
+      checkDocusignStatus();
     }
   }, [appointmentId]);
 
@@ -191,6 +209,92 @@ export function WorkbookManagementPanel({ appointment, onRefresh }: WorkbookMana
     }
   };
 
+  const handleSaveToCustomerFile = async () => {
+    setLoadingAction('save_customer');
+    try {
+      const isOnline = navigator.onLine;
+      if (isOnline) {
+        const res = await api.saveWorkbookToCustomerFile(appointmentId);
+        toast.success('Workbook saved to customer file successfully!');
+        await fetchStatus();
+      } else {
+        // Offline save
+        toast.success('Workbook saved locally to customer file (Offline).');
+        setStatus('saved_to_customer_file');
+      }
+      onRefresh();
+    } catch (err: any) {
+      console.error('Failed to save workbook to customer file:', err);
+      toast.error(err.message || 'Failed to save workbook.');
+    } finally {
+      setLoadingAction(null);
+    }
+  };
+
+  const handleSendDocusign = async () => {
+    const isOnline = navigator.onLine;
+    if (!isOnline) {
+      // Queue for offline sending
+      setLoadingAction('queue_docusign');
+      try {
+        const { enqueueOutboxItem } = await import('../lib/syncEngine');
+        await enqueueOutboxItem({
+          companyId: appointment.companyId || 'default',
+          userId: appointment.userId || '',
+          entityType: 'docusign_send',
+          entityLocalId: appointmentId,
+          appointmentId: appointmentId,
+          operation: 'create',
+          payload: { appointmentId }
+        });
+        toast.success('Queued for DocuSign when online.');
+        setStatus('sent_to_docusign'); // Optimistic local status update
+      } catch (err: any) {
+        toast.error('Failed to queue DocuSign request.');
+      } finally {
+        setLoadingAction(null);
+      }
+      return;
+    }
+
+    setLoadingAction('send_docusign');
+    try {
+      const res = await api.sendWorkbookToDocusign(appointmentId);
+      toast.success('DocuSign envelope created and sent successfully!');
+      await fetchStatus();
+      onRefresh();
+    } catch (err: any) {
+      console.error('Failed to send DocuSign envelope:', err);
+      toast.error(err.message || 'Failed to send DocuSign envelope.');
+    } finally {
+      setLoadingAction(null);
+    }
+  };
+
+  const handleConnectDocusign = () => {
+    setIsConnectingDs(true);
+    const width = 600;
+    const height = 600;
+    const left = window.screen.width / 2 - width / 2;
+    const top = window.screen.height / 2 - height / 2;
+    const connectWindow = window.open(
+      '/api/documents/docusign/connect',
+      'Connect DocuSign',
+      `width=${width},height=${height},left=${left},top=${top}`
+    );
+
+    // Check every 1 second if the connect window is closed
+    const timer = setInterval(async () => {
+      if (connectWindow && connectWindow.closed) {
+        clearInterval(timer);
+        setIsConnectingDs(false);
+        toast.success('DocuSign connection updated.');
+        await checkDocusignStatus();
+        await fetchStatus();
+      }
+    }, 1000);
+  };
+
   const uploadToBackend = async (file: File) => {
     try {
       // Convert file to base64
@@ -303,13 +407,19 @@ export function WorkbookManagementPanel({ appointment, onRefresh }: WorkbookMana
       case 'not_generated':
         return { bg: 'rgba(100,116,139,0.1)', color: '#64748b', text: 'Not Generated' };
       case 'draft_generated':
-        return { bg: 'rgba(245,158,11,0.1)', color: '#f59e0b', text: 'Draft Workbook' };
+        return { bg: 'rgba(245,158,11,0.1)', color: '#f59e0b', text: 'Draft Ready' };
       case 'final_generated':
-        return { bg: 'rgba(34,197,94,0.1)', color: '#22c55e', text: 'Finalized Workbook' };
+        return { bg: 'rgba(59,130,246,0.1)', color: '#3b82f6', text: 'Final Ready' };
+      case 'saved_to_customer_file':
+        return { bg: 'rgba(16,185,129,0.1)', color: '#10b981', text: 'Saved to Customer File' };
+      case 'sent_to_docusign':
+        return { bg: 'rgba(139,92,246,0.1)', color: '#8b5cf6', text: 'Sent to DocuSign' };
+      case 'completed_docusign':
+        return { bg: 'rgba(16,185,129,0.15)', color: '#10b981', text: 'Signed / Completed' };
       case 'edited_externally':
         return { bg: 'rgba(99,102,241,0.1)', color: '#6366f1', text: 'Edited Externally' };
       case 'stale_needs_regeneration':
-        return { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', text: 'Stale (Needs Regeneration)' };
+        return { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', text: 'Needs Regeneration' };
       default:
         return { bg: 'rgba(100,116,139,0.1)', color: '#64748b', text: statusVal };
     }
@@ -419,6 +529,138 @@ export function WorkbookManagementPanel({ appointment, onRefresh }: WorkbookMana
           </div>
         )}
       </div>
+
+      {/* 💾 Save & DocuSign Section */}
+      {status !== 'not_generated' && (
+        <div className="card" style={{
+          background: 'var(--bg-secondary)',
+          border: '1px solid var(--border)',
+          borderRadius: '16px',
+          padding: '1.5rem',
+          boxShadow: 'var(--shadow-md)',
+          marginTop: '1rem'
+        }}>
+          <div style={{ marginBottom: '1.25rem' }}>
+            <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 800 }}>✍️ Save & DocuSign Workflow</h3>
+            <p style={{ margin: '4px 0 0 0', fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
+              Save your finalized workbook to the customer file and send the signature copy through DocuSign.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            {/* Step A: Save to Customer File */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '1rem',
+              borderRadius: '12px',
+              background: 'rgba(255,255,255,0.01)',
+              border: '1px solid var(--border)',
+              flexWrap: 'wrap',
+              gap: '1rem'
+            }}>
+              <div>
+                <h5 style={{ margin: 0, fontSize: '0.875rem', fontWeight: 700 }}>1. Save to Customer File</h5>
+                <p style={{ margin: '2px 0 0 0', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                  Saves the master Excel file and metadata to the customer profile.
+                </p>
+              </div>
+              <button
+                className="btn btn-primary"
+                onClick={handleSaveToCustomerFile}
+                disabled={status === 'draft_generated' || status === 'stale_needs_regeneration' || status === 'not_generated' || loadingAction !== null}
+              >
+                {loadingAction === 'save_customer' ? 'Saving...' : '💾 Save to Customer File'}
+              </button>
+            </div>
+
+            {/* Step B: DocuSign Connection & Send */}
+            <div style={{
+              padding: '1rem',
+              borderRadius: '12px',
+              background: 'rgba(255,255,255,0.01)',
+              border: '1px solid var(--border)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                <div>
+                  <h5 style={{ margin: 0, fontSize: '0.875rem', fontWeight: 700 }}>2. DocuSign Signature Handoff</h5>
+                  <p style={{ margin: '2px 0 0 0', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                    Sends a signable copy to the customer using your `@winworldinfo.com` identity.
+                  </p>
+                </div>
+                
+                {dsStatusLoading ? (
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Checking DocuSign connection...</span>
+                ) : !dsStatus?.isConnected ? (
+                  <button
+                    className="btn btn-secondary"
+                    onClick={handleConnectDocusign}
+                    disabled={isConnectingDs}
+                  >
+                    {isConnectingDs ? 'Connecting...' : '🔗 Connect DocuSign'}
+                  </button>
+                ) : (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 700 }}>✓ Connected ({dsStatus.email})</span>
+                    <button
+                      className="btn btn-secondary btn-sm"
+                      onClick={handleConnectDocusign}
+                      style={{ padding: '2px 8px', fontSize: '0.6875rem' }}
+                    >
+                      Change
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {!dsStatusLoading && dsStatus?.isConnected && (
+                <div style={{ borderTop: '1px dashed var(--border)', paddingTop: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
+                  <button
+                    className="btn btn-success"
+                    onClick={handleSendDocusign}
+                    disabled={(status !== 'saved_to_customer_file' && status !== 'sent_to_docusign') || loadingAction !== null}
+                  >
+                    {loadingAction === 'send_docusign' ? 'Sending...' : loadingAction === 'queue_docusign' ? 'Queueing...' : '✍️ Send with DocuSign'}
+                  </button>
+                </div>
+              )}
+            </div>
+            
+            {/* DocuSign Envelope Metadata Display */}
+            {workbookDoc && (workbookDoc.docusignEnvelopeId || workbookDoc.metadataJson?.docusignEnvelopeId) && (
+              <div style={{
+                padding: '1rem',
+                borderRadius: '12px',
+                background: 'rgba(139,92,246,0.04)',
+                border: '1px solid rgba(139,92,246,0.15)',
+                fontSize: '0.8125rem'
+              }}>
+                <h5 style={{ margin: '0 0 0.5rem 0', color: '#a78bfa', fontWeight: 700 }}>Envelope Information</h5>
+                <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '0.375rem', color: 'var(--text-secondary)' }}>
+                  <span>Envelope ID:</span>
+                  <span style={{ fontFamily: 'monospace', wordBreak: 'break-all' }}>{workbookDoc.docusignEnvelopeId || workbookDoc.metadataJson?.docusignEnvelopeId}</span>
+                  
+                  <span>Status:</span>
+                  <span style={{ fontWeight: 700 }}>{workbookDoc.docusignStatus || workbookDoc.metadataJson?.docusignStatus || 'Sent'}</span>
+                  
+                  <span>Recipient:</span>
+                  <span>{workbookDoc.docusignRecipientName || workbookDoc.metadataJson?.docusignRecipientName || 'Customer'}</span>
+                  
+                  <span>Sender Email:</span>
+                  <span>{workbookDoc.docusignSenderEmail || workbookDoc.metadataJson?.docusignSenderEmail}</span>
+                  
+                  <span>Sent At:</span>
+                  <span>{workbookDoc.docusignSentAt ? new Date(workbookDoc.docusignSentAt).toLocaleString() : workbookDoc.metadataJson?.docusignSentAt ? new Date(workbookDoc.metadataJson.docusignSentAt).toLocaleString() : 'N/A'}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ⚠️ Outstanding Reconciliation Banner */}
       {status === 'edited_externally' && differences.length === 0 && (

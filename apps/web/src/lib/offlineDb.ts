@@ -153,6 +153,7 @@ export type EntityType =
   | 'follow_up'
   | 'review_action'
   | 'document_generation'
+  | 'docusign_send'
   | 'training_progress'
   | 'field_finding'  // v5: Field Intelligence cache
   | 'quote_group'    // v6: Quote Groups

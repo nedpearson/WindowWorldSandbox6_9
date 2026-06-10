@@ -59,7 +59,7 @@ const STEPS = [
   "Customer",
   "Sketch",
   "Review / Price",
-  "Workbook",
+  "Save Workbook & Send with DocuSign",
 ];
 
 const STEP_BANNERS = [
@@ -80,8 +80,8 @@ const STEP_BANNERS = [
   },
   {
     emoji: "📊",
-    title: "Excel Workbook",
-    body: "Manage the Excel workbook lifecycle, handle external edits, and finalize the job.",
+    title: "Save Workbook & Send with DocuSign",
+    body: "Generate the main Excel workbook, save it to the customer file, and prepare/send for signing via DocuSign.",
   },
 ];
 
@@ -627,7 +627,7 @@ export function AppointmentDetailPage() {
             { icon: '👤', label: 'Customer', steps: [0], jump: 0 },
             { icon: '📐', label: 'Sketch',   steps: [1], jump: 1 },
             { icon: '🔍', label: 'Review / Price', steps: [2], jump: 2 },
-            { icon: '📊', label: 'Workbook', steps: [3], jump: 3 },
+            { icon: '📊', label: 'Save Workbook & Send with DocuSign', steps: [3], jump: 3 },
           ] as { icon: string; label: string; steps: number[]; jump: number }[]).map((tab) => {
             const isActive = tab.steps.includes(step);
             // Show blocker badge on Review and Workbook tabs

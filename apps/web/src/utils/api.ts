@@ -181,6 +181,11 @@ export const api = {
     request(`/documents/appointment/${appointmentId}/workbook/upload`, { method: 'POST', body: JSON.stringify({ fileName, fileData }) }),
   finalizeWorkbook: (appointmentId: string) =>
     request(`/documents/appointment/${appointmentId}/workbook/finalize`, { method: 'POST', body: JSON.stringify({}) }),
+  saveWorkbookToCustomerFile: (appointmentId: string) =>
+    request(`/documents/appointment/${appointmentId}/workbook/save-customer-file`, { method: 'POST', body: JSON.stringify({}) }),
+  sendWorkbookToDocusign: (appointmentId: string) =>
+    request(`/documents/appointment/${appointmentId}/docusign/send`, { method: 'POST', body: JSON.stringify({}) }),
+  getDocusignStatus: () => request('/documents/docusign/status'),
   sendEmail: (data: any) => request('/communications/email', { method: 'POST', body: JSON.stringify(data) }),
   getEmailLogs: (id: string) => request(`/communications/emails/${id}`),
 

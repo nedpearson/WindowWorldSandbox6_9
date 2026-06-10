@@ -6,6 +6,7 @@ import { uploadFile, getSignedUrl, BUCKETS, isStorageConfigured, uploadBuffer } 
 import { generateSketchImage } from '../services/sketchRenderer.js';
 import { generateAndStoreSketchExport } from '../services/sketchExport.service.js'; // used in sketch/export endpoint
 import { generateOrderForm } from '../services/orderFormGeneration.service.js';
+import { exchangeCodeForTokens, sendDocuSignEnvelope } from '../services/docusignService.js';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -14,6 +15,46 @@ const __filename2 = fileURLToPath(import.meta.url);
 const __dirname2 = path.dirname(__filename2);
 
 export const documentRoutes = Router();
+
+documentRoutes.get('/docusign/callback', async (req, res) => {
+  try {
+    const { code, state: userId } = req.query;
+    if (!code || !userId) {
+      return res.status(400).send('Invalid callback query parameters.');
+    }
+
+    await exchangeCodeForTokens(userId as string, code as string);
+
+    res.send(`
+      <html>
+        <head>
+          <title>DocuSign Connected</title>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; text-align: center; padding: 50px; background: #0f172a; color: #f8fafc; }
+            .card { background: #1e293b; padding: 40px; border-radius: 16px; display: inline-block; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid #334155; }
+            h1 { color: #22c55e; margin-bottom: 10px; }
+            button { background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+            button:hover { background: #2563eb; }
+          </style>
+        </head>
+        <body>
+          <div class="card">
+            <h1>✓ Success!</h1>
+            <p>Your Window World DocuSign account has been successfully linked.</p>
+            <p>You can close this window now.</p>
+            <button onclick="window.close()">Close Window</button>
+          </div>
+          <script>
+            setTimeout(() => { window.close(); }, 3000);
+          </script>
+        </body>
+      </html>
+    `);
+  } catch (err: any) {
+    res.status(500).send(`DocuSign authentication failed: ${err.message}`);
+  }
+});
+
 documentRoutes.use(requireAuth);
 
 /** Resolve companyId from req.user (set by auth middleware) — no DB round trip needed */
@@ -1167,7 +1208,214 @@ documentRoutes.post('/appointment/:appointmentId/workbook/finalize', async (req,
       status: 'final_generated'
     });
   } catch (err: any) {
-    console.error('[documents] finalize workbook error:', err);
     res.status(500).json({ error: 'Failed to finalize workbook', details: err?.message });
+  }
+});
+
+// ── DocuSign Routes ──
+
+documentRoutes.get('/docusign/connect', async (req, res) => {
+  try {
+    const userId = (req as any).user?.userId;
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+    const authServer = process.env.DOCUSIGN_AUTH_SERVER || 'account-d.docusign.com';
+    const clientId = process.env.DOCUSIGN_CLIENT_ID;
+    const redirectUri = process.env.DOCUSIGN_REDIRECT_URI;
+
+    if (!clientId || !redirectUri) {
+      return res.status(400).send('DocuSign environment variables client ID and redirect URI are not configured.');
+    }
+
+    const connectUrl = `https://${authServer}/oauth/auth?response_type=code&scope=signature&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${userId}`;
+    res.redirect(connectUrl);
+  } catch (err: any) {
+    res.status(500).send(`DocuSign Connect failed: ${err.message}`);
+  }
+});
+
+documentRoutes.get('/docusign/status', async (req, res) => {
+  try {
+    const userId = (req as any).user?.userId;
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { windowWorldEmail: true, docusignAccountId: true, email: true }
+    });
+
+    if (!user || !user.docusignAccountId) {
+      return res.json({ isConnected: false });
+    }
+
+    res.json({
+      isConnected: true,
+      email: user.windowWorldEmail || user.email,
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to retrieve DocuSign connection status', details: err.message });
+  }
+});
+
+documentRoutes.post('/appointment/:appointmentId/workbook/save-customer-file', async (req, res) => {
+  try {
+    const userId = (req as any).user?.userId;
+    const companyId = getCompanyId(req);
+    const role = (req as any).user?.role;
+    if (!companyId) return res.status(401).json({ error: 'Unauthorized' });
+
+    const { appointmentId } = req.params;
+    const ok = await assertAppointmentAccess(appointmentId, userId, role, companyId, res);
+    if (!ok) return;
+
+    // Fetch latest GeneratedDocument of type 'workbook'
+    const doc = await prisma.generatedDocument.findFirst({
+      where: { appointmentId, companyId, documentType: 'workbook' },
+      orderBy: { version: 'desc' }
+    });
+
+    if (!doc) return res.status(404).json({ error: 'No generated workbook found to save' });
+
+    const appt = await prisma.appointment.findUnique({
+      where: { id: appointmentId }
+    });
+
+    // Update status to 'saved_to_customer_file'
+    const updated = await prisma.generatedDocument.update({
+      where: { id: doc.id },
+      data: {
+        status: 'saved_to_customer_file',
+        metadataJson: {
+          ...(doc.metadataJson as any || {}),
+          savedToCustomerFile: true,
+          savedAt: new Date().toISOString(),
+          savedBy: userId,
+          jobId: appointmentId,
+          workbookVersion: doc.version,
+          workbookStatus: 'saved_to_customer_file',
+          generatedAt: doc.createdAt.toISOString(),
+          generatedBy: doc.createdByUserId,
+          cloudPath: doc.xlsxStoragePath || doc.storagePath,
+          quoteGroupId: appt?.pricingVersionId || null
+        }
+      }
+    });
+
+    res.json({
+      success: true,
+      documentId: updated.id,
+      status: 'saved_to_customer_file'
+    });
+  } catch (err: any) {
+    console.error('[documents] save-customer-file error:', err);
+    res.status(500).json({ error: 'Failed to save workbook to customer file', details: err?.message });
+  }
+});
+
+documentRoutes.post('/appointment/:appointmentId/docusign/send', async (req, res) => {
+  try {
+    const userId = (req as any).user?.userId;
+    const companyId = getCompanyId(req);
+    const role = (req as any).user?.role;
+    if (!companyId) return res.status(401).json({ error: 'Unauthorized' });
+
+    const { appointmentId } = req.params;
+    const ok = await assertAppointmentAccess(appointmentId, userId, role, companyId, res);
+    if (!ok) return;
+
+    // Fetch the user to check DocuSign connection
+    const user = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+
+    if (!user || !user.docusignAccountId) {
+      return res.status(400).json({
+        error: 'Connect DocuSign for this Window World account.',
+        code: 'DOCUSIGN_NOT_CONNECTED'
+      });
+    }
+
+    // Enforce email domain restriction
+    const isWinWorldRep = user.email.endsWith('@winworldinfo.com');
+    if (isWinWorldRep && (!user.windowWorldEmail || !user.windowWorldEmail.endsWith('@winworldinfo.com'))) {
+      return res.status(400).json({
+        error: 'Connect DocuSign for this Window World account.',
+        code: 'DOCUSIGN_DOMAIN_MISMATCH'
+      });
+    }
+
+    // Retrieve appointment and customer
+    const appt = await prisma.appointment.findUnique({
+      where: { id: appointmentId },
+      include: {
+        customer: true,
+        openings: { where: { deletedAt: null } }
+      }
+    });
+
+    if (!appt) return res.status(404).json({ error: 'Appointment not found' });
+    if (!appt.customer) return res.status(400).json({ error: 'Customer is required for sending DocuSign.' });
+
+    // Fetch the latest GeneratedDocument of type 'workbook'
+    const doc = await prisma.generatedDocument.findFirst({
+      where: { appointmentId, companyId, documentType: 'workbook' },
+      orderBy: { version: 'desc' }
+    });
+
+    if (!doc) {
+      return res.status(400).json({ error: 'Please generate the Excel workbook first.' });
+    }
+
+    // Generate signable PDF buffer from current data using pdfService
+    const pdfBuffer = await generateOrderFormPDFBuffer(appt);
+
+    const timestamp = Date.now();
+    const pdfStoragePath = `company/${companyId}/appointments/${appointmentId}/documents/workbook-docusign-copy_${timestamp}.pdf`;
+
+    // Upload the PDF copy to storage
+    let uploadedPdfPath: string | null = null;
+    if (isStorageConfigured()) {
+      const { path: uPath } = await uploadBuffer(
+        BUCKETS.GENERATED_DOCUMENTS,
+        pdfStoragePath,
+        pdfBuffer,
+        'application/pdf'
+      );
+      uploadedPdfPath = uPath;
+    }
+
+    // Send via DocuSign
+    const docusignResult = await sendDocuSignEnvelope(
+      userId,
+      pdfBuffer,
+      appt.customer.email || 'recipient@winworldinfo.com',
+      `${appt.customer.firstName || ''} ${appt.customer.lastName || ''}`,
+      `Order Form - ${appt.customer.lastName || 'Customer'}.pdf`
+    );
+
+    // Save DocuSign envelope metadata back to the GeneratedDocument customer file
+    const updated = await prisma.generatedDocument.update({
+      where: { id: doc.id },
+      data: {
+        status: 'sent_to_docusign',
+        docusignEnvelopeId: docusignResult.envelopeId,
+        docusignStatus: docusignResult.status,
+        docusignSentAt: new Date(),
+        docusignSentBy: userId,
+        docusignSenderEmail: user.windowWorldEmail || user.email,
+        docusignRecipientName: `${appt.customer.firstName || ''} ${appt.customer.lastName || ''}`,
+        docusignRecipientEmail: appt.customer.email || 'recipient@winworldinfo.com',
+        pdfStoragePath: uploadedPdfPath || pdfStoragePath,
+      }
+    });
+
+    res.json({
+      success: true,
+      envelopeId: docusignResult.envelopeId,
+      status: 'sent_to_docusign',
+      documentId: updated.id
+    });
+
+  } catch (err: any) {
+    console.error('[documents] send docusign envelope error:', err);
+    res.status(500).json({ error: 'DocuSign connection failed. Reconnect or send later.', details: err?.message });
   }
 });

@@ -307,6 +307,12 @@ async function dispatchOutboxItem(item: OutboxItem): Promise<{ cloudId?: string;
       method = 'POST';
       break;
     }
+    case 'docusign_send': {
+      const apptId = payload.appointmentId || item.entityCloudId || item.entityLocalId;
+      url = `/api/documents/appointment/${apptId}/docusign/send`;
+      method = 'POST';
+      break;
+    }
     default:
       throw new Error(`Unknown entityType: ${item.entityType}`);
   }

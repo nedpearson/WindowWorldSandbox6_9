@@ -9,7 +9,7 @@ echo  ================================================
 echo.
 
 :: ── Config ──────────────────────────────────────────────
-set "REPO=C:\dev\github\business\WindowWorldAssistant"
+set "REPO=C:\dev\github\personal\WindowWorldSandbox6_9"
 set "SERVER_PORT=3001"
 set "WEB_PORT=5173"
 set "APP_URL=http://localhost:%WEB_PORT%"

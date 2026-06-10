@@ -73,10 +73,13 @@ async function main() {
 
         if (table === 'User') {
           sanitized.name = `User ${idx + 1}`;
-          sanitized.email = sanitized.email.toLowerCase().includes('nedpearson') 
+          const isNed = sanitized.email.toLowerCase().includes('nedpearson');
+          sanitized.email = isNed 
             ? 'nedpearson@gmail.com' 
             : `user_${idx + 1}@example.com`;
-          sanitized.password = BCRYPT_PASSWORD_HASH;
+          if (!isNed) {
+            sanitized.password = BCRYPT_PASSWORD_HASH;
+          }
           sanitized.avatarUrl = null;
         } 
         else if (table === 'Customer') {

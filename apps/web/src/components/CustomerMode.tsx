@@ -53,11 +53,11 @@ export function CustomerModeToggle() {
 // Only show tabs relevant to the homeowner conversation
 export const CUSTOMER_TABS = [
   { icon: '🏠', label: 'Your Home', repStep: 0 },   // maps to Customer step
-  { icon: '🪟', label: 'Windows', repStep: 3 },      // maps to Windows & Price (step 2 auto-navigates to sketch)
-  { icon: '💰', label: 'Investment', repStep: 4 },    // maps to Pricing
-  { icon: '📄', label: 'Proposal', repStep: 5 },      // maps to Proposal
-  { icon: '💳', label: 'Financing', repStep: 4 },     // maps to finance panel
-  { icon: '✍️', label: 'Agreement', repStep: 6 },     // maps to Close the Sale (max: STEPS.length - 1)
+  { icon: '🪟', label: 'Windows', repStep: 2 },      // maps to Review step (Windows & Price)
+  { icon: '💰', label: 'Investment', repStep: 2 },    // maps to Review step (Pricing)
+  { icon: '📄', label: 'Proposal', repStep: 2 },      // maps to Review step
+  { icon: '💳', label: 'Financing', repStep: 2 },     // maps to Review step (finance panel)
+  { icon: '✍️', label: 'Agreement', repStep: 3 },     // maps to Workbook step
 ];
 
 // ── Customer-facing Project Summary ──────────────────────

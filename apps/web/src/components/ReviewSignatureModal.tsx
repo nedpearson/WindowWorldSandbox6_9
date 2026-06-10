@@ -24,7 +24,7 @@ const SIGNATURE_FIELDS = [
     role: 'Owner',
     isInitials: false,
     required: true,
-    description: 'Customer/homeowner authorises the work',
+    description: 'Homeowner signature executing the contract, authorizing the window installation, and agreeing to all payment terms.',
   },
   {
     key: 'signatureDate',
@@ -32,7 +32,7 @@ const SIGNATURE_FIELDS = [
     role: 'Date',
     isDate: true,
     required: true,
-    description: 'Date the agreement is signed',
+    description: 'The date this legally binding agreement is signed and executed.',
   },
   {
     key: 'estimatorSignature',
@@ -40,7 +40,7 @@ const SIGNATURE_FIELDS = [
     role: 'Estimator',
     isInitials: false,
     required: true,
-    description: 'Sales rep or estimator authorises the quote',
+    description: 'Window World estimator/representative signature authorizing this product quote and project specification.',
   },
   {
     key: 'customerInitials',
@@ -48,7 +48,7 @@ const SIGNATURE_FIELDS = [
     role: 'Initials',
     isInitials: true,
     required: true,
-    description: 'Customer initials acknowledging terms',
+    description: 'Customer initials acknowledging the cancellation policy, lead paint disclosures, and total pricing.',
   },
 ] as const;
 

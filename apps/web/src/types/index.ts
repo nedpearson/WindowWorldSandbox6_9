@@ -63,6 +63,7 @@ export interface Appointment {
   clearStoryOverride?: boolean;
   secondStoryCharge?: boolean;
   pricingVersionId?: string;
+  pre1978Status?: string;
   completionPct: number;
   lockedAt?: string;
   lockedReason?: string;

@@ -47,7 +47,7 @@ async function generateSignedPDF(appointment: any, sigs: AppointmentSignatures) 
     if (c) {
       doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
-      doc.text('Customer', margin, 40);
+      doc.text('Customer Details', margin, 40);
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(10);
       doc.text(`${c.firstName || ''} ${c.lastName || ''}`, margin, 47);
@@ -56,25 +56,96 @@ async function generateSignedPDF(appointment: any, sigs: AppointmentSignatures) 
       doc.text(`Sales Rep: npearson@winworldinfo.com`, margin, 65);
     }
 
-    // Order summary
-    const openings = appointment.openings || [];
+    // Order Summary & Specifications Table
+    const openings = (appointment.openings || []).filter((o: any) => !o.deletedAt);
     const total = openings.reduce((s: number, o: any) => s + (o.totalPrice || 0), 0);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
-    doc.text('Order Summary', margin, 72);
+    doc.text('Order Summary & Specifications', margin, 74);
+    
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(10);
-    doc.text(`${openings.length} openings · Total: $${total.toFixed(2)}`, margin, 79);
+    doc.setFontSize(9);
+    
+    // Draw table headers
+    let tableY = 81;
+    doc.setFont('helvetica', 'bold');
+    doc.text('#', margin, tableY);
+    doc.text('Room Location', margin + 10, tableY);
+    doc.text('Size (W x H)', margin + 45, tableY);
+    doc.text('Product / Colors / Options', margin + 75, tableY);
+    doc.text('Price', margin + 175, tableY, { align: 'right' });
+    
+    doc.setDrawColor(200, 200, 200);
+    doc.setLineWidth(0.2);
+    doc.line(margin, tableY + 2, w - margin, tableY + 2);
+    
+    tableY += 6;
+    doc.setFont('helvetica', 'normal');
+    
+    for (const o of openings) {
+      if (tableY > 260) {
+        doc.addPage();
+        tableY = 20;
+        // Repeat headers
+        doc.setFont('helvetica', 'bold');
+        doc.text('#', margin, tableY);
+        doc.text('Room Location', margin + 10, tableY);
+        doc.text('Size (W x H)', margin + 45, tableY);
+        doc.text('Product / Colors / Options', margin + 75, tableY);
+        doc.text('Price', margin + 175, tableY, { align: 'right' });
+        doc.line(margin, tableY + 2, w - margin, tableY + 2);
+        tableY += 6;
+        doc.setFont('helvetica', 'normal');
+      }
+      
+      const winNum = String(o.windowNumber || o.openingNumber);
+      const room = String(o.roomLocation || 'Unnamed');
+      const sizeStr = `${o.width || ''}" × ${o.height || ''}"`;
+      
+      const opts = [];
+      if (o.productCategory) opts.push(o.productCategory.replace(/_/g, ' '));
+      if (o.interiorColor || o.exteriorColor) opts.push(`${o.interiorColor || 'White'}/${o.exteriorColor || 'White'}`);
+      if (o.gridStyle && o.gridStyle !== 'None') opts.push(`${o.gridStyle} grids`);
+      if (o.glassPackage) opts.push(o.glassPackage);
+      const desc = opts.join(', ');
+      
+      const priceStr = `$${(o.totalPrice || 0).toFixed(2)}`;
+      
+      doc.text(winNum, margin, tableY);
+      doc.text(room, margin + 10, tableY);
+      doc.text(sizeStr, margin + 45, tableY);
+      
+      // Limit description length to fit on line
+      const truncatedDesc = desc.length > 55 ? desc.substring(0, 52) + '...' : desc;
+      doc.text(truncatedDesc, margin + 75, tableY);
+      
+      doc.text(priceStr, margin + 175, tableY, { align: 'right' });
+      
+      tableY += 5;
+    }
+    
+    // Draw total row
+    doc.setDrawColor(150, 150, 150);
+    doc.line(margin, tableY, w - margin, tableY);
+    tableY += 4;
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Total (${openings.length} openings):`, margin, tableY);
+    doc.text(`$${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, margin + 175, tableY, { align: 'right' });
+    
+    let y = tableY + 12;
 
-    let y = 92;
     // Each signature block
     for (const field of SIGNATURE_FIELDS) {
       const entry = sigs[field.key];
       if (!entry) continue;
 
+      if (y > 240) { doc.addPage(); y = 20; }
+
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(11);
-      doc.text(`${field.icon} ${field.title}`, margin, y);
+      // Remove field.icon to prevent garbled emoji unicode characters in PDF
+      doc.text(field.title, margin, y);
+      
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9);
       const lines = doc.splitTextToSize(field.description, w - margin * 2);
@@ -100,8 +171,6 @@ async function generateSignedPDF(appointment: any, sigs: AppointmentSignatures) 
       doc.setDrawColor(200, 200, 200);
       doc.line(margin, y, w - margin, y);
       y += 6;
-
-      if (y > 250) { doc.addPage(); y = 20; }
     }
 
     const blob = doc.output('blob');
@@ -112,6 +181,8 @@ async function generateSignedPDF(appointment: any, sigs: AppointmentSignatures) 
   }
 }
 
+// ── Saved PDF generator ──
+
 // ══════════════════════════════════════════════════════════
 // TABLET SIGNING MODE — Full screen guided flow
 // ══════════════════════════════════════════════════════════
@@ -119,6 +190,7 @@ export function TabletSigningMode({ appointment, onClose }: { appointment: any; 
   const [step, setStep] = useState(0);
   const [sigs, setSigs] = useState<AppointmentSignatures>(() => getSignatures(appointment.id));
   const [generating, setGenerating] = useState(false);
+  const [showDetails, setShowDetails] = useState(true);
 
   const field = SIGNATURE_FIELDS[step];
   const total = SIGNATURE_FIELDS.length;
@@ -126,6 +198,9 @@ export function TabletSigningMode({ appointment, onClose }: { appointment: any; 
   const requiredDone = SIGNATURE_FIELDS.filter(f => f.required).every(f => !!sigs[f.key]);
 
   const customerName = `${appointment.customer?.firstName || ''} ${appointment.customer?.lastName || ''}`.trim() || 'Customer';
+
+  const activeOpenings = (appointment.openings || []).filter((o: any) => !o.deletedAt);
+  const totalPrice = activeOpenings.reduce((sum: number, o: any) => sum + (o.totalPrice || 0), 0);
 
   const handleSave = (dataUrl: string) => {
     const entry = { dataUrl, signedAt: Date.now(), signerName: customerName };
@@ -198,21 +273,104 @@ export function TabletSigningMode({ appointment, onClose }: { appointment: any; 
       </div>
 
       {/* Main signing area */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 1.5rem', maxWidth: 760, margin: '0 auto', width: '100%' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', padding: '1.5rem 1.5rem', maxWidth: 760, margin: '0 auto', width: '100%', overflowY: 'auto' }}>
+
+        {/* 📄 Collapsible Order Details Summary */}
+        <div style={{
+          background: 'var(--card)', border: '1px solid var(--border)',
+          borderRadius: 12, padding: '1rem 1.25rem', marginBottom: '1rem', width: '100%',
+          boxShadow: 'var(--shadow-sm)',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }} onClick={() => setShowDetails(!showDetails)}>
+            <h4 style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 800, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span>📄 Order Details Summary</span>
+              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>({activeOpenings.length} openings)</span>
+            </h4>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <span style={{ fontWeight: 850, color: 'var(--accent)', fontSize: '0.9375rem' }}>Total: ${totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{showDetails ? '▲ Hide Details' : '▼ Show Details'}</span>
+            </div>
+          </div>
+
+          {showDetails && (
+            <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border)' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '0.75rem', paddingBottom: '0.75rem', borderBottom: '1px dashed var(--border)', fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
+                <div>
+                  <strong>Customer:</strong> {appointment.customer?.firstName} {appointment.customer?.lastName}<br />
+                  <strong>Address:</strong> {appointment.customer?.address}, {appointment.customer?.city || 'Baton Rouge'}<br />
+                  <strong>Phone:</strong> {appointment.customer?.phone}
+                </div>
+                <div>
+                  <strong>Sales Rep:</strong> {appointment.user?.name || 'npearson@winworldinfo.com'}<br />
+                  <strong>Date:</strong> {appointment.appointmentDate ? new Date(appointment.appointmentDate).toLocaleDateString() : new Date().toLocaleDateString()}<br />
+                  {appointment.financingAmount > 0 && (
+                    <span><strong>Financing:</strong> ${appointment.financingAmount.toLocaleString()} ({appointment.financeOptionCode || 'Standard Term'})</span>
+                  )}
+                </div>
+              </div>
+
+              <div style={{ maxHeight: '160px', overflowY: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.78rem' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--text-muted)', fontWeight: 700 }}>
+                      <th style={{ padding: '4px' }}>#</th>
+                      <th style={{ padding: '4px' }}>Location</th>
+                      <th style={{ padding: '4px' }}>Size</th>
+                      <th style={{ padding: '4px' }}>Description</th>
+                      <th style={{ padding: '4px', textAlign: 'right' }}>Price</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {activeOpenings.map((o: any) => (
+                      <tr key={o.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                        <td style={{ padding: '5px 4px', fontWeight: 700 }}>#{o.windowNumber || o.openingNumber}</td>
+                        <td style={{ padding: '5px 4px' }}>{o.roomLocation || 'Unnamed'}</td>
+                        <td style={{ padding: '5px 4px' }}>{o.width}" × {o.height}"</td>
+                        <td style={{ padding: '5px 4px', color: 'var(--text-muted)' }}>
+                          {o.productCategory?.replace(/_/g, ' ')} • {o.interiorColor}/{o.exteriorColor}
+                        </td>
+                        <td style={{ padding: '5px 4px', textAlign: 'right', fontWeight: 600 }}>${o.totalPrice?.toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Disclosure card */}
         <div style={{
-          background: 'var(--card)', border: '1px solid var(--border)',
-          borderRadius: 12, padding: '1.5rem', marginBottom: '1.25rem', width: '100%',
+          background: 'var(--bg-card)',
+          border: '2px solid var(--border)',
+          borderLeft: '5px solid var(--blue)',
+          borderRadius: 12,
+          padding: '1.5rem',
+          marginBottom: '1.25rem',
+          width: '100%',
+          boxShadow: 'var(--shadow-sm)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-            <span style={{ fontSize: '2rem' }}>{field.icon}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
             <div>
-              <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text)' }}>{field.title}</div>
-              {field.required && <span style={{ fontSize: '0.625rem', padding: '2px 6px', borderRadius: 4, background: '#fdecec', color: '#a32d2d', fontWeight: 700 }}>REQUIRED</span>}
+              <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)' }}>{field.title}</div>
+              {field.required && (
+                <span style={{
+                  fontSize: '0.6875rem',
+                  padding: '3px 8px',
+                  borderRadius: 4,
+                  background: 'rgba(239,68,68,0.1)',
+                  color: '#ef4444',
+                  fontWeight: 800,
+                  border: '1px solid rgba(239,68,68,0.2)',
+                  marginTop: '0.25rem',
+                  display: 'inline-block'
+                }}>
+                  REQUIRED ACTION
+                </span>
+              )}
             </div>
           </div>
-          <p style={{ fontSize: '1rem', lineHeight: 1.7, color: 'var(--muted)', margin: 0 }}>
+          <p style={{ fontSize: '1.0625rem', lineHeight: 1.8, color: 'var(--text-secondary)', fontWeight: 500, margin: 0 }}>
             {field.description}
           </p>
         </div>

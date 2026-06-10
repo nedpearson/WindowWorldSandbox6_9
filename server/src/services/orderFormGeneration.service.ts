@@ -50,7 +50,7 @@ export interface GenerateOrderFormOptions {
   appointmentId: string;
   companyId: string;       // from auth JWT
   userId: string;          // from auth JWT
-  documentType?: 'order_form' | 'contract' | 'proposal';
+  documentType?: 'order_form' | 'contract' | 'proposal' | 'workbook';
   forceRegenerate?: boolean;
 }
 

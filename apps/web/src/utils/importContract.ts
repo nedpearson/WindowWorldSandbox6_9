@@ -1,4 +1,5 @@
 import ExcelJS from 'exceljs/dist/exceljs.min.js';
+import { parseMeasurement } from './measurementParser';
 
 // The columns from exportContract.ts
 const OPEN_COLS = {
@@ -121,10 +122,16 @@ export async function importContract(file: File, appointment: any): Promise<any[
     if (qtyStr) o.quantity = Number(qtyStr) || 1;
 
     // Dimensions
-    const w = getCellValue(orderSheet, OPEN_COLS.width, r);
-    const h = getCellValue(orderSheet, OPEN_COLS.height, r);
-    if (w) o.width = w;
-    if (h) o.height = h;
+    const wVal = getCellValue(orderSheet, OPEN_COLS.width, r);
+    const hVal = getCellValue(orderSheet, OPEN_COLS.height, r);
+    if (wVal) {
+      const parsed = parseMeasurement(wVal);
+      if (parsed.valid) o.width = parsed.inches;
+    }
+    if (hVal) {
+      const parsed = parseMeasurement(hVal);
+      if (parsed.valid) o.height = parsed.inches;
+    }
 
     // Colors
     const vColor = getCellValue(orderSheet, OPEN_COLS.vinylColor, r);
@@ -186,8 +193,14 @@ export async function importContract(file: File, appointment: any): Promise<any[
     // Leg Height & Custom Radius
     const leg = getCellValue(orderSheet, OPEN_COLS.legHeight, r);
     const rad = getCellValue(orderSheet, OPEN_COLS.customRadius, r);
-    if (leg) o.legHeight = leg;
-    if (rad) o.customRadius = rad;
+    if (leg) {
+      const parsedLeg = parseMeasurement(leg);
+      if (parsedLeg.valid) o.legHeight = parsedLeg.inches;
+    }
+    if (rad) {
+      const parsedRad = parseMeasurement(rad);
+      if (parsedRad.valid) o.customRadius = parsedRad.inches;
+    }
 
     updatedOpenings.push(o);
     // Remove from existing map so we don't duplicate

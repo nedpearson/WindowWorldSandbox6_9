@@ -154,6 +154,7 @@ model Appointment {
   followUpDate           DateTime? // next scheduled follow-up contact
   followUpOutcome        String? // last contact result: called | no_answer | left_message | meeting_set | sold | lost
   measurementPreference  String?   @default("outside_preferred") // outside_preferred | inside_preferred | auto_by_exterior
+  pre1978Status          String    @default("unknown") // yes, no, unknown
   // ── Offline sync fields ──
   localId                String? // client-generated local ID for offline reconciliation
   version                Int       @default(1) // incremented on every server update for OCC

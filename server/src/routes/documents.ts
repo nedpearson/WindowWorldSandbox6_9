@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.js';
 import { prisma } from '../index.js';
 import { generateContractPDFBuffer, generateOrderFormPDFBuffer } from '../services/pdfService.js';
-import { uploadFile, getSignedUrl, BUCKETS } from '../services/storageService.js';
+import { uploadFile, getSignedUrl, BUCKETS, isStorageConfigured, uploadBuffer } from '../services/storageService.js';
 import { generateSketchImage } from '../services/sketchRenderer.js';
 import { generateAndStoreSketchExport } from '../services/sketchExport.service.js'; // used in sketch/export endpoint
 import { generateOrderForm } from '../services/orderFormGeneration.service.js';
@@ -790,5 +790,384 @@ documentRoutes.post('/doc/:documentId/regenerate', async (req, res) => {
   } catch (err: any) {
     console.error('[documents] regenerate error:', err);
     res.status(500).json({ error: 'Regeneration failed', details: err?.message });
+  }
+});
+
+function runFullValidation(openings: any[], markers: any[], groups: any[], appt: any) {
+  const warnings: any[] = [];
+  let submissionBlocked = false;
+
+  if (!appt.customer) {
+    submissionBlocked = true;
+    warnings.push({
+      id: 'no-customer',
+      severity: 'critical',
+      category: 'customer',
+      title: 'No customer linked',
+      detail: 'Appointment has no associated customer record.',
+      blocksSubmission: true
+    });
+  } else if (!appt.customer.firstName && !appt.customer.lastName) {
+    submissionBlocked = true;
+    warnings.push({
+      id: 'missing-customer-name',
+      severity: 'critical',
+      category: 'customer',
+      title: 'Missing customer name',
+      detail: 'Customer first and last name are both empty.',
+      blocksSubmission: true
+    });
+  }
+
+  if (openings.length === 0) {
+    submissionBlocked = true;
+    warnings.push({
+      id: 'no-openings',
+      severity: 'critical',
+      category: 'order',
+      title: 'No openings entered',
+      detail: 'At least one window/door opening is required.',
+      blocksSubmission: true
+    });
+  } else {
+    for (const op of openings) {
+      if (op.width == null || isNaN(Number(op.width)) || Number(op.width) <= 0) {
+        submissionBlocked = true;
+        warnings.push({
+          id: `width-${op.openingNumber}`,
+          severity: 'critical',
+          category: 'measurements',
+          title: `Opening #${op.openingNumber}: invalid width`,
+          detail: `Width is ${op.width} — must be a positive number.`,
+          blocksSubmission: true
+        });
+      }
+      if (op.height == null || isNaN(Number(op.height)) || Number(op.height) <= 0) {
+        submissionBlocked = true;
+        warnings.push({
+          id: `height-${op.openingNumber}`,
+          severity: 'critical',
+          category: 'measurements',
+          title: `Opening #${op.openingNumber}: invalid height`,
+          detail: `Height is ${op.height} — must be a positive number.`,
+          blocksSubmission: true
+        });
+      }
+    }
+
+    const openingNums = openings.map((o: any) => o.openingNumber as number).sort((a: number, b: number) => a - b);
+    const maxNum = openingNums[openingNums.length - 1];
+    if (maxNum > openingNums.length) {
+      submissionBlocked = true;
+      const missing = [];
+      for (let i = 1; i <= maxNum; i++) {
+        if (!openingNums.includes(i)) missing.push(i);
+      }
+      warnings.push({
+        id: 'numbering-gaps',
+        severity: 'critical',
+        category: 'numbering',
+        title: 'Opening numbering has gaps',
+        detail: `${openingNums.length} openings numbered up to #${maxNum}. Missing: #${missing.join(', #')}.`,
+        blocksSubmission: true
+      });
+    }
+
+    const numCounts: Record<number, number> = {};
+    for (const n of openingNums) {
+      numCounts[n] = (numCounts[n] || 0) + 1;
+    }
+    for (const [num, count] of Object.entries(numCounts)) {
+      if (count > 1) {
+        submissionBlocked = true;
+        warnings.push({
+          id: `duplicate-number-${num}`,
+          severity: 'critical',
+          category: 'numbering',
+          title: `Duplicate opening #${num}`,
+          detail: `Opening number ${num} appears ${count} times.`,
+          blocksSubmission: true
+        });
+      }
+    }
+  }
+
+  return {
+    submissionBlocked,
+    warnings
+  };
+}
+
+/**
+ * GET /api/documents/appointment/:appointmentId/workbook
+ * Get current workbook status and metadata.
+ */
+documentRoutes.get('/appointment/:appointmentId/workbook', async (req, res) => {
+  try {
+    const userId = (req as any).user?.userId;
+    const companyId = getCompanyId(req);
+    const role = (req as any).user?.role;
+    if (!companyId) return res.status(401).json({ error: 'Unauthorized' });
+
+    const { appointmentId } = req.params;
+    const ok = await assertAppointmentAccess(appointmentId, userId, role, companyId, res);
+    if (!ok) return;
+
+    // Fetch the latest GeneratedDocument of type 'workbook'
+    let doc = await prisma.generatedDocument.findFirst({
+      where: { appointmentId, companyId, documentType: 'workbook' },
+      orderBy: { version: 'desc' },
+    });
+
+    if (!doc) {
+      return res.json({ status: 'not_generated', document: null, xlsxSignedUrl: null });
+    }
+
+    // Check sketch and openings freshness
+    const [appt, sketch, openings] = await Promise.all([
+      prisma.appointment.findUnique({
+        where: { id: appointmentId },
+        select: { updatedAt: true }
+      }),
+      prisma.formSketch.findFirst({
+        where: { appointmentId },
+        select: { updatedAt: true }
+      }),
+      prisma.opening.findMany({
+        where: { appointmentId, deletedAt: null },
+        select: { updatedAt: true }
+      })
+    ]);
+
+    const apptUpdated = appt?.updatedAt ? new Date(appt.updatedAt).getTime() : 0;
+    const sketchUpdated = sketch?.updatedAt ? new Date(sketch.updatedAt).getTime() : 0;
+    const maxOpeningUpdated = openings.reduce((max, o) => {
+      const t = o.updatedAt ? new Date(o.updatedAt).getTime() : 0;
+      return Math.max(max, t);
+    }, 0);
+
+    const docCreated = new Date(doc.createdAt).getTime();
+
+    let status = doc.status;
+    if (apptUpdated > docCreated || sketchUpdated > docCreated || maxOpeningUpdated > docCreated) {
+      if (status !== 'stale_needs_regeneration' && status !== 'edited_externally') {
+        status = 'stale_needs_regeneration';
+        doc = await prisma.generatedDocument.update({
+          where: { id: doc.id },
+          data: { status: 'stale_needs_regeneration' }
+        });
+      }
+    }
+
+    let xlsxSignedUrl: string | null = null;
+    if (doc.xlsxStoragePath) {
+      try {
+        xlsxSignedUrl = await getSignedUrl(doc.storageBucket as any, doc.xlsxStoragePath);
+      } catch (err) {
+        console.warn('Failed to sign URL for workbook:', err);
+      }
+    }
+
+    res.json({ status, document: doc, xlsxSignedUrl });
+  } catch (err: any) {
+    console.error('[documents] get workbook status error:', err);
+    res.status(500).json({ error: 'Failed to get workbook status', details: err?.message });
+  }
+});
+
+/**
+ * POST /api/documents/appointment/:appointmentId/workbook/generate
+ * Generate Excel workbook (draft or final).
+ */
+documentRoutes.post('/appointment/:appointmentId/workbook/generate', async (req, res) => {
+  try {
+    const userId = (req as any).user?.userId;
+    const companyId = getCompanyId(req);
+    const role = (req as any).user?.role;
+    if (!companyId) return res.status(401).json({ error: 'Unauthorized' });
+
+    const { appointmentId } = req.params;
+    const isFinal = req.body?.isFinal === true;
+
+    const ok = await assertAppointmentAccess(appointmentId, userId, role, companyId, res);
+    if (!ok) return;
+
+    // Fetch appointment and run validation checks
+    const appt = await prisma.appointment.findUnique({
+      where: { id: appointmentId },
+      include: { openings: { where: { deletedAt: null } } }
+    });
+    if (!appt) return res.status(404).json({ error: 'Appointment not found' });
+
+    const report = runFullValidation(appt.openings, [], [], appt);
+
+    if (isFinal && report.submissionBlocked) {
+      return res.status(400).json({
+        error: 'Cannot generate final workbook while critical blockers remain.',
+        code: 'VALIDATION_FAILED',
+        report
+      });
+    }
+
+    // Call generateOrderForm to generate XLSX
+    const result = await generateOrderForm({
+      appointmentId,
+      companyId,
+      userId,
+      documentType: 'workbook',
+      forceRegenerate: true
+    });
+
+    const status = isFinal ? 'final_generated' : 'draft_generated';
+    
+    // Update the GeneratedDocument status
+    const doc = await prisma.generatedDocument.update({
+      where: { id: result.documentId },
+      data: { status }
+    });
+
+    res.json({
+      success: true,
+      documentId: doc.id,
+      status,
+      version: doc.version,
+      xlsxSignedUrl: result.xlsxSignedUrl,
+      fileName: doc.fileName
+    });
+  } catch (err: any) {
+    console.error('[documents] generate workbook error:', err);
+    res.status(500).json({ error: 'Workbook generation failed', details: err?.message });
+  }
+});
+
+/**
+ * POST /api/documents/appointment/:appointmentId/workbook/upload
+ * Save externally edited workbook file.
+ */
+documentRoutes.post('/appointment/:appointmentId/workbook/upload', async (req, res) => {
+  try {
+    const userId = (req as any).user?.userId;
+    const companyId = getCompanyId(req);
+    const role = (req as any).user?.role;
+    if (!companyId) return res.status(401).json({ error: 'Unauthorized' });
+
+    const { appointmentId } = req.params;
+    const { fileName, fileData } = req.body; // fileData is base64 string
+    if (!fileData) return res.status(400).json({ error: 'fileData is required' });
+
+    const ok = await assertAppointmentAccess(appointmentId, userId, role, companyId, res);
+    if (!ok) return;
+
+    const appt = await prisma.appointment.findUnique({ where: { id: appointmentId } });
+    if (!appt) return res.status(404).json({ error: 'Appointment not found' });
+
+    const buffer = Buffer.from(fileData, 'base64');
+    const timestamp = Date.now();
+    const storagePath = `company/${companyId}/appointments/${appointmentId}/documents/workbook-edited_${timestamp}.xlsx`;
+
+    let uploadedPath: string | null = null;
+    if (isStorageConfigured()) {
+      const { path: uPath, error } = await uploadBuffer(
+        BUCKETS.GENERATED_DOCUMENTS,
+        storagePath,
+        buffer,
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      );
+      if (error) {
+        console.error('[documents] Edited workbook upload failed:', error.message);
+      } else {
+        uploadedPath = uPath;
+      }
+    }
+
+    // Find the latest workbook to increment version
+    const latestDoc = await prisma.generatedDocument.findFirst({
+      where: { appointmentId, companyId, documentType: 'workbook' },
+      orderBy: { version: 'desc' },
+      select: { version: true }
+    });
+    const nextVersion = (latestDoc?.version ?? 0) + 1;
+
+    // Create GeneratedDocument for edited workbook
+    const doc = await prisma.generatedDocument.create({
+      data: {
+        companyId,
+        appointmentId,
+        customerId: appt.customerId,
+        createdByUserId: userId,
+        documentType: 'workbook',
+        status: 'edited_externally',
+        storageBucket: BUCKETS.GENERATED_DOCUMENTS,
+        storagePath: uploadedPath || storagePath,
+        xlsxStoragePath: uploadedPath || storagePath,
+        mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        fileName: fileName || `workbook-edited_${timestamp}.xlsx`,
+        version: nextVersion,
+      }
+    });
+
+    res.json({
+      success: true,
+      documentId: doc.id,
+      status: 'edited_externally',
+      version: doc.version
+    });
+  } catch (err: any) {
+    console.error('[documents] upload edited workbook error:', err);
+    res.status(500).json({ error: 'Workbook upload failed', details: err?.message });
+  }
+});
+
+/**
+ * POST /api/documents/appointment/:appointmentId/workbook/finalize
+ * Mark workbook as final.
+ */
+documentRoutes.post('/appointment/:appointmentId/workbook/finalize', async (req, res) => {
+  try {
+    const userId = (req as any).user?.userId;
+    const companyId = getCompanyId(req);
+    const role = (req as any).user?.role;
+    if (!companyId) return res.status(401).json({ error: 'Unauthorized' });
+
+    const { appointmentId } = req.params;
+    const ok = await assertAppointmentAccess(appointmentId, userId, role, companyId, res);
+    if (!ok) return;
+
+    // Fetch latest GeneratedDocument of type 'workbook'
+    const doc = await prisma.generatedDocument.findFirst({
+      where: { appointmentId, companyId, documentType: 'workbook' },
+      orderBy: { version: 'desc' }
+    });
+
+    if (!doc) return res.status(404).json({ error: 'No generated workbook found to finalize' });
+
+    const appt = await prisma.appointment.findUnique({
+      where: { id: appointmentId },
+      include: { openings: { where: { deletedAt: null } } }
+    });
+    if (!appt) return res.status(404).json({ error: 'Appointment not found' });
+
+    const report = runFullValidation(appt.openings, [], [], appt);
+    if (report.submissionBlocked) {
+      return res.status(400).json({
+        error: 'Cannot finalize workbook while critical blockers remain.',
+        code: 'VALIDATION_FAILED',
+        report
+      });
+    }
+
+    const updated = await prisma.generatedDocument.update({
+      where: { id: doc.id },
+      data: { status: 'final_generated' }
+    });
+
+    res.json({
+      success: true,
+      documentId: updated.id,
+      status: 'final_generated'
+    });
+  } catch (err: any) {
+    console.error('[documents] finalize workbook error:', err);
+    res.status(500).json({ error: 'Failed to finalize workbook', details: err?.message });
   }
 });

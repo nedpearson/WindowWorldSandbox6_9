@@ -55,67 +55,36 @@ export function SmartNextStep({
 
   // Determine the smart CTA based on current state
   const cta = useMemo(() => {
-    // Step 0: Customer — always ready to advance
+    // Step 0: Customer
     if (step === 0) {
-      return { label: 'Start Sketching →', nextStep: 2, icon: '✏️', ready: true };
+      return { label: 'Start Sketching →', nextStep: 1, icon: '✏️', ready: true };
     }
 
-    // Step 1: Project — advance to sketch
+    // Step 1: Sketch
     if (step === 1) {
-      return { label: 'Start Sketching →', nextStep: 2, icon: '✏️', ready: true };
+      return { label: 'Review & Price →', nextStep: 2, icon: '🔍', ready: true };
     }
 
-    // Step 2: Sketch — advance to openings
+    // Step 2: Review
     if (step === 2) {
-      return { label: 'Start Measuring →', nextStep: 3, icon: '📏', ready: true };
-    }
-
-    // Step 3: Openings — show progress, advance when measured
-    if (step === 3) {
       if (total === 0) {
-        return { label: 'Add first opening', nextStep: 3, icon: '➕', ready: false };
+        return { label: 'Add first opening', nextStep: 2, icon: '➕', ready: false };
       }
       if (measured < total) {
-        return { label: `Measure ${total - measured} more → then Pricing`, nextStep: 3, icon: '📐', ready: false };
+        return { label: `Measure ${total - measured} more →`, nextStep: 2, icon: '📐', ready: false };
       }
-      if (priced < total) {
-        return { label: 'Review Pricing →', nextStep: 4, icon: '💰', ready: true };
-      }
-      return { label: 'Build Proposal →', nextStep: 5, icon: '📄', ready: true };
+      return { label: 'Go to Excel Workbook →', nextStep: 3, icon: '📊', ready: true };
     }
 
-    // Step 4: Pricing — advance to proposal
-    if (step === 4) {
-      if (priced < total && total > 0) {
-        return { label: `${total - priced} openings need pricing`, nextStep: 4, icon: '💰', ready: false };
-      }
-      return { label: 'Present Proposal →', nextStep: 5, icon: '📄', ready: true };
-    }
-
-    // Step 5: Proposal — advance to signing
-    if (step === 5) {
-      return { label: 'Ready to Sign →', nextStep: 7, icon: '✍️', ready: true };
-    }
-
-    // Step 6: Order Review
-    if (step === 6) {
-      return { label: 'Collect Signatures →', nextStep: 7, icon: '✍️', ready: true };
-    }
-
-    // Step 7: Sign — advance to submit
-    if (step === 7) {
-      return { label: 'Submit Order →', nextStep: 9, icon: '🚀', ready: true };
-    }
-
-    // Step 8: Validation
-    if (step === 8) {
-      return { label: 'Submit →', nextStep: 9, icon: '🚀', ready: true };
+    // Step 3: Workbook
+    if (step === 3) {
+      return { label: 'Excel Workbook Panel Active', nextStep: 3, icon: '📊', ready: false };
     }
 
     return { label: 'Complete', nextStep: step, icon: '✅', ready: false };
   }, [step, total, measured, priced]);
 
-  if (step >= 9) return null; // Final step, no CTA
+  if (step >= 4) return null; // Final step, no CTA
 
   return (
     <div style={{

@@ -9,7 +9,7 @@ interface Props {
 export function DocumentChecklist({ appointment, acknowledgments, selectedFinancePlan }: Props) {
   const pre1978 = isLeadDisclosureRequired(
     appointment.customer?.homeBuiltYear,
-    appointment.customer?.pre1978 || appointment.pre1978Status
+    appointment.customer?.preLead1978 || appointment.pre1978Status
   );
   const financing = !!selectedFinancePlan;
   const requiredDocs = getRequiredPacketDocuments(pre1978, financing);

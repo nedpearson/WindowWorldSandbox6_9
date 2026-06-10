@@ -62,51 +62,45 @@ export const SIGNATURE_FIELDS: Array<{
   required: boolean;
   title: string;
   description: string;
-  icon: string;
 }> = [
   {
     key: 'customerInitialsCancellation',
     type: 'initials',
     required: true,
-    icon: '📋',
     title: 'Cancellation Policy',
     label: 'Initial Here',
-    description: 'I acknowledge that I have 3 business days to cancel this contract without penalty. After that period, cancellation fees may apply as outlined in the contract terms.',
+    description: 'You, the buyer, may cancel this transaction at any time prior to midnight of the third business day after the date of this transaction. By initialing below, you acknowledge receipt of the Right to Cancel notice and confirm your understanding of this 3-day cooling-off period.',
   },
   {
     key: 'customerInitialsLeadPaint',
     type: 'initials',
     required: true,
-    icon: '⚠️',
     title: 'Lead Paint Disclosure',
     label: 'Initial Here',
-    description: 'I acknowledge receipt of the EPA Lead Paint Pamphlet "Renovate Right." This home may contain lead-based paint. Window replacement may disturb lead paint.',
+    description: 'By initialing below, you acknowledge receipt of the EPA Lead Paint Pamphlet "Renovate Right" for window replacement on homes built before 1978. You confirm you have been notified that lead hazards may exist, and that window installation may disturb paint surfaces containing lead.',
   },
   {
     key: 'customerInitialsFinancing',
     type: 'initials',
     required: false,
-    icon: '💳',
     title: 'Financing Acknowledgment',
     label: 'Initial Here (if financing)',
-    description: 'I acknowledge the financing terms, APR, and monthly payment schedule as outlined. I understand that approval is subject to credit review.',
+    description: 'By initialing below, you acknowledge and approve the financing payment terms, including the principal balance, estimated monthly payments, APR, and lender agreement options. You understand that approval is subject to credit review by the third-party lender.',
   },
   {
     key: 'customerInitialsPrice',
     type: 'initials',
     required: true,
-    icon: '💰',
     title: 'Price Acknowledgment',
     label: 'Initial Here',
-    description: 'I confirm the total contract price as quoted. I understand this includes all products, installation labor, and applicable taxes.',
+    description: 'By initialing below, you confirm that you have reviewed the total contract price, deposit amount, and outstanding balance. You acknowledge that the quoted price includes all specified products, options, and installation labor as listed in the order details.',
   },
   {
     key: 'customerSignature',
     type: 'signature',
     required: true,
-    icon: '✍️',
     title: 'Contract Signature',
     label: 'Sign Here',
-    description: 'By signing below, I agree to the Window World contract terms, product specifications, installation schedule, and payment obligations as described above.',
+    description: 'By signing below, you execute this legally binding agreement. You confirm that you have reviewed and agree to all Window World contract terms and conditions, product specifications, installation schedules, warranty waivers, and payment obligations as set forth in this entire workbook.',
   },
 ];

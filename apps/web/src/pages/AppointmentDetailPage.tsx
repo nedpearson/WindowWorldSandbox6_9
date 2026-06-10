@@ -50,49 +50,38 @@ import { TextCustomerModal } from "../components/TextCustomerModal";
 import { normalizePhoneForSms, buildSmsLink, buildDefaultSmsMessage, detectPlatform } from "../utils/phoneUtils";
 import { SyncStatusBar } from '../components/SyncStatusBar';
 import AppointmentPhotosPanel from '../components/AppointmentPhotosPanel';
+import { WorkbookManagementPanel } from "../components/WorkbookManagementPanel";
 
 // ═══════════════════════════════════════════════════════════════
-// OFFICIAL UNIFIED FLOW — Customer-centric 7-step sales workflow.
+// OFFICIAL UNIFIED FLOW — Consolidated 4-step workflow.
 // ═══════════════════════════════════════════════════════════════
 const STEPS = [
-  "Customer Info",
-  "About the House",
-  "Draw the Layout",
-  "Enter Windows & Price",
-  "Review & Fix",
-  "Close the Sale",
+  "Customer",
+  "Sketch",
+  "Review",
+  "Workbook",
 ];
 
 const STEP_BANNERS = [
   {
     emoji: "👤",
-    title: "Start with the customer",
-    body: "Collect the customer's contact info and confirm the appointment details. A complete customer profile ensures smooth follow-up and accurate proposals.",
-  },
-  {
-    emoji: "🏠",
-    title: "Understand the house",
-    body: "Record the exterior type, floor count, and installation method. This determines pricing rules and what products are available for this home.",
+    title: "Customer & Project Details",
+    body: "Collect the customer's contact info, house attributes, and capture required site photos.",
   },
   {
     emoji: "✏️",
     title: "Draw the layout",
-    body: "Sketch the room layout and mark each window opening. Take your time — an accurate sketch prevents field re-measures and keeps the install on schedule.",
-  },
-  {
-    emoji: "🪟",
-    title: "Price every window",
-    body: "Enter each window opening with accurate measurements. The system calculates United Inches and pulls the correct price from the catalog automatically.",
+    body: "Sketch the room layout and mark each window opening on the canvas.",
   },
   {
     emoji: "🔍",
-    title: "Review & Fix Issues",
-    body: "The system checks for missing measurements, pricing gaps, and required fields. Review every flag and fix what's needed before moving on to the proposal.",
+    title: "Review & Price",
+    body: "Manage measured openings, view automated pricing, configure financing, and run validation checks.",
   },
   {
-    emoji: "🤝",
-    title: "Close the Sale",
-    body: "Present the proposal, choose a finance option, and collect signatures. This is the moment — walk the customer through the value and ask for the business.",
+    emoji: "📊",
+    title: "Excel Workbook",
+    body: "Manage the Excel workbook lifecycle, handle external edits, and finalize the job.",
   },
 ];
 
@@ -110,8 +99,8 @@ export function AppointmentDetailPage() {
   const [step, setStep] = useState(() => {
     const session = getLastPosition();
     const loadedStep = (session && session.appointmentId === id) ? session.step : 0;
-    // Prevent redirect loop: if they were on Sketch (step 2), resume at Windows (step 3)
-    return loadedStep === 2 ? 3 : loadedStep;
+    // Prevent redirect loop: if they were on Sketch (step 1), resume at Review (step 2)
+    return loadedStep === 1 ? 2 : loadedStep;
   });
   const { saveState, lastSaved, errorMsg, guardedSave } = useSaveGuard();
   const [signingMode, setSigningMode] = useState(false);
@@ -168,10 +157,17 @@ export function AppointmentDetailPage() {
     const intel = appt.preVisitPropertyProfile.propertyFactsJson;
     if (intel) {
       toast.info(`✨ AI predicted ${intel.constructionType} exterior and ${intel.estimatedOpenings} windows.`);
+      const isPre1978 = intel.yearBuilt && intel.yearBuilt < 1978;
+      const status = isPre1978 ? 'yes' : 'no';
       save({
         exteriorType: intel.constructionType,
-        pre1978Status: intel.yearBuilt < 1978 ? 'pre1978' : 'post1978',
+        pre1978Status: status,
       });
+      if (appt.customer && appt.customer.preLead1978 !== isPre1978) {
+        api.updateCustomer(appt.customer.id, { ...appt.customer, preLead1978: isPre1978 })
+          .then((updated) => setAppt((prev: any) => ({ ...prev, customer: updated })))
+          .catch(() => {});
+      }
     }
   }, [appt?.preVisitPropertyProfile]);
   // Read step from URL hash
@@ -180,16 +176,15 @@ export function AppointmentDetailPage() {
     if (!hash) return;
     
     // Map canonical workflow states to internal steps
-    // customer: 0, price: 3, product: 3, measure: 2, review: 4, proposal: 5, contract: 6, close: 6
     const hashToStepMap: Record<string, number> = {
       customer: 0,
-      price: 3,
-      product: 3,
+      price: 2,
+      product: 2,
       measure: 2,
-      review: 4,
-      proposal: 5,
-      contract: 5,
-      close: 5,
+      review: 2,
+      proposal: 3,
+      contract: 3,
+      close: 3,
     };
     
     if (hash in hashToStepMap) {
@@ -218,9 +213,9 @@ export function AppointmentDetailPage() {
 
   const [activeVersionId, setActiveVersionId] = useState<string | undefined>();
 
-  // Fetch active pricing version only when entering the pricing step (step 3)
+  // Fetch active pricing version only when entering the Review step (step 2)
   useEffect(() => {
-    if (step !== 3) return;
+    if (step !== 2) return;
     api
       .getActivePricingVersion()
       .then((v) => {
@@ -239,20 +234,20 @@ export function AppointmentDetailPage() {
 
   // Validation — expensive operation, only computed when:
   // 1. We have appointment data
-  // 2. User is on Review/Close step (step >= 4) or explicitly requested
+  // 2. User is on Review or Workbook step (step >= 2) or explicitly requested
   // Deferred on initial load to avoid blocking the first render.
   const validationResult = useMemo(
-    () => (appt && step >= 3 ? runFullValidation(appt.openings || [], [], [], appt) : null),
+    () => (appt && step >= 2 ? runFullValidation(appt.openings || [], [], [], appt) : null),
     [appt, activeVersionId, step]
   );
 
-  // Auto-recalculate pricing when rep enters the Automated Pricing step
+  // Auto-recalculate pricing when rep enters the Review step
   useEffect(() => {
-    if (step === 3 && id) {
+    if (step === 2 && id) {
       recalc();
     }
     // Auto-navigate to immersive Sketch Canvas when Sketch tab is selected
-    if (step === 2 && id) {
+    if (step === 1 && id) {
       navigate(`/appointments/${id}/sketch`);
     }
   }, [step]);
@@ -510,28 +505,7 @@ export function AppointmentDetailPage() {
               </button>
             </>
           )}
-          {/* Global PDF Preview */}
-          <button
-            onClick={() => {
-              import("../utils/pdfGenerator").then((m) =>
-                m.generateContractPDF(appt),
-              );
-            }}
-            title="Preview PDF Contract"
-            style={{
-              padding: "4px 10px",
-              borderRadius: 9999,
-              border: "1px solid rgba(255,255,255,0.2)",
-              cursor: "pointer",
-              background: "transparent",
-              color: "var(--text-primary)",
-              fontSize: "0.6875rem",
-              fontWeight: 700,
-              transition: "all 0.2s",
-            }}
-          >
-            📄 PDF
-          </button>
+
           {/* Customer Mode Toggle */}
           <button
             onClick={() => setCustomerMode(!customerMode)}
@@ -638,7 +612,7 @@ export function AppointmentDetailPage() {
         );
       })()}
 
-      {/* ═══ WORKSPACE TAB DOCK — 5 tabs (Hidden in Customer Mode) ═══ */}
+      {/* ═══ WORKSPACE TAB DOCK — 4 tabs (Hidden in Customer Mode) ═══ */}
       {!customerMode && (
         <div style={{
           display: 'flex',
@@ -650,16 +624,14 @@ export function AppointmentDetailPage() {
           border: '1px solid var(--border)',
         }}>
           {([
-            { icon: '👤', label: 'Customer',  steps: [0,1], jump: 0 },
-            { icon: '📷', label: 'Photos',    steps: [7],   jump: 7 },
-            { icon: '📏', label: 'Measure',   steps: [2],   jump: 2 },
-            { icon: '💰', label: 'Quote',     steps: [3],   jump: 3 },
-            { icon: '✅', label: 'Review',    steps: [4,5], jump: 4 },
-            { icon: '🤝', label: 'Close',     steps: [6],   jump: 6 },
+            { icon: '👤', label: 'Customer', steps: [0], jump: 0 },
+            { icon: '📐', label: 'Sketch',   steps: [1], jump: 1 },
+            { icon: '🔍', label: 'Review',   steps: [2], jump: 2 },
+            { icon: '📊', label: 'Workbook', steps: [3], jump: 3 },
           ] as { icon: string; label: string; steps: number[]; jump: number }[]).map((tab) => {
             const isActive = tab.steps.includes(step);
-            // Show blocker badge only on Review and Close tabs
-            const tabBlockers = (tab.jump === 4 || tab.jump === 6)
+            // Show blocker badge on Review and Workbook tabs
+            const tabBlockers = (tab.jump === 2 || tab.jump === 3)
               ? (validationResult?.counts.critical || 0)
               : 0;
             return (
@@ -842,9 +814,8 @@ export function AppointmentDetailPage() {
       {/* ═══ REP MODE CONTENT ═══ */}
       {!customerMode && (
         <>
-          {/* Validation banner — only shown on Review/Close steps so it doesn't interrupt active selling */}
-          {validationResult && validationResult.counts.critical > 0 && step >= 4 && (
-
+          {/* Validation banner — only shown on final step if blockers exist */}
+          {validationResult && validationResult.counts.critical > 0 && step === 3 && (
             <div
               style={{
                 padding: "0.625rem 1rem",
@@ -864,9 +835,7 @@ export function AppointmentDetailPage() {
                   fontWeight: 600,
                 }}
               >
-                🛑 {validationResult.counts.critical} blocker
-                {validationResult.counts.critical > 1 ? "s" : ""} must be fixed before export
-                {validationResult.counts.high > 0 && ` · ${validationResult.counts.high} high priority`}
+                🛑 {validationResult.counts.critical} critical blocker{validationResult.counts.critical > 1 ? "s" : ""} must be fixed before final workbook generation
               </span>
               <button
                 className="btn btn-sm"
@@ -875,7 +844,7 @@ export function AppointmentDetailPage() {
                   color: "#ef4444",
                   border: "none",
                 }}
-                onClick={() => setStep(4)}
+                onClick={() => setStep(2)}
               >
                 View All →
               </button>
@@ -883,30 +852,32 @@ export function AppointmentDetailPage() {
           )}
 
           {/* Step content */}
-          {/* Step coaching card removed — reps know the flow */}
-
           {step === 0 && (
-            <CustomerStep 
-              appt={appt} 
-              onSave={save} 
-              validation={validationResult} 
-              onCustomerUpdated={(c) => setAppt({ ...appt, customer: c })} 
-            />
-          )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+              <div>
+                <h3 style={{ marginBottom: '0.75rem' }}>👤 Customer Information</h3>
+                <CustomerStep 
+                  appt={appt} 
+                  onSave={save} 
+                  validation={validationResult} 
+                  onCustomerUpdated={(c) => {
+                    setAppt((prev: any) => ({ ...prev, customer: c }));
+                    save({ pre1978Status: c.preLead1978 ? 'yes' : 'no' });
+                  }} 
+                />
+              </div>
 
-          {step === 1 && (
-            <div>
-              <JobInfoStep appt={appt} onSave={save} />
-              {/* Photos & Documentation — integrated into Project step */}
-              <div style={{ marginTop: "1.5rem" }}>
-                <h3 style={{ marginBottom: "0.75rem" }}>
-                  📷 Photos & Documentation
-                </h3>
+              <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+                <h3 style={{ marginBottom: '0.75rem' }}>🏠 About the House & Project Details</h3>
+                <JobInfoStep appt={appt} onSave={save} />
+              </div>
+
+              <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+                <h3 style={{ marginBottom: '0.75rem' }}>📷 Photos & Document Capture</h3>
                 <DocumentCapture 
                   appointmentId={id!} 
                   onFileCaptured={(file, type) => {
                     if (type === 'camera' && appt) {
-                      // Synthetic Photo Intelligence: analyze photo to auto-fill appt details
                       api.analyzeOpeningPhoto({ imageData: '' }).then(res => {
                         if (res && !appt.exteriorType) {
                           toast.info("✨ AI Auto-filled exterior details from your photo.");
@@ -919,71 +890,55 @@ export function AppointmentDetailPage() {
                     }
                   }} 
                 />
-                <div
-                  style={{
-                    marginTop: "0.75rem",
-                    padding: "0.75rem",
-                    background: "rgba(59,130,246,0.06)",
-                    borderRadius: 10,
-                    border: "1px solid rgba(59,130,246,0.15)",
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: "0.8125rem",
-                      color: "var(--text-secondary)",
-                    }}
-                  >
-                    💡 Capture exterior, interior, and measurement photos.
-                    Photos feed into AI Visualizer and the official contract
-                    packet.
-                  </div>
+                <div style={{ marginTop: '1rem' }}>
+                  <AppointmentPhotosPanel appointmentId={id!} />
                 </div>
               </div>
             </div>
           )}
-          {step === 7 && (
-            <AppointmentPhotosPanel appointmentId={id!} />
+
+          {step === 1 && (
+            <div style={{ textAlign: 'center', padding: '3rem 1.5rem', background: 'var(--bg-secondary)', borderRadius: '16px', border: '1px solid var(--border)' }}>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📐</div>
+              <h3 style={{ marginBottom: '0.5rem' }}>Redirecting to Sketch Canvas...</h3>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
+                If you are not automatically redirected, click the button below to draw the layout.
+              </p>
+              <button className="btn btn-primary" onClick={() => navigate(`/appointments/${id}/sketch`)}>
+                Open Sketch Canvas
+              </button>
+            </div>
           )}
-          {/* step === 2 (Sketch) auto-navigates to /appointments/:id/sketch via useEffect */}
-          {step === 3 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div className="card" style={{ padding: '1rem', background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
-                <h3 style={{ margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  ⚡ Quick Quote (Broad)
+
+          {step === 2 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+              <div id="opening-editor-root">
+                <h3 style={{ margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  📏 Measured Openings
+                  <HelpLink articleId="lib-opening-wizard-window" label="Window measurement guide" />
                 </h3>
-                <p style={{ margin: '0 0 1rem 0', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-                  Give a fast estimated range without specific measurements.
-                </p>
-                <button className="btn btn-secondary btn-sm" onClick={() => navigate('/quick-quote')}>
-                  Launch Quick Quote Builder
-                </button>
+                <OpeningEditor
+                  appointmentId={id!}
+                  onUpdate={load}
+                  jobExteriorType={appt.exteriorType}
+                  jobInstallType={appt.installType}
+                />
               </div>
-              <h3 style={{ margin: '1rem 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                Measured Quote
-                <HelpLink articleId="lib-opening-wizard-window" label="Window measurement guide" />
-              </h3>
-              {/* Openings Editor — canonical opening management */}
-              <OpeningEditor
-                appointmentId={id!}
-                onUpdate={load}
-                jobExteriorType={appt.exteriorType}
-                jobInstallType={appt.installType}
-              />
+
               {/* Global Job Add-ons */}
-              <div style={{ marginTop: '1.5rem' }}>
-                <div className="card" style={{ padding: '1rem', background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
-                  <h3 style={{ margin: '0 0 1rem 0', fontSize: '1rem' }}>Global Job Add-ons</h3>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+              <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+                <div className="card" style={{ padding: '1.25rem', background: 'var(--bg-secondary)', border: '1px solid var(--border)' }}>
+                  <h3 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: 700 }}>Global Job Add-ons</h3>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '0.75rem' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.875rem' }}>
                       <input type="checkbox" checked={appt.hasMaintenanceAgreement || false} onChange={e => save({ hasMaintenanceAgreement: e.target.checked })} />
                       Include Maintenance Agreement
                     </label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.875rem' }}>
                       <input type="checkbox" checked={appt.secondStoryCharge || false} onChange={e => save({ secondStoryCharge: e.target.checked })} />
                       Add 2nd Story Charge
                     </label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.875rem' }}>
                       <input type="checkbox" checked={appt.clearStoryOverride || false} onChange={e => save({ clearStoryOverride: e.target.checked })} />
                       Force Clear Story Charge (Scaffolding/Lift)
                     </label>
@@ -991,15 +946,17 @@ export function AppointmentDetailPage() {
                 </div>
               </div>
 
-              {/* Automated Pricing */}
-              <div style={{ marginTop: "1.5rem" }}>
+              <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+                <h3 style={{ margin: '0 0 1rem 0' }}>💰 Pricing & Investment</h3>
                 <PricingReview
                   appointment={appt}
                   onRecalculate={recalc}
                   onSave={save}
                 />
               </div>
-              <div style={{ marginTop: "1rem" }}>
+
+              <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+                <h3 style={{ margin: '0 0 1rem 0' }}>💳 Financing Options</h3>
                 <FinanceOptionsPanel
                   jobAmount={displayTotal}
                   selectedPlanId={selectedFinancePlan}
@@ -1008,45 +965,69 @@ export function AppointmentDetailPage() {
                   acknowledgments={docAcknowledgments}
                 />
               </div>
+
+              {/* Warranty, Disclosure & Document Checklist */}
+              <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+                <h3 style={{ margin: '0 0 1rem 0' }}>📄 Agreements & Disclosures</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <WarrantyPanel
+                    appointmentId={id!}
+                    glassBreakageSelected={appt.openings?.some((o: any) => o.glassBreakage)}
+                    onAcknowledge={handleDocAcknowledge}
+                    acknowledgments={docAcknowledgments}
+                  />
+                  <LeadDisclosurePanel
+                    pre1978Status={appt.pre1978Status || (appt.customer?.preLead1978 ? 'yes' : 'unknown')}
+                    homeBuiltYear={appt.customer?.homeBuiltYear}
+                    onStatusChange={async (status) => {
+                      await save({ pre1978Status: status });
+                      const isPre1978 = status === 'yes' || status === 'unknown';
+                      if (appt.customer) {
+                        const updatedCustomer = { ...appt.customer, preLead1978: isPre1978 };
+                        await api.updateCustomer(appt.customer.id, updatedCustomer);
+                        setAppt((prev: any) => ({
+                          ...prev,
+                          customer: updatedCustomer
+                        }));
+                      }
+                    }}
+                    onAcknowledge={handleDocAcknowledge}
+                    acknowledgments={docAcknowledgments}
+                  />
+                  <DocumentChecklist
+                    appointment={appt}
+                    acknowledgments={docAcknowledgments}
+                    selectedFinancePlan={selectedFinancePlan}
+                  />
+                </div>
+              </div>
+
+              <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+                <h3 style={{ margin: '0 0 1rem 0' }}>🔍 Workbook Review Checks</h3>
+                <ValidationPanel 
+                  report={validationResult} 
+                  appointmentId={appt.id} 
+                  compact={false} 
+                  visible={true} 
+                  onRefresh={load} 
+                  onIgnore={() => setQaBypassed(true)}
+                  onJumpToOpening={(openingNumber, field) => {
+                    const element = document.getElementById('opening-editor-root');
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth' });
+                    }
+                    setTimeout(() => {
+                      window.dispatchEvent(new CustomEvent('wwa-open-editor', { detail: { openingNumber, field } }));
+                    }, 100);
+                  }}
+                />
+              </div>
             </div>
           )}
-          {step === 4 && (
-            <ValidationPanel 
-              report={validationResult} 
-              appointmentId={appt.id} 
-              compact={false} 
-              visible={true} 
-              onRefresh={load} 
-              onIgnore={() => setQaBypassed(true)}
-              onJumpToOpening={(openingNumber, field) => {
-                setStep(3); // Go to "Enter Windows & Price"
-                setTimeout(() => {
-                  window.dispatchEvent(new CustomEvent('wwa-open-editor', { detail: { openingNumber, field } }));
-                }, 100);
-              }}
-            />
-          )}
 
-          {/* 5. Final Review & Close */}
-          {step === 5 && (
-            <ValidationPanel 
-              report={validationResult} 
-              appointmentId={appt.id} 
-              compact={false} 
-              visible={true} 
-              onRefresh={load} 
-              onIgnore={() => setQaBypassed(true)}
-              onJumpToOpening={(openingNumber, field) => {
-                setStep(3);
-                setTimeout(() => {
-                  window.dispatchEvent(new CustomEvent('wwa-open-editor', { detail: { openingNumber, field } }));
-                }, 100);
-              }}
-            />
-          )}
-          {step === 5 && (
-            <div>
-              {validationResult && !qaBypassed && !(!validationResult.submissionBlocked && validationResult.counts.critical === 0) && (
+          {step === 3 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+              {validationResult && !qaBypassed && validationResult.submissionBlocked && (
                 <div
                   className="card"
                   style={{
@@ -1061,8 +1042,8 @@ export function AppointmentDetailPage() {
                     🛑
                   </div>
                   <h3 style={{ color: "#ef4444" }}>
-                    Cannot Submit — {validationResult.counts.critical} Blocker
-                    {validationResult.counts.critical > 1 ? "s" : ""} Remaining
+                    Validation Blockers Remaining — {validationResult.counts.critical} Blocker
+                    {validationResult.counts.critical > 1 ? "s" : ""}
                   </h3>
                   <p
                     style={{
@@ -1071,129 +1052,35 @@ export function AppointmentDetailPage() {
                       fontSize: "0.875rem",
                     }}
                   >
-                    Fix all blockers before generating the final contract
-                    packet.
+                    Fix all critical issues on the Review tab before final workbook generation.
                   </p>
                   <button
                     className="btn btn-danger"
                     style={{ marginTop: "1rem" }}
-                    onClick={() => setStep(4)}
+                    onClick={() => setStep(2)}
                   >
-                    Go to Fix Issues
+                    Go to Review Tab
                   </button>
                 </div>
               )}
-              {/* Signature gate */}
-              {(() => {
-                const sigs = getSignatures(id!);
-                const sigsDone = allSignaturesComplete(sigs);
-                return (
-                  <div style={{ marginBottom: "1rem" }}>
-                    <SigningStatusBadge
-                      appointmentId={id!}
-                      onEnterSigningMode={() => setSigningMode(true)}
-                    />
-                    {!sigsDone && (
-                      <div
-                        className="card"
-                        style={{
-                          background: "rgba(59,130,246,0.08)",
-                          borderColor: "rgba(59,130,246,0.3)",
-                          textAlign: "center",
-                          padding: "1.5rem",
-                          marginBottom: "1rem",
-                        }}
-                      >
-                        <div
-                          style={{
-                            fontSize: "1.75rem",
-                            marginBottom: "0.5rem",
-                          }}
-                        >
-                          ✍️
-                        </div>
-                        <h3 style={{ color: "#60a5fa" }}>
-                          Signatures Required Before Export
-                        </h3>
-                        <p
-                          style={{
-                            color: "var(--text-secondary)",
-                            marginTop: "0.5rem",
-                            fontSize: "0.875rem",
-                          }}
-                        >
-                          All required customer signatures must be collected
-                          before generating the final packet.
-                        </p>
-                        <button
-                          className="btn btn-primary"
-                          style={{ marginTop: "1rem" }}
-                          onClick={() => setSigningMode(true)}
-                        >
-                          Start Customer Signing →
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                );
-              })()}
-              {/* Job Packet Summary */}
-              <SketchOrderFormPreview
-                appointmentId={id!}
-                openings={appt.openings || []}
-                markers={getAllSketchMarkers(id!)}
-                sketchExists={getAllSketchMarkers(id!).length > 0}
-                onEditSketch={() => setStep(2)}
-              />
-              {/* Proposal / Financing Summary — consolidated from old ProposalBuilder */}
-              <div style={{ marginTop: "0.75rem" }}>
-                <ProposalBuilder
-                  appointment={appt}
-                  jobAmount={displayTotal}
-                  onSelectFinancing={(plan) =>
-                    setSelectedFinancePlan(plan || undefined)
-                  }
-                  onLockOrder={() => setStep(5)}
+
+              {/* Tablet Signing Mode trigger badge */}
+              <div style={{ marginBottom: "1rem" }}>
+                <SigningStatusBadge
+                  appointmentId={id!}
+                  onEnterSigningMode={() => setSigningMode(true)}
                 />
               </div>
 
-              {/* Warranty & Disclosure */}
-              <div
-                style={{
-                  marginTop: "1rem",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "0.75rem",
-                }}
-              >
-                <WarrantyPanel
-                  appointmentId={id!}
-                  glassBreakageSelected={appt.openings?.some(
-                    (o: any) => o.glassBreakage,
-                  )}
-                  onAcknowledge={handleDocAcknowledge}
-                  acknowledgments={docAcknowledgments}
-                />
-                <LeadDisclosurePanel
-                  pre1978Status={appt.customer?.pre1978 || appt.pre1978Status}
-                  homeBuiltYear={appt.customer?.homeBuiltYear}
-                  onStatusChange={(status) => save({ pre1978Status: status })}
-                  onAcknowledge={handleDocAcknowledge}
-                  acknowledgments={docAcknowledgments}
-                />
-              </div>
-              {/* Document Checklist */}
-              <DocumentChecklist
-                appointment={appt}
-                acknowledgments={docAcknowledgments}
-                selectedFinancePlan={selectedFinancePlan}
+              {/* Workbook Lifecycle Management */}
+              <WorkbookManagementPanel 
+                appointment={appt} 
+                onRefresh={load} 
               />
-              {/* Official Contract Export — Submit for Contract */}
-              <div style={{ marginTop: "0.75rem" }}>
-                <ContractExport appointment={appt} />
-              </div>
+
               {/* Follow-Up — log contact outcome and schedule next call */}
-              <div style={{ marginTop: "0.75rem" }}>
+              <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+                <h3 style={{ margin: '0 0 1rem 0' }}>📅 Customer Follow-Up</h3>
                 <FollowUpPanel
                   appointmentId={id!}
                   customerId={appt.customer?.id}
@@ -1225,10 +1112,16 @@ export function AppointmentDetailPage() {
             <button
               className="btn btn-secondary btn-sm"
               disabled={step === 0}
-              onClick={() => setStep(Math.max(0, step - 1))}
+              onClick={() => {
+                if (step === 2) {
+                  setStep(0);
+                } else {
+                  setStep(Math.max(0, step - 1));
+                }
+              }}
               style={{ opacity: step === 0 ? 0.3 : 1, fontSize: "0.75rem" }}
             >
-              ← {step > 0 ? STEPS[step - 1] : ""}
+              ← {step === 2 ? STEPS[0] : step > 0 ? STEPS[step - 1] : ""}
             </button>
             <div
               style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}
@@ -1252,13 +1145,19 @@ export function AppointmentDetailPage() {
             <button
               className="btn btn-primary btn-sm"
               disabled={step === STEPS.length - 1}
-              onClick={() => setStep(Math.min(STEPS.length - 1, step + 1))}
+              onClick={() => {
+                if (step === 0) {
+                  setStep(2);
+                } else {
+                  setStep(Math.min(STEPS.length - 1, step + 1));
+                }
+              }}
               style={{
                 opacity: step === STEPS.length - 1 ? 0.3 : 1,
                 fontSize: "0.75rem",
               }}
             >
-              {step < STEPS.length - 1 ? STEPS[step + 1] : ""} →
+              {step === 0 ? STEPS[2] : step < STEPS.length - 1 ? STEPS[step + 1] : ""} →
             </button>
           </div>
 
@@ -1290,8 +1189,8 @@ export function AppointmentDetailPage() {
           )}
 
           {/* Signing Mode FAB — only visible on signing/submit steps */}
-          {step === 6 && (
-            /* Review & Submit step */ <button
+          {step === 3 && (
+            /* Workbook/Agreement step */ <button
               onClick={() => setSigningMode(true)}
               className="coach-fab"
               title="Customer Signing Mode"

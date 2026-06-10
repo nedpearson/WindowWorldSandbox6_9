@@ -174,6 +174,13 @@ export const api = {
   updateCustomer: (id: string, data: any) => request(`/customers/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   searchCustomers: (q: string) => request(`/customers/search?q=${encodeURIComponent(q)}`),
   getCustomerDocuments: (id: string) => request(`/documents/customer/${id}/documents`),
+  getWorkbookStatus: (appointmentId: string) => request(`/documents/appointment/${appointmentId}/workbook`),
+  generateWorkbook: (appointmentId: string, isFinal?: boolean) =>
+    request(`/documents/appointment/${appointmentId}/workbook/generate`, { method: 'POST', body: JSON.stringify({ isFinal }) }),
+  uploadWorkbook: (appointmentId: string, fileName: string, fileData: string) =>
+    request(`/documents/appointment/${appointmentId}/workbook/upload`, { method: 'POST', body: JSON.stringify({ fileName, fileData }) }),
+  finalizeWorkbook: (appointmentId: string) =>
+    request(`/documents/appointment/${appointmentId}/workbook/finalize`, { method: 'POST', body: JSON.stringify({}) }),
   sendEmail: (data: any) => request('/communications/email', { method: 'POST', body: JSON.stringify(data) }),
   getEmailLogs: (id: string) => request(`/communications/emails/${id}`),
 

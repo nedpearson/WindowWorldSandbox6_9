@@ -213,7 +213,7 @@ export function QuickWxH({
         )}
         {/* United Inches display */}
         <div style={{ padding: '0.375rem 0.75rem', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', fontFamily: 'monospace', fontWeight: 800, fontSize: '1rem', color: 'var(--accent)', whiteSpace: 'nowrap' }}>
-          UI: {width + height}"
+          UI: {measuredW + measuredH}"
         </div>
       </div>
 

@@ -1,0 +1,8 @@
+{
+  "1. Login": "PASS",
+  "2. Dashboard - Start Route Button": "PASS",
+  "3. Customer List": "PASS",
+  "4. Customer Detail": "FAIL: No customers found",
+  "5. Appointment Detail": "FAIL: No appointments found",
+  "6. Call/Text/Navigate": "FAIL: Buttons not found"
+}

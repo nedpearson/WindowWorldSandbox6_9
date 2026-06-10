@@ -1,0 +1,82 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+*.db
+*.db-journal
+.DS_Store
+*.log
+.kilocode/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+
+# Build artifacts
+*.tsbuildinfo
+
+# Prisma generated
+server/node_modules/
+apps/web/node_modules/
+
+# Dev scratch files — never commit
+scratch.js
+scratch.ts
+*.scratch.js
+*.scratch.ts
+
+# Excel/data files that may contain sensitive customer data
+btr_full_extract.txt
+btr_tables/
+
+# Dev throwaway test scripts (may contain hardcoded keys)
+server/test-*.cjs
+server/test-*.mjs
+
+# Backup files — never commit editor/tool backup files
+*.bak
+*.orig
+
+# Playwright / Vitest test artifacts — may contain captured screenshots/context from old UI
+test-results/
+playwright-report/
+
+# Exported / client sketch files
+data/sketches/*.png
+
+apps/desktop/release/
+apps/web/public/downloads/
+
+# Root-level dev throwaway test scripts and generated output files
+test_export.js
+test_output.xlsx
+test-maintenance.xlsx
+temp-excel/
+
+# Server scratch / inspection scripts (named scratch_* or find_* or inspect_*)
+server/scratch_*.js
+server/scratch_*.mjs
+server/find_*.js
+server/inspect_*.js
+
+# Customer artifacts
+*.pdf
+*.xlsx
+customer/
+photos/
+annotations/
+documents/
+eng.traineddata
+
+# Environment files
+.env
+.env.*
+*.env
+server/.env
+server/.env.local
+apps/web/.env
+apps/web/.env.local

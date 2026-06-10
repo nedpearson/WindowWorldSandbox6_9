@@ -1,0 +1,630 @@
+/* ═══════════════════════════════════════════════════════════════
+   PAPER ORDER FORM — Exact Portrait Replication Styles
+   Target: Window and Patio Door Order Form (PORTRAIT master)
+   Paper: 8.5" × 11" Portrait (Letter)
+   PDF Proof Pass: 2026-05-14
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Print / Paper dimensions ─────────────────────────────── */
+.paper-form {
+  width: 8.5in;
+  height: 11in;
+  background: #fff;
+  color: #000;
+  font-family: 'Arial Narrow', 'Arial', 'Helvetica Neue', Helvetica, sans-serif;
+  font-size: 7.5pt;
+  line-height: 1.15;
+  /* 0.25in top, 0.3in sides, 0.2in bottom — matches letter-size margins */
+  padding: 0.22in 0.28in 0.18in 0.28in;
+  box-sizing: border-box;
+  position: relative;
+  /* overflow: hidden removed — allows sketch to be visible during editing */
+  display: flex;
+  flex-direction: column;
+}
+
+/* On-screen preview wrapper */
+.paper-form-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 1.5rem;
+  overflow: auto;
+  background: #e5e7eb;
+  min-height: 100vh;
+}
+
+.paper-form-wrapper .paper-form {
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18), 0 1px 4px rgba(0,0,0,0.1);
+  border-radius: 2px;
+  flex-shrink: 0;
+  /* Prevent scroll clipping during html2canvas capture */
+  overflow: visible;
+}
+
+/* ── Title Banner ─────────────────────────────────────────── */
+.pf-title {
+  text-align: center;
+  font-size: 14.5pt;
+  font-weight: 900;
+  letter-spacing: 0.5pt;
+  text-transform: uppercase;
+  /* Reduced margin to reclaim vertical space for 20 opening rows */
+  margin-bottom: 0.06in;
+  padding-top: 0.01in;
+  font-family: 'Arial Black', 'Arial', sans-serif;
+  flex-shrink: 0;
+}
+
+/* ── Top Section: Sketch + Customer Info ──────────────────── */
+.pf-top {
+  display: flex;
+  gap: 0.1in;
+  margin-bottom: 0.06in;
+  flex-shrink: 0;
+  /* Fixed height keeps sketch + customer info predictable for html2canvas */
+  height: 2.05in;
+}
+
+/* Sketch box — explicit size prevents overflow during canvas capture */
+.pf-sketch-box {
+  flex: 1;
+  min-height: 2.0in;
+  max-height: 2.05in;
+  border: 2px solid #000;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+/* Canvas fills the sketch box exactly */
+.pf-sketch-box canvas {
+  width: 100% !important;
+  height: 100% !important;
+  flex: 1;
+  display: block;
+}
+
+/* Inner div from DrawableSketch fills box */
+.pf-sketch-box > div {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Sketch image (read-only / PDF mode) */
+.pf-sketch-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* ── Customer info block (right side) ─────────────────────── */
+.pf-customer-block {
+  width: 3.25in;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  box-sizing: border-box;
+}
+
+/* Individual bordered field boxes — PO#, ACCT#, ORDER DATE */
+.pf-info-box {
+  border: 1.5px solid #000;
+  padding: 0.015in 0.05in;
+  min-height: 0.225in;
+  display: flex;
+  align-items: center;
+  margin-bottom: -1.5px; /* collapse borders */
+  box-sizing: border-box;
+}
+
+.pf-info-box .pf-field-label {
+  font-weight: 700;
+  font-size: 7pt;
+  white-space: nowrap;
+  margin-right: 0.05in;
+}
+
+.pf-info-box .pf-field-value {
+  flex: 1;
+  min-width: 0;
+  font-size: 8pt;
+  border: none;
+  background: transparent;
+  color: #000;
+  outline: none;
+  font-family: inherit;
+  padding: 0;
+}
+
+/* Grouped customer detail box */
+.pf-customer-detail-box {
+  border: 1.5px solid #000;
+  margin-bottom: -1.5px;
+  box-sizing: border-box;
+  flex: 1;
+}
+
+.pf-customer-detail-box .pf-cust-row {
+  display: flex;
+  min-height: 0.22in;
+  border-bottom: 1px solid #000;
+}
+
+.pf-customer-detail-box .pf-cust-row:last-child {
+  border-bottom: none;
+}
+
+.pf-customer-detail-box .pf-cust-cell {
+  display: flex;
+  align-items: center;
+  padding: 0.01in 0.05in;
+  font-size: 7pt;
+  box-sizing: border-box;
+}
+
+.pf-customer-detail-box .pf-cust-cell-divider {
+  border-right: 1px solid #000;
+}
+
+.pf-customer-detail-box .pf-cust-label {
+  font-weight: 700;
+  font-size: 6.5pt;
+  white-space: nowrap;
+  margin-right: 0.04in;
+}
+
+.pf-customer-detail-box .pf-cust-input {
+  flex: 1;
+  min-width: 0;
+  font-size: 7.5pt;
+  border: none;
+  background: transparent;
+  color: #000;
+  outline: none;
+  font-family: inherit;
+  padding: 0;
+}
+
+.pf-customer-detail-box .pf-cust-input::placeholder {
+  color: #ccc;
+}
+
+/* ── Opening Table ────────────────────────────────────────── */
+.pf-table-wrapper {
+  flex: 1;
+  overflow: hidden;
+  /* Clip table strictly so it doesn't push the bottom section off-page */
+  max-height: calc(11in - 0.22in - 0.18in - 2.05in - 0.06in - 0.06in - 1.85in);
+}
+
+.pf-opening-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 5.5pt;
+}
+
+.pf-opening-table th {
+  font-weight: 700;
+  text-align: center;
+  padding: 0.004in 0.004in;
+  border: 1px solid #000;
+  font-size: 5pt;
+  line-height: 1.05;
+  text-transform: uppercase;
+  background: #fff;
+  vertical-align: bottom;
+  overflow: visible;
+  position: relative;
+}
+
+/* Angled rotated header for narrow columns */
+.pf-opening-table th.pf-th-vert {
+  height: 0.68in;
+  padding: 0;
+  font-size: 5pt;
+  letter-spacing: -0.2pt;
+  white-space: nowrap;
+  vertical-align: bottom;
+  overflow: visible;
+  position: relative;
+}
+
+/* Rotated label span */
+.pf-th-vert-inner {
+  display: block;
+  transform: rotate(-55deg);
+  transform-origin: bottom left;
+  position: absolute;
+  bottom: 0.04in;
+  left: 50%;
+  white-space: nowrap;
+  font-size: 4.8pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.2pt;
+}
+
+/* Spanning group headers (MFG SIZE, GRID OPTIONS, TYPE, TEMP) */
+.pf-opening-table th.pf-th-group {
+  font-size: 5pt;
+  font-weight: 700;
+  text-align: center;
+  vertical-align: middle;
+  padding: 0.01in 0;
+  white-space: nowrap;
+  height: auto;
+  /* Explicit bottom border for group header row */
+  border-bottom: 1px solid #000;
+}
+
+/* Sub-headers row (WIDTH, HEIGHT, STYLE, PATTERN, etc.) */
+.pf-opening-table th.pf-th-sub {
+  font-size: 4.5pt;
+  font-weight: 700;
+  height: auto;
+  padding: 0.004in 0;
+  vertical-align: middle;
+  white-space: nowrap;
+  position: relative;
+  overflow: visible;
+}
+
+/* Data rows */
+.pf-opening-table td {
+  border: 1px solid #000;
+  padding: 0 0.008in;
+  text-align: center;
+  font-size: 6.5pt;
+  /* Reduced row height to fit 20 rows + headers in ~5.3in vertical space */
+  height: 0.175in;
+  vertical-align: middle;
+}
+
+.pf-opening-table td.pf-row-num {
+  font-weight: 700;
+  font-size: 5.5pt;
+  background: #f8f8f8;
+}
+
+/* ── Column widths — portrait proportions ─────────────────── */
+/* Total usable width: 8.5in - 0.56in padding = 7.94in */
+/* Sum of all columns below ≈ 7.92in */
+.pf-col-rownum { width: 0.16in; }
+.pf-col-qty    { width: 0.21in; }
+.pf-col-model  { width: 0.40in; }
+.pf-col-vinyl  { width: 0.25in; }
+.pf-col-int    { width: 0.21in; }
+.pf-col-ext    { width: 0.21in; }
+.pf-col-width  { width: 0.34in; }
+.pf-col-xsep   { width: 0.11in; }
+.pf-col-height { width: 0.34in; }
+.pf-col-leg    { width: 0.21in; }
+.pf-col-radius { width: 0.25in; }
+.pf-col-winnum { width: 0.25in; }
+.pf-col-hinge  { width: 0.21in; }
+.pf-col-glass  { width: 0.25in; }
+.pf-col-foam   { width: 0.25in; }
+/* GRID OPTIONS sub-columns */
+.pf-col-grid-style   { width: 0.20in; }
+.pf-col-grid-pattern { width: 0.25in; }
+.pf-col-grid-full    { width: 0.17in; }
+.pf-col-grid-spec    { width: 0.17in; }
+/* TYPE sub-columns */
+.pf-col-type-fill { width: 0.17in; }
+.pf-col-type-half { width: 0.17in; }
+.pf-col-type-mine { width: 0.17in; }
+/* 9' TEMP sub-columns */
+.pf-col-temp-full { width: 0.17in; }
+.pf-col-temp-s    { width: 0.15in; }
+.pf-col-temp-u    { width: 0.15in; }
+/* remaining columns */
+.pf-col-nailfin { width: 0.21in; }
+.pf-col-full    { width: 0.21in; }
+.pf-col-oriel   { width: 0.21in; }
+.pf-col-hor     { width: 0.21in; }
+.pf-col-typeext { width: 0.21in; }
+.pf-col-typeint { width: 0.21in; }
+.pf-col-rmvinst { width: 0.21in; }
+.pf-col-sill    { width: 0.21in; }
+
+/* × separator styling */
+.pf-opening-table td.pf-xsep-cell {
+  font-size: 6pt;
+  font-weight: 700;
+  color: #000;
+  padding: 0;
+  background: #f8f8f8;
+}
+
+/* ── Bottom Section ───────────────────────────────────────── */
+.pf-bottom {
+  flex-shrink: 0;
+  margin-top: 0.03in;
+}
+
+/* Notes box */
+.pf-notes-box {
+  border: 2px solid #000;
+  padding: 0.025in 0.05in;
+  min-height: 0.45in;
+  margin-bottom: 0.08in;
+  box-sizing: border-box;
+}
+
+.pf-notes-label {
+  font-weight: 900;
+  font-size: 7.5pt;
+  text-transform: uppercase;
+  margin-bottom: 0.015in;
+}
+
+.pf-notes-content {
+  width: 100%;
+  /* Reduced to allow full bottom section to fit on one page */
+  height: 0.32in;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: inherit;
+  font-size: 7pt;
+  line-height: 1.3;
+  background: transparent;
+  color: #000;
+}
+
+/* Certification text */
+.pf-cert-text {
+  font-size: 6.5pt;
+  line-height: 1.25;
+  margin-bottom: 0.08in;
+}
+
+/* ── Bottom Info Grid (repeated customer info for copies) ─── */
+.pf-bottom-info-grid {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin-bottom: 0.06in;
+}
+
+.pf-bottom-info-grid td {
+  border: 1.5px solid #000;
+  padding: 0.02in 0.05in;
+  font-size: 6.5pt;
+  min-height: 0.18in;
+  vertical-align: middle;
+}
+
+.pf-bottom-info-grid .pf-bi-label {
+  font-weight: 700;
+  font-size: 6pt;
+  white-space: nowrap;
+  margin-right: 0.04in;
+}
+
+.pf-bottom-info-grid .pf-bi-input {
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 7pt;
+  color: #000;
+  outline: none;
+  padding: 0;
+  min-width: 0;
+}
+
+.pf-bottom-info-grid .pf-bi-line {
+  border-bottom: 1px solid #000;
+  display: inline-block;
+  min-width: 1in;
+  margin-left: 0.04in;
+}
+
+.pf-bottom-info-grid .pf-bi-line-short {
+  border-bottom: 1px solid #000;
+  display: inline-block;
+  min-width: 0.65in;
+  margin-left: 0.04in;
+}
+
+/* ── Signature / OWNER line ───────────────────────────────── */
+.pf-signature-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 0.04in;
+  padding-top: 0.04in;
+  border-top: 1.5px solid #000;
+}
+
+.pf-sig-field {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.05in;
+  font-weight: 700;
+  font-size: 7.5pt;
+}
+
+.pf-sig-line {
+  border-bottom: 1px solid #000;
+  min-width: 2in;
+  height: 0.16in;
+  display: inline-block;
+}
+
+.pf-sig-line-short {
+  border-bottom: 1px solid #000;
+  min-width: 1.1in;
+  height: 0.16in;
+  display: inline-block;
+}
+
+/* ── Footer ───────────────────────────────────────────────── */
+.pf-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 5.5pt;
+  color: #555;
+  flex-shrink: 0;
+}
+
+.pf-footer-left {
+  font-weight: 700;
+  font-size: 6.5pt;
+  color: #000;
+}
+
+.pf-copy-labels {
+  display: flex;
+  gap: 0.22in;
+  font-size: 5.5pt;
+}
+
+.pf-page-num {
+  font-weight: 700;
+  font-size: 6.5pt;
+  color: #000;
+}
+
+/* ── Editable cell styling ────────────────────────────────── */
+.pf-cell-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: center;
+  font-family: inherit;
+  font-size: 6.5pt;
+  color: #000;
+  outline: none;
+  padding: 0;
+}
+
+.pf-cell-input:focus {
+  background: rgba(59, 130, 246, 0.08);
+}
+
+/* Edit mode highlights */
+.paper-form.edit-mode .pf-field-value:hover,
+.paper-form.edit-mode .pf-cust-input:hover,
+.paper-form.edit-mode .pf-cell-input:hover,
+.paper-form.edit-mode .pf-bi-input:hover {
+  background: rgba(59, 130, 246, 0.06);
+}
+
+.paper-form.edit-mode .pf-field-value:focus,
+.paper-form.edit-mode .pf-cust-input:focus,
+.paper-form.edit-mode .pf-cell-input:focus,
+.paper-form.edit-mode .pf-bi-input:focus {
+  background: rgba(59, 130, 246, 0.1);
+  outline: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+/* ── Checkbox cell ────────────────────────────────────────── */
+.pf-check {
+  width: 9px;
+  height: 9px;
+  accent-color: #000;
+  cursor: pointer;
+}
+
+/* ── Print overrides ──────────────────────────────────────── */
+@media print {
+  body {
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .paper-form-wrapper {
+    background: none !important;
+    padding: 0 !important;
+  }
+
+  .paper-form {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    width: 8.5in !important;
+    height: 11in !important;
+    margin: 0 !important;
+    page-break-after: always;
+    overflow: visible !important;
+  }
+
+  /* Hide edit-mode chrome */
+  .pf-edit-toolbar,
+  .pf-ai-panel,
+  .pf-mode-toggle,
+  .form-page-toolbar {
+    display: none !important;
+  }
+
+  /* Inputs render as regular text in print */
+  .pf-field-value,
+  .pf-cust-input,
+  .pf-cell-input,
+  .pf-notes-content,
+  .pf-bi-input {
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Checkboxes print correctly */
+  .pf-check {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  @page {
+    size: letter portrait;
+    margin: 0;
+  }
+}
+
+/* ── html2canvas PDF export overrides ────────────────────── */
+/* Applied via JS before capture — class pf-pdf-capture */
+.pf-pdf-capture {
+  overflow: visible !important;
+}
+
+.pf-pdf-capture .pf-table-wrapper {
+  overflow: visible !important;
+}
+
+.pf-pdf-capture .pf-sketch-box {
+  overflow: hidden !important;
+}
+
+/* ── Scale for on-screen preview ──────────────────────────── */
+@media screen and (max-width: 1200px) {
+  .paper-form {
+    transform: scale(0.78);
+    transform-origin: top center;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .paper-form {
+    transform: scale(0.58);
+    transform-origin: top center;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .paper-form {
+    transform: scale(0.42);
+    transform-origin: top left;
+  }
+}

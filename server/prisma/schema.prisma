@@ -1,0 +1,3729 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ═══════════════════════════════════════════════════════════
+// CORE TABLES
+// ═══════════════════════════════════════════════════════════
+
+model Company {
+  jobSiteVisits JobSiteVisit[]
+  id            String         @id @default(cuid())
+  name          String
+  tenantId      String?        @unique
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  users                      User[]
+  customers                  Customer[]
+  appointments               Appointment[]
+  propertyImageCaches        PropertyImageCache[]
+  propertyResearchProfiles   PropertyResearchProfile[]
+  propertyResearchSources    PropertyResearchSource[]
+  openingSuggestions         OpeningSuggestion[]
+  quickQuoteResearchSessions QuickQuoteResearchSession[]
+  propertyResearchImages     PropertyResearchImage[]
+  openingEvidences           OpeningEvidence[]
+  measurementRules           MeasurementRule[]
+  followUps                  FollowUp[]
+  pushSubscriptions          PushSubscription[]
+  reviewActionLogs           ReviewActionLog[]
+  appointmentPhotos          AppointmentPhoto[]
+}
+
+model User {
+  jobSiteVisits JobSiteVisit[]
+  id            String         @id @default(cuid())
+  email         String         @unique
+  name          String
+  role          String         @default("sales_rep")
+  password      String
+  avatarUrl     String?
+  measurementPreference String?      @default("outside_preferred")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  companyId     String?
+
+  company Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
+
+  appointments               Appointment[]
+  auditLogs                  AuditLog[]
+  voiceSessions              VoiceSession[]
+  pricingVersions            PricingVersion[]
+  timelineEvents             AppointmentTimelineEvent[]
+  commissionImports          CommissionImport[]
+  commissionRecords          CommissionRecord[]
+  auditorIssues              AuditorIssue[]
+  performance                RepPerformance?
+  propertyImageCaches        PropertyImageCache[]
+  propertyResearchProfiles   PropertyResearchProfile[]
+  quickQuoteResearchSessions QuickQuoteResearchSession[]
+  followUps                  FollowUp[]
+  pushSubscriptions          PushSubscription[]
+  reviewActionLogs           ReviewActionLog[]
+  emailsSent                 EmailLog[]
+
+  @@index([companyId])
+}
+
+model Customer {
+  jobSiteVisits JobSiteVisit[]
+  id            String         @id @default(cuid())
+  firstName     String
+  lastName      String
+  email         String?
+  phone         String?
+  phone2        String?
+  address       String?
+  city          String?
+  state         String?        @default("LA")
+  zip           String?
+  notes         String?
+  leadSource    String?
+  preLead1978   Boolean        @default(false)
+  customerId    String? // WW account/customer ID
+  // ── Offline sync fields ──
+  localId       String? // client-generated local ID for offline reconciliation
+  version       Int            @default(1) // incremented on every server update for OCC
+  deletedAt     DateTime? // soft delete for pull-sync tombstones
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  companyId     String?
+
+  company Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
+
+  appointments             Appointment[]
+  propertyImageCaches      PropertyImageCache[]
+  propertyResearchProfiles PropertyResearchProfile[]
+  appointmentPhotos        AppointmentPhoto[]
+  followUps                FollowUp[]
+  emails                   EmailLog[]
+
+  @@index([lastName, firstName])
+  @@index([phone])
+  @@index([updatedAt])
+  @@index([companyId])
+  @@index([localId])
+  @@index([deletedAt])
+}
+
+model Appointment {
+  id                     String    @id @default(cuid())
+  customerId             String
+  userId                 String
+  status                 String    @default("draft")
+  appointmentDate        DateTime?
+  jobAddress             String?
+  jobCity                String?
+  jobState               String?   @default("LA")
+  jobZip                 String?
+  projectType            String?
+  completeJob            Boolean   @default(true)
+  poNumber               String?
+  accountNumber          String?
+  notes                  String?
+  estimatorNotes         String?
+  installerNotes         String?
+  officeNotes            String?
+  subtotal               Float     @default(0)
+  taxRate                Float     @default(0.0945)
+  taxAmount              Float     @default(0)
+  adminFee               Float     @default(0)
+  discount               Float     @default(0)
+  totalAmount            Float     @default(0)
+  depositAmount          Float     @default(0)
+  balanceDue             Float     @default(0)
+  financingAmount        Float     @default(0)
+  jobLevelPriceConfirmed Boolean   @default(false) // set true when rep explicitly confirms job-level pricing
+  pricingVersionId       String?
+  completionPct          Float     @default(0)
+  // ── QA / Manager Pricing Overrides ──
+  qa2Price1              Float?
+  qa2Price2              Float?
+  qa2Price3              Float?
+  qa2CommissionOverride  Float?
+  qa2BonusAmount         Float?
+  lockedAt               DateTime?
+  lockedReason           String?
+  followUpDate           DateTime? // next scheduled follow-up contact
+  followUpOutcome        String? // last contact result: called | no_answer | left_message | meeting_set | sold | lost
+  measurementPreference  String?   @default("outside_preferred") // outside_preferred | inside_preferred | auto_by_exterior
+  // ── Offline sync fields ──
+  localId                String? // client-generated local ID for offline reconciliation
+  version                Int       @default(1) // incremented on every server update for OCC
+  deletedAt              DateTime? // soft delete so pull sync can return tombstones
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  companyId              String?
+
+  // ── Synthetic AI Layer ──
+  aiPredictedWindowCount Int?
+  aiPredictedExterior    String?
+  aiNeedsReview          Boolean @default(false)
+
+  company Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
+
+  customer                 Customer                      @relation(fields: [customerId], references: [id])
+  user                     User                          @relation(fields: [userId], references: [id])
+  pricingVersion           PricingVersion?               @relation(fields: [pricingVersionId], references: [id])
+  openings                 Opening[]
+  laserCaptures            LaserMeasurementCapture[]
+  lineItems                QuoteLineItem[]
+  contracts                Contract[]
+  signatures               Signature[]
+  payments                 Payment[]
+  voiceSessions            VoiceSession[]
+  formInstances            FormInstance[]
+  formSketches             FormSketch[]
+  timelineEvents           AppointmentTimelineEvent[]
+  safetyReviews            OpeningSafetyGlazingReview[]
+  temperedFlags            TemperedGlazingFlag[]
+  aiWarnings               AiValidationWarning[]
+  measurementAdj           MeasurementAdjustment[]
+  measurePhotos            MeasurementCapturePhoto[]
+  specialtySessions        SpecialtyMeasurementSession[]
+  auditorIssues            AuditorIssue[]
+  openingPhotos            OpeningPhoto[]
+  appointmentPhotos        AppointmentPhoto[]
+  propertyImageCaches      PropertyImageCache[]
+  propertyResearchProfiles PropertyResearchProfile[]
+  followUps                FollowUp[]
+  reviewActionLogs         ReviewActionLog[]
+  sketchExports            SketchExport[]
+  sketchAnnotations        SketchAnnotation[]
+  generatedDocuments       GeneratedDocument[]
+  quoteGroups              QuoteGroup[]
+  combinedQuotes           CombinedQuote[]
+  syntheticInferences      SyntheticInference[]
+  addressVisuals           AddressVisuals?
+
+  @@index([customerId])
+  @@index([userId])
+  @@index([status])
+  @@index([appointmentDate])
+  @@index([followUpDate])
+  @@index([companyId])
+  @@index([companyId, status])
+  @@index([companyId, appointmentDate])
+  @@index([companyId, followUpDate])
+  @@index([userId, status])
+  @@index([userId, appointmentDate])
+  @@index([localId])
+  @@index([deletedAt])
+  @@index([updatedAt])
+  @@index([companyId, updatedAt])
+  @@index([userId, updatedAt])
+}
+
+// ═══════════════════════════════════════════════════════════
+// OPENINGS
+// ═══════════════════════════════════════════════════════════
+
+model Opening {
+  id              String  @id @default(cuid())
+  appointmentId   String
+  openingNumber   Int
+  quantity        Int     @default(1)
+  companyId       String?
+  roomLocation    String?
+  elevation       String?
+  floorNumber     Int?    @default(1)
+  width           Float?
+  height          Float?
+  unitedInches    Float?
+  productType     String  @default("window") // window | patio_door | entry_door | siding | accessory | other
+  productCategory String?
+  productModel    String?
+  seriesModel     String?
+
+  // Door-specific fields
+  doorType       String?
+  doorPanelCount Int?
+  doorSwing      String?
+  doorHardware   String?
+
+  // Siding-specific fields
+  squareFootage      Float?
+  stories            Int?
+  sidingMaterial     String?
+  headerFlashingFeet Float?
+  jChannelFeet       Float?
+
+  interiorColor               String?
+  exteriorColor               String?
+  gridStyle                   String?
+  gridPattern                 String? // None | Colonial | Prairie | Diamond | Perimeter | Craftsman | Farmhouse | Custom | Other
+  gridProfile                 String? // Flat | Contoured | SDL | GBG | Other
+  gridVerticalCount           Int?      @default(0)
+  gridHorizontalCount         Int?      @default(0)
+  gridPlacement               String? // full | top_sash | bottom_sash | perimeter | custom
+  gridNotes                   String?
+  gridConfirmed               Boolean   @default(true)
+  sdlSize                     String?
+  isSDL                       Boolean   @default(false)
+  isGBG                       Boolean   @default(false)
+  gridRequiresAudit           Boolean   @default(false)
+  glassPackage                String?
+  temperedGlass               String? // none | full | half
+  obscureGlass                String? // none | full | half
+  argon                       Boolean   @default(false)
+  foamEnhanced                Boolean   @default(false)
+  rainObscure                 Boolean   @default(false)
+  tapcon                      Boolean   @default(false)
+  clearStory                  Boolean   @default(false)
+  clearStoryIsFirst           Boolean   @default(false)
+  stuccoRemoval               Boolean   @default(false)
+  lowEPackage                 String?
+  screenOption                String?
+  nailFin                     Boolean   @default(false)
+  oriel                       Boolean   @default(false)
+  orielType                   String?
+  orielUpperSashHeight        Float?
+  orielMeasurementBasis       String?
+  orielMeetingRailReference   String?
+  orielConfirmed              Boolean   @default(false)
+  orielNotes                  String?
+  horizontalRR                Boolean   @default(false)
+  hinge                       String?
+  exteriorType                String?
+  exteriorSurface             String? // vinyl_siding | wood_siding | stucco | brick | hardie | metal | existing_trim | mixed | unknown | other
+  whatTouchesWindow           String? // Brick, Wood, Siding, Stucco, Trim, Other
+  exteriorConditionNotes      String?
+  requiresTrimHeader          Boolean   @default(false)
+  requiresSpecialHandling     Boolean   @default(false)
+  trimType                    String?
+  trimNotes                   String?
+  removalType                 String?
+  installType                 String?
+  sillRepair                  Boolean   @default(false)
+  installNotes                String?
+  customerNotes               String?
+  installerNotes              String?
+  copiedFromOpeningId         String?
+  measurementConfirmed        Boolean   @default(true)
+  safetyConfirmed             Boolean   @default(false)
+  safetyGlazingStatus         String?
+  safetyReviewStatus          String?
+  safetyGlazingOverrideReason String?
+  safetyGlazingReviewedAt     DateTime?
+  basePrice                   Float     @default(0)
+  optionsPrice                Float     @default(0)
+  laborPrice                  Float     @default(0)
+  totalPrice                  Float     @default(0)
+  radius                      Float?
+  customRadius                Float?
+  legHeight                   Float?
+  shapeType                   String?
+  shapeOrientation            String?
+  shapeSpringlineHeight       Float?
+  shapeRise                   Float?
+  shapeHighSide               Float?
+  shapeLowSide                Float?
+  shapeSlopeDirection         String?
+  shapeAcrossFlats            Float?
+  specialtyNotes              String?
+  needsVerification           Boolean   @default(false)
+
+  // -- Exterior Condition Rule Fields (added 2026-05-30) --
+  specialShapeTrimRequired Boolean?
+  specialShapeTrimSelected Boolean?
+  specialShapeTrimPrice    Float?
+  measurementMethod        String?
+  outsideMeasureUsed       Boolean?
+  cutbackLikely            Boolean?
+  cutbackSelected          Boolean?
+  cutbackReviewStatus      String?
+  headerRequired           Boolean?
+  headerSelected           Boolean?
+  headerFlashingSelected   Boolean?
+  trimRequiredReview       Boolean?
+  trimDecision             String?
+  trimDecisionReason       String?
+  trimPhotoRequired        Boolean?
+  trimSelected             Boolean?
+  managerReviewRequired    Boolean?
+  pricingStatus            String?  @default("pending")
+
+  // ── Source of Truth Fields (added 2026-05-31) ──
+  measurementBasis            String?  @default("outside") // outside | inside | both | needs_review
+  measurementBasisDefaulted   Boolean? @default(true)
+  measurementBasisOverridden  Boolean? @default(false)
+  outsideMeasurementConfirmed Boolean? @default(false)
+  insideMeasurementConfirmed  Boolean? @default(false)
+  measurementBasisNotes       String?
+  measurementNeedsReview      Boolean? @default(false)
+
+  cutbackType            String?
+  cutbackAmount          Float?
+  cutbackIncludedInPrice Boolean?
+  cutbackNotes           String?
+  cutbackNeedsReview     Boolean?
+
+  headerType            String?
+  headerMaterial        String?
+  headerColor           String?
+  headerIncludedInPrice Boolean?
+  headerNotes           String?
+  headerNeedsReview     Boolean?
+
+  trimIncludedInPrice Boolean?
+  trimNeedsReview     Boolean?
+  installMethod       String?
+
+  // ── New measurement/cutback/guidance fields ──
+  preferredMeasurementBasis         String?
+  actualMeasurementBasis            String?
+  cutbackRequired                   Boolean?
+  removalDetail                     String?
+  trimIncluded                      Boolean?
+  headerFlashingIncluded            Boolean?
+  measurementGuidanceAccepted       Boolean?
+  measurementGuidanceOverrideReason String?
+  outsidePhotoId                    String?
+  measurementVisualAnnotationId     String?
+  mullGroup                         String?
+  installMullion                    Boolean? @default(false)
+  structuralMullion                 Boolean? @default(false)
+
+
+  // ── Laser Measurement Audit Fields (added 2026-05-31) ──
+  // Preserve the raw field measurement separately from the ordered (deducted) size.
+  // Allows audit trail of what was physically measured vs what was ordered.
+  rawWidth              Float? // measured opening width (before deduction)
+  rawHeight             Float? // measured opening height (before deduction)
+  widthSource           String? // 'manual' | 'bluetooth_ble' | 'measureon_import' | 'typed'
+  heightSource          String? // same
+  widthRuleApplied      String? // rule name/id used (e.g. 'replacement_window_standard_deduction')
+  heightRuleApplied     String? // rule name/id used
+  widthDeductionInches  Float? // deduction applied to width (e.g. 0.375)
+  heightDeductionInches Float? // deduction applied to height
+  // ── Offline sync fields ──
+  localId               String? // client-generated local ID for offline reconciliation
+  version               Int       @default(1) // incremented on every server update for OCC
+  deletedAt             DateTime? // soft delete for pull-sync tombstones
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  appointment        Appointment         @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  photos             OpeningPhoto[]
+  sketchLinks        SketchMarkerLink[]
+  quoteGroupOpenings QuoteGroupOpening[]
+
+  @@unique([appointmentId, openingNumber])
+  @@index([appointmentId])
+  @@index([companyId])
+  @@index([localId])
+  @@index([deletedAt])
+}
+
+// ═══════════════════════════════════════════════════════════
+// SYNTHETIC AI INFERENCES
+// ═══════════════════════════════════════════════════════════
+
+model SyntheticInference {
+  id              String   @id @default(cuid())
+  appointmentId   String
+  agentType       String
+  inferredData    Json?
+  confidenceScore Float    @default(0)
+  acceptedByUser  Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  appointment Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+  @@index([appointmentId])
+  @@index([agentType])
+}
+
+model OpeningPhoto {
+  id             String    @id @default(cuid())
+  companyId      String?
+  projectId      String?
+  appointmentId  String?
+  customerId     String?
+  sketchId       String?
+  sketchObjectId String?
+  openingId      String?
+  elevation      String?
+  itemType       String?
+  markerNumber   Int?
+  photoType      String? // exterior_opening, interior_opening, tape_width, etc.
+  originalUrl    String?
+  annotatedUrl   String?
+  thumbnailUrl   String?
+  storagePath    String?
+  uploadedBy     String?
+  capturedAt     DateTime?
+  analysisStatus String    @default("pending") // pending, completed, failed
+  aiAnalysisJson Json?
+  confidence     Float?
+  notes          String?
+  fileHash       String? // SHA-256 hex of file content — for upload deduplication
+  idempotencyKey String? // client idempotency key — prevents double uploads
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  opening     Opening?     @relation(fields: [openingId], references: [id], onDelete: Cascade)
+  appointment Appointment? @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+  @@index([openingId])
+  @@index([appointmentId])
+  @@index([sketchObjectId])
+  @@index([companyId])
+  @@index([customerId])
+}
+
+model AppointmentPhoto {
+  id            String   @id @default(cuid())
+  appointmentId String
+  companyId     String?
+  customerId    String?
+  photoUrl      String   // Public or signed URL
+  storagePath   String?  // Supabase bucket path (e.g. appointment-photos/{companyId}/{appointmentId}/{uuid}.jpg)
+  photoType     String?  // 'front_of_house', 'damage', 'general', 'document'
+  description   String?
+  uploadedBy    String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  appointment Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  customer    Customer?   @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  company     Company?    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([appointmentId])
+  @@index([companyId])
+  @@index([customerId])
+}
+
+// ═══════════════════════════════════════════════════════════
+// PRICING ENGINE
+// ═══════════════════════════════════════════════════════════
+
+model PricingVersion {
+  id          String    @id @default(cuid())
+  name        String
+  status      String    @default("draft") // draft | review | published | archived
+  publishedAt DateTime?
+  publishedBy String?
+  importId    String?
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  publisher    User?                @relation(fields: [publishedBy], references: [id], onDelete: Cascade)
+  import       PricingImport?       @relation(fields: [importId], references: [id])
+  items        PricingVersionItem[]
+  appointments Appointment[]
+
+  @@index([publishedBy])
+  @@index([importId])
+}
+
+model PricingVersionItem {
+  id                String   @id @default(cuid())
+  pricingVersionId  String
+  category          String // product | option | labor | specialty | tax | removal
+  productCategory   String?
+  seriesModel       String?
+  label             String
+  unitedInchesMin   Float?
+  unitedInchesMax   Float?
+  price             Float    @default(0)
+  priceType         String   @default("flat")
+  confidence        Float    @default(1.0)
+  needsVerification Boolean  @default(false)
+  sortOrder         Int      @default(0)
+  createdAt         DateTime @default(now())
+
+  pricingVersion PricingVersion @relation(fields: [pricingVersionId], references: [id], onDelete: Cascade)
+  updatedAt      DateTime       @default(now()) @updatedAt
+
+  @@index([pricingVersionId])
+  @@index([category])
+  @@index([productCategory])
+}
+
+model PricingImport {
+  id             String   @id @default(cuid())
+  fileName       String
+  fileType       String // pdf | csv | xlsx | docx
+  fileSize       Int?
+  source         String   @default("local") // local | google_drive
+  driveFileId    String?
+  status         String   @default("uploaded") // uploaded | parsing | parsed | reviewed | applied | failed
+  parsedRowCount Int?
+  errorMessage   String?
+  createdBy      String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  rows     PricingImportRow[]
+  versions PricingVersion[]
+
+  @@index([createdBy])
+}
+
+model PricingImportRow {
+  id                String   @id @default(cuid())
+  importId          String
+  rowNumber         Int
+  rawData           String? // original text
+  category          String?
+  productCategory   String?
+  seriesModel       String?
+  label             String?
+  unitedInchesMin   Float?
+  unitedInchesMax   Float?
+  price             Float?
+  priceType         String?
+  confidence        Float    @default(0.5)
+  needsVerification Boolean  @default(true)
+  status            String   @default("pending") // pending | accepted | rejected | edited
+  createdAt         DateTime @default(now())
+
+  import    PricingImport @relation(fields: [importId], references: [id], onDelete: Cascade)
+  updatedAt DateTime      @default(now()) @updatedAt
+
+  @@index([importId])
+}
+
+model MissingPricingRule {
+  id              String   @id @default(cuid())
+  appointmentId   String?
+  openingId       String?
+  productCategory String?
+  seriesModel     String?
+  unitedInches    Float?
+  optionLabel     String?
+  description     String
+  resolved        Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
+
+  @@index([appointmentId])
+  @@index([openingId])
+}
+
+// ═══════════════════════════════════════════════════════════
+// QUOTES / LINE ITEMS
+// ═══════════════════════════════════════════════════════════
+
+model QuoteLineItem {
+  id                String      @id @default(cuid())
+  appointmentId     String
+  openingNumber     Int?
+  label             String
+  category          String
+  quantity          Int         @default(1)
+  unitPrice         Float       @default(0)
+  totalPrice        Float       @default(0)
+  notes             String?
+  needsVerification Boolean     @default(false)
+  sortOrder         Int         @default(0)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  appointment       Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+  @@index([appointmentId])
+}
+
+// ═══════════════════════════════════════════════════════════
+// CONTRACTS / SIGNATURES / PAYMENTS
+// ═══════════════════════════════════════════════════════════
+
+model Contract {
+  id            String      @id @default(cuid())
+  appointmentId String
+  pdfUrl        String?
+  version       Int         @default(1)
+  status        String      @default("draft")
+  formData      String? // JSON blob of all contract fields
+  generatedAt   DateTime    @default(now())
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+  @@index([appointmentId])
+}
+
+model Signature {
+  id            String      @id @default(cuid())
+  appointmentId String
+  signerName    String
+  signerRole    String
+  signatureData String
+  signedAt      DateTime    @default(now())
+  createdAt     DateTime    @default(now())
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+  @@index([appointmentId])
+}
+
+model Payment {
+  id            String      @id @default(cuid())
+  appointmentId String
+  amount        Float
+  method        String
+  reference     String?
+  notes         String?
+  paidAt        DateTime    @default(now())
+  createdAt     DateTime    @default(now())
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+  @@index([appointmentId])
+}
+
+// ═══════════════════════════════════════════════════════════
+// HOUSE MAP / SKETCH
+// ═══════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════
+// VOICE-TO-TEXT
+// ═══════════════════════════════════════════════════════════
+
+model VoiceSession {
+  id            String   @id @default(cuid())
+  appointmentId String?
+  userId        String
+  status        String   @default("recording") // recording | transcribing | parsed | reviewed | applied
+  audioUrl      String?
+  duration      Float?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  appointment Appointment?           @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  user        User                   @relation(fields: [userId], references: [id])
+  transcripts VoiceTranscript[]
+  entities    VoiceExtractedEntity[]
+
+  @@index([appointmentId])
+  @@index([userId])
+}
+
+model VoiceTranscript {
+  id             String   @id @default(cuid())
+  voiceSessionId String
+  rawText        String
+  cleanedText    String?
+  confidence     Float    @default(0)
+  provider       String? // web_speech | whisper | google
+  createdAt      DateTime @default(now())
+
+  voiceSession VoiceSession @relation(fields: [voiceSessionId], references: [id], onDelete: Cascade)
+  updatedAt    DateTime     @default(now()) @updatedAt
+}
+
+model VoiceExtractedEntity {
+  id             String   @id @default(cuid())
+  voiceSessionId String
+  entityType     String // customer | opening | measurement | option | note
+  fieldName      String // e.g. "width", "firstName", "gridStyle"
+  fieldValue     String
+  openingNumber  Int?
+  confidence     Float    @default(0.5)
+  status         String   @default("pending") // pending | accepted | rejected | edited
+  createdAt      DateTime @default(now())
+
+  voiceSession VoiceSession @relation(fields: [voiceSessionId], references: [id], onDelete: Cascade)
+  updatedAt    DateTime     @default(now()) @updatedAt
+
+  @@index([voiceSessionId])
+}
+
+// ═══════════════════════════════════════════════════════════
+// FORMS ENGINE
+// ═══════════════════════════════════════════════════════════
+
+model FormInstance {
+  id            String    @id @default(cuid())
+  appointmentId String
+  formType      String // order_form | contract
+  status        String    @default("draft") // draft | filled | reviewed | finalized | exported
+  formData      String? // JSON blob
+  pdfUrl        String?
+  exportedAt    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  appointment Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+  @@index([appointmentId])
+  @@index([formType])
+}
+
+// ═══════════════════════════════════════════════════════════
+// AUDIT
+// ═══════════════════════════════════════════════════════════
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  entity    String
+  entityId  String?
+  details   String?
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@index([entity])
+  @@index([userId])
+}
+
+// ═══════════════════════════════════════════════════════════
+// PROPERTY IMAGE CACHE
+// ═══════════════════════════════════════════════════════════
+
+model PropertyImageCache {
+  id                String   @id @default(cuid())
+  companyId         String
+  customerId        String?
+  appointmentId     String?
+  normalizedAddress String
+  formattedAddress  String
+  lat               Float?
+  lng               Float?
+  source            String // street_view | static_map
+  imageUrl          String
+  metadataJson      Json?
+  status            String   @default("success") // success | failed
+  errorMessage      String?
+  createdById       String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  company     Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  customer    Customer?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  appointment Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  createdBy   User?        @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([companyId])
+  @@index([customerId])
+  @@index([appointmentId])
+  @@index([normalizedAddress])
+  @@index([createdById])
+}
+
+// ═══════════════════════════════════════════════════════════
+// MANAGER ACCOUNTABILITY & PERFORMANCE
+// ═══════════════════════════════════════════════════════════
+
+model AuditorIssue {
+  id               String   @id @default(cuid())
+  appointmentId    String
+  userId           String
+  severity         String // Minor | Warning | Critical | Business Risk
+  category         String // Measurement | Pricing | Contracts | Follow-Up | etc.
+  auditorSource    String
+  description      String
+  correctiveAction String
+  blocksProduction Boolean  @default(false)
+  resolved         Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  appointment Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([appointmentId])
+  @@index([userId])
+  @@index([resolved])
+}
+
+model RepPerformance {
+  id                     String   @id @default(cuid())
+  userId                 String   @unique
+  performanceScore       Float    @default(0)
+  trainingScore          Float    @default(0)
+  manualCompletionPct    Float    @default(0)
+  scenariosPassed        Int      @default(0)
+  scenariosFailed        Int      @default(0)
+  measurementErrorRate   Float    @default(0)
+  contractErrorRate      Float    @default(0)
+  followUpComplianceRate Float    @default(0)
+  quoteToCloseRate       Float    @default(0)
+  avgTimeToResolveHours  Float    @default(0)
+  updatedAt              DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ═══════════════════════════════════════════════════════════
+// NEW DRAWING ENGINE
+// ═══════════════════════════════════════════════════════════
+
+model FormSketch {
+  id                    String   @id @default(uuid())
+  appointmentId         String
+  companyId             String?
+  name                  String?
+  completenessScore     Float?
+  installerClarityScore Float?
+  sketchSourceMode           String  @default("blank_canvas")
+  backgroundVisualId         String?
+  mapOutlineEnabled          Boolean @default(false)
+  manualDrawingEnabled       Boolean @default(true)
+  streetViewReferenceEnabled Boolean @default(false)
+  exportBackgroundEnabled    Boolean @default(false)
+  canvasData                 Json?
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  appointment        Appointment                   @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  layers             SketchLayer[]
+  markers            SketchMarker[]
+  validations        SketchMeasurementValidation[]
+  pricingValidations SketchPricingValidation[]
+  aiInterpretations  SketchAiInterpretation[]
+  warnings           SketchWarningFlag[]
+  scores             SketchCompletenessScore[]
+  clarityScores      InstallerClarityScore[]
+  markerGroups       SketchMarkerGroup[]
+
+  @@index([appointmentId])
+  @@index([companyId])
+}
+
+model SketchLayer {
+  id        String   @id @default(uuid())
+  sketchId  String
+  companyId String?
+  name      String
+  isVisible Boolean  @default(true)
+  zIndex    Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sketch FormSketch @relation(fields: [sketchId], references: [id], onDelete: Cascade)
+
+  @@index([sketchId])
+  @@index([companyId])
+}
+
+model SketchMarker {
+  id                   String  @id @default(uuid())
+  sketchId             String
+  companyId            String?
+  markerType           String // window | door | note | dimension | warning
+  markerNumber         Int? // auto-incremented per sketch (X #1, X #2...)
+  markerSymbol         String? // window_x | front_door | patio_door | special_shape | oriel | note | arrow
+  markerLabel          String? // display label e.g. "X #1", "Front Door"
+  windowType           String? // double_hung | picture | slider | casement | awning | patio_door | bso | special_shape | oriel | other
+  shapeType            String? // arch | eyebrow | circle_top | quarter_arch | half_round | extended_leg | custom | other
+  x                    Float
+  y                    Float
+  width                Float?
+  height               Float?
+  unitedInches         Float?
+  elevation            String?
+  roomLocation         String?
+  floorNumber          Int?    @default(1)
+  productType          String?
+  specialtyType        String?
+  installComplexity    String?
+  ladderReq            Boolean @default(false)
+  removalType          String?
+  installType          String?
+  exteriorMaterial     String?
+  notes                String?
+  pricingStatus        String?
+  linkedOrderRowNumber Int? // maps to order form row number
+  validationStatus     String? // incomplete | measured | priced | complete
+  groupId              String? // link to SketchMarkerGroup
+
+  // Multi-point measurement fields (VisualMeasurementAssistant / sketchSync)
+  widthTop     Float?
+  widthMiddle  Float?
+  widthBottom  Float?
+  heightLeft   Float?
+  heightCenter Float?
+  heightRight  Float?
+
+  // Grid fields
+  gridPattern         String?
+  gridProfile         String?
+  gridVerticalCount   Int?
+  gridHorizontalCount Int?
+  gridPlacement       String?
+  sdlSize             String?
+  isSDL               Boolean @default(false)
+  isGBG               Boolean @default(false)
+  gridStyle           String?
+
+  // Oriel fields
+  orielType             String?
+  orielUpperSashHeight  Float?
+  orielMeasurementBasis String?
+  orielConfirmed        Boolean @default(false)
+
+  // Shape fields (extended)
+  shapeOrientation String?
+  shapeRise        Float?
+  shapeDiameter    Float?
+  shapeCustomNote  String?
+
+  // Exterior / surface fields
+  exteriorSurface String?
+  exteriorColor   String?
+  interiorColor   String?
+
+  // Product options
+  glassPackage  String?
+  screenOption  String?
+  foamEnhanced  Boolean?
+  temperedGlass String?
+  obscureGlass  String?
+  nailFin       Boolean?
+
+  // Confirmation / validation tracking
+  measurementVerified Boolean @default(false)
+  hasPhoto            Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sketch       FormSketch                @relation(fields: [sketchId], references: [id], onDelete: Cascade)
+  links        SketchMarkerLink[]
+  group        SketchMarkerGroup?        @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  groupMembers SketchMarkerGroupMember[]
+
+  @@unique([sketchId, elevation, markerType, markerNumber])
+  @@index([sketchId])
+  @@index([companyId])
+  @@index([groupId])
+}
+
+model SketchMarkerGroup {
+  id               String   @id @default(uuid())
+  sketchId         String
+  companyId        String?
+  groupType        String   @default("mull_pair") // mull_pair | twin | triple | bay_bow | field_note | other
+  groupNote        String?
+  keepSeparateRows Boolean  @default(true)
+  needsReview      Boolean  @default(true)
+  pricingReviewed  Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  sketch  FormSketch                @relation(fields: [sketchId], references: [id], onDelete: Cascade)
+  markers SketchMarker[]
+  members SketchMarkerGroupMember[]
+
+  @@index([sketchId])
+  @@index([companyId])
+}
+
+model SketchMarkerGroupMember {
+  id        String   @id @default(uuid())
+  groupId   String
+  markerId  String
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  group  SketchMarkerGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  marker SketchMarker      @relation(fields: [markerId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, markerId])
+  @@index([groupId])
+  @@index([markerId])
+}
+
+model SketchMarkerLink {
+  id        String   @id @default(uuid())
+  markerId  String
+  openingId String?
+  companyId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  marker  SketchMarker @relation(fields: [markerId], references: [id], onDelete: Cascade)
+  opening Opening?     @relation(fields: [openingId], references: [id], onDelete: SetNull)
+
+  @@unique([markerId])
+  @@unique([openingId])
+  @@index([companyId])
+}
+
+model SketchMeasurementValidation {
+  id              String   @id @default(uuid())
+  sketchId        String
+  companyId       String?
+  openingId       String?
+  markerId        String?
+  status          String // pass | fail | warning
+  mismatchDetails String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  sketch FormSketch @relation(fields: [sketchId], references: [id], onDelete: Cascade)
+
+  @@index([sketchId])
+  @@index([companyId])
+}
+
+model SketchPricingValidation {
+  id          String   @id @default(uuid())
+  sketchId    String
+  companyId   String?
+  openingId   String?
+  issueType   String // missing_labor | missing_specialty | missing_patio
+  description String?
+  resolved    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sketch FormSketch @relation(fields: [sketchId], references: [id], onDelete: Cascade)
+
+  @@index([sketchId])
+  @@index([companyId])
+}
+
+model SketchAiInterpretation {
+  id                 String   @id @default(uuid())
+  sketchId           String
+  companyId          String?
+  interpretationType String // warning | suggestion | labor | pricing
+  message            String
+  confidence         Float    @default(0.0)
+  applied            Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  sketch FormSketch @relation(fields: [sketchId], references: [id], onDelete: Cascade)
+
+  @@index([sketchId])
+  @@index([companyId])
+}
+
+model SketchWarningFlag {
+  id          String   @id @default(uuid())
+  sketchId    String
+  companyId   String?
+  warningType String // unlinked_marker | missing_dimensions | access_issue
+  description String
+  severity    String // low | medium | high | critical
+  resolved    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sketch FormSketch @relation(fields: [sketchId], references: [id], onDelete: Cascade)
+
+  @@index([sketchId])
+  @@index([companyId])
+}
+
+model SketchCompletenessScore {
+  id        String   @id @default(uuid())
+  sketchId  String
+  companyId String?
+  score     Float
+  factors   String? // JSON string
+  createdAt DateTime @default(now())
+
+  sketch FormSketch @relation(fields: [sketchId], references: [id], onDelete: Cascade)
+
+  @@index([sketchId])
+  @@index([companyId])
+}
+
+model InstallerClarityScore {
+  id        String   @id @default(uuid())
+  sketchId  String
+  companyId String?
+  score     Float
+  feedback  String?
+  createdAt DateTime @default(now())
+
+  sketch FormSketch @relation(fields: [sketchId], references: [id], onDelete: Cascade)
+
+  @@index([sketchId])
+  @@index([companyId])
+}
+
+// ═══════════════════════════════════════════════════════════
+// BUSINESS RULES ENGINE
+// ═══════════════════════════════════════════════════════════
+
+model BusinessRule {
+  id                     String    @id @default(cuid())
+  ruleKey                String    @unique
+  name                   String
+  description            String
+  category               String    @default("window_defaults") // sketch_marker | window_defaults | exterior_install | pricing | measurement | oriel | specialty_shape | mull_joined | tempered_glass | final_export
+  isActive               Boolean   @default(true)
+  severity               String    @default("high") // blocker | high | medium | low | info
+  triggerField           String?
+  triggerValue           String?
+  triggerConditionJson   Json? // complex trigger conditions
+  actionType             String // set_field | warn | require_confirmation | add_price | add_note | expand_abbreviation
+  actionField            String?
+  actionValue            String?
+  actionJson             Json? // complex actions array
+  message                String
+  autoApply              Boolean   @default(true)
+  requiresConfirmation   Boolean   @default(false)
+  requiresOverrideReason Boolean   @default(false)
+  effectiveDate          DateTime?
+  needsVerification      Boolean   @default(false)
+  companyId              String?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  @@index([category])
+  @@index([isActive])
+  @@index([companyId])
+}
+
+// ═══════════════════════════════════════════════════════════
+// APPOINTMENT TIMELINE
+// ═══════════════════════════════════════════════════════════
+
+model AppointmentTimelineEvent {
+  id            String   @id @default(cuid())
+  appointmentId String
+  eventType     String // created | updated | status_change | signoff | pricing_run
+  title         String
+  description   String?
+  userId        String?
+  createdAt     DateTime @default(now())
+
+  appointment Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  user        User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  updatedAt   DateTime    @default(now()) @updatedAt
+
+  @@index([appointmentId])
+  @@index([userId])
+}
+
+// ═══════════════════════════════════════════════════════════
+// SAFETY GLAZING / TEMPERED GLASS
+// Louisiana-configurable safety glazing review system
+// ═══════════════════════════════════════════════════════════
+
+model OpeningSafetyGlazingReview {
+  id                      String    @id @default(cuid())
+  appointmentId           String
+  openingId               String?
+  openingNumber           Int
+  safetyReviewStatus      String    @default("not_started")
+  // not_started | reviewed | unsure | override | flagged
+  temperedRequired        String    @default("not_reviewed")
+  // yes | no | unsure | not_reviewed
+  temperedFull            Boolean   @default(false)
+  temperedHalf            Boolean   @default(false)
+  flaggedReasons          String[]  @default([])
+  sourceType              String    @default("rule")
+  // manual | voice | text | ai | rule | wizard_question
+  sourcePhrase            String?
+  confidenceScore         Int       @default(0)
+  overrideReason          String?
+  reviewedBy              String?
+  reviewedAt              DateTime?
+  // Tempered Rule A — Tub/Shower proximity
+  tubOrShowerNearby       String? // yes | no | unknown
+  distanceToTubInches     Float?
+  // Tempered Rule B — Low glass / large glass
+  bottomGlassHeightInches Float?
+  glassWidthInches        Float?
+  glassHeightInches       Float?
+  glassAreaSqft           Float?
+  lowGlassConditionMet    Boolean   @default(false)
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  metadata                Json?
+
+  appointment Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+  @@index([appointmentId])
+  @@index([openingId])
+  @@index([safetyReviewStatus])
+  @@index([temperedRequired])
+}
+
+model TemperedGlazingFlag {
+  id            String   @id @default(cuid())
+  reviewId      String?
+  appointmentId String
+  openingNumber Int
+  ruleId        String
+  ruleName      String
+  category      String
+  severity      String   @default("high")
+  flagReason    String
+  sourceType    String   @default("rule")
+  sourcePhrase  String?
+  confidence    Float    @default(0.85)
+  requiresPhoto Boolean  @default(false)
+  photoHint     String?
+  createdAt     DateTime @default(now())
+
+  appointment Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  updatedAt   DateTime    @default(now()) @updatedAt
+
+  @@index([appointmentId])
+  @@index([ruleId])
+}
+
+model BusinessRuleExecutionLog {
+  id             String   @id @default(cuid())
+  ruleId         String
+  ruleName       String
+  appointmentId  String?
+  openingId      String?
+  openingNumber  Int?
+  triggered      Boolean
+  autoApplied    Boolean  @default(false)
+  overridden     Boolean  @default(false)
+  overrideReason String?
+  severity       String
+  executedAt     DateTime @default(now())
+  metadata       Json?
+  updatedAt      DateTime @default(now()) @updatedAt
+
+  @@index([ruleId])
+  @@index([appointmentId])
+  @@index([openingId])
+}
+
+model AiValidationWarning {
+  id            String    @id @default(cuid())
+  appointmentId String
+  openingId     String?
+  openingNumber Int?
+  category      String
+  message       String
+  sourceType    String    @default("ai")
+  sourcePhrase  String?
+  confidence    Float     @default(0.75)
+  resolved      Boolean   @default(false)
+  resolvedAt    DateTime?
+  resolvedBy    String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  appointment Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+  @@index([appointmentId])
+  @@index([resolved])
+  @@index([openingId])
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MEASUREMENT INTELLIGENCE — Configurable takeoff/deduction engine
+// ═══════════════════════════════════════════════════════════════
+
+model MeasurementRule {
+  id                    String    @id @default(cuid())
+  companyId             String? // null = global rule visible to all companies
+  name                  String
+  description           String?
+  status                String    @default("needs_verification")
+  windowType            String?
+  exteriorType          String?
+  installType           String?
+  removalType           String?
+  conditionJson         Json?
+  widthTakeoffFraction  String?
+  heightTakeoffFraction String?
+  widthTakeoffDecimal   Float     @default(0)
+  heightTakeoffDecimal  Float     @default(0)
+  minDeduction          Float?
+  maxDeduction          Float?
+  actionType            String    @default("deduct")
+  requiresConfirmation  Boolean   @default(true)
+  requiresPhoto         Boolean   @default(false)
+  requiresNote          Boolean   @default(false)
+  severity              String    @default("high")
+  notes                 String?
+  effectiveDate         DateTime?
+  version               Int       @default(1)
+  active                Boolean   @default(true)
+  createdBy             String?
+  updatedBy             String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  company     Company?                      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  adjustments MeasurementAdjustment[]
+  photoReads  MeasurementPhotoRead[]
+  execLogs    MeasurementRuleExecutionLog[]
+
+  @@index([companyId])
+  @@index([windowType])
+  @@index([exteriorType])
+  @@index([status])
+  @@index([active])
+}
+
+// -- LaserMeasurementCapture: stores every laser capture event --
+model LaserMeasurementCapture {
+  id            String  @id @default(cuid())
+  companyId     String
+  appointmentId String
+  openingId     String?
+  customerId    String?
+  userId        String
+
+  // Device metadata
+  deviceBrand  String  @default("Bosch")
+  deviceModel  String  @default("GLM165-27G")
+  deviceName   String?
+  deviceIdHash String?
+
+  // Capture mode
+  captureMode     String // manual | bluetooth_ble | measureon_import | unknown
+  protocolVersion String?
+
+  // Raw received data
+  rawPayloadText  String?
+  rawPayloadJson  Json?
+  rawValueText    String // as received/typed, e.g. "36 1/4"
+  rawUnit         String? // inches | feet_inches | mm | cm | m | fractional_inches | unknown
+  rawValueNumeric Float? // raw value in the rawUnit
+
+  // Normalized values
+  normalizedInches       Float? // always in decimal inches
+  normalizedFractionText String? // e.g. "36 1/4"
+
+  // Assigned field / context
+  assignedField      String? // width | height | leg_height | top_sash_width | return_depth | etc.
+  measurementContext String? // free text context
+
+  // Multi-point measurement fields (added 2026-05-31)
+  measurementBasis String? // 'outside' | 'inside'
+  measurementAxis  String? // 'width' | 'height' | 'depth' | 'diagonal'
+  measurementPoint String? // 'top' | 'middle' | 'bottom' | 'left' | 'center' | 'right' | 'diagonal_1' | 'diagonal_2'
+  accepted         Boolean @default(true) // false = ignored by user
+  ignored          Boolean @default(false)
+  ignoreReason     String?
+  pointNotes       String?
+
+  // Rule application
+  ruleApplied               String?
+  deductionInches           Float?
+  adjustedOrderInches       Float?
+  adjustedOrderFractionText String?
+
+  // Confidence / status
+  confidence            Float? // 0-1
+  needsUserConfirmation Boolean   @default(true)
+  confirmedByUserId     String?
+  confirmedAt           DateTime?
+
+  // Suspicious flags
+  isSuspicious     Boolean  @default(false)
+  suspicionReasons String[] @default([])
+
+  capturedAt   DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  metadataJson Json?
+
+  appointment Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+  @@index([appointmentId])
+  @@index([openingId])
+  @@index([userId])
+  @@index([capturedAt])
+  @@index([assignedField])
+  @@index([captureMode])
+}
+
+model MeasurementAdjustment {
+  id                   String    @id @default(cuid())
+  appointmentId        String
+  openingId            String?
+  openingNumber        Int
+  sourceType           String    @default("manual")
+  rawWidth             Float?
+  rawHeight            Float?
+  widthTop             Float?
+  widthMiddle          Float?
+  widthBottom          Float?
+  heightLeft           Float?
+  heightCenter         Float?
+  heightRight          Float?
+  adjWidth             Float?
+  adjHeight            Float?
+  widthTakeoff         Float     @default(0)
+  heightTakeoff        Float     @default(0)
+  ruleId               String?
+  ruleStatus           String?
+  confidence           Float?
+  approved             Boolean   @default(false)
+  approvedBy           String?
+  approvedAt           DateTime?
+  overrideReason       String?
+  notes                String[]  @default([])
+  warnings             String[]  @default([])
+  metadata             Json?
+  // Multi-point session audit fields (added 2026-05-31)
+  sizingMethod         String? // 'smallest_opening' | 'manual_override' | 'ai_photo'
+  smallestWidthPoint   String? // 'widthTop' | 'widthMiddle' | 'widthBottom'
+  smallestHeightPoint  String? // 'heightLeft' | 'heightCenter' | 'heightRight'
+  measurementConfirmed Boolean   @default(false)
+  obstructionDetected  Boolean   @default(false)
+  obstructionType      String? // 'brick' | 'siding' | 'stucco' | 'trim' | 'sill' | 'frame' | 'unknown'
+  obstructionNotes     String?
+  widthVarianceInches  Float? // spread between highest and lowest width captures
+  heightVarianceInches Float? // spread between highest and lowest height captures
+  manualOverride       Boolean   @default(false)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  appointment Appointment      @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  rule        MeasurementRule? @relation(fields: [ruleId], references: [id])
+
+  @@index([appointmentId])
+  @@index([approved])
+  @@index([openingId])
+  @@index([ruleId])
+}
+
+model MeasurementCapturePhoto {
+  id              String   @id @default(cuid())
+  appointmentId   String
+  openingId       String?
+  openingNumber   Int?
+  measurementType String
+  photoUrl        String?
+  storagePath     String?
+  capturedBy      String?
+  capturedAt      DateTime @default(now())
+  metadata        Json?
+
+  reads MeasurementPhotoRead[]
+
+  appointment Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  updatedAt   DateTime    @default(now()) @updatedAt
+
+  @@index([appointmentId])
+  @@index([openingId])
+}
+
+model MeasurementPhotoRead {
+  id               String    @id @default(cuid())
+  photoId          String?
+  appointmentId    String
+  openingNumber    Int?
+  measurementType  String
+  rawAiText        String?
+  detectedFraction String?
+  detectedDecimal  Float?
+  confidenceScore  Float?
+  candidates       String[]  @default([])
+  selectedValue    Float?
+  correctedValue   Float?
+  ruleAppliedId    String?
+  takeoffAmount    Float?
+  finalDecimal     Float?
+  finalFraction    String?
+  status           String    @default("pending")
+  requiresManual   Boolean   @default(false)
+  approvedBy       String?
+  approvedAt       DateTime?
+  metadata         Json?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  photo MeasurementCapturePhoto? @relation(fields: [photoId], references: [id], onDelete: SetNull)
+  rule  MeasurementRule?         @relation(fields: [ruleAppliedId], references: [id])
+
+  @@index([appointmentId])
+  @@index([status])
+  @@index([photoId])
+  @@index([ruleAppliedId])
+}
+
+model MeasurementRuleExecutionLog {
+  id             String    @id @default(cuid())
+  ruleId         String?
+  appointmentId  String?
+  openingId      String?
+  openingNumber  Int?
+  windowType     String?
+  exteriorType   String?
+  installType    String?
+  rawWidth       Float?
+  rawHeight      Float?
+  adjWidth       Float?
+  adjHeight      Float?
+  widthTakeoff   Float?
+  heightTakeoff  Float?
+  applied        Boolean   @default(false)
+  approvedBy     String?
+  approvedAt     DateTime?
+  overridden     Boolean   @default(false)
+  overrideReason String?
+  metadata       Json?
+  createdAt      DateTime  @default(now())
+
+  rule      MeasurementRule? @relation(fields: [ruleId], references: [id], onDelete: SetNull)
+  updatedAt DateTime         @default(now()) @updatedAt
+
+  @@index([appointmentId])
+  @@index([ruleId])
+  @@index([openingId])
+}
+
+model SpecialtyMeasurementSession {
+  id            String    @id @default(cuid())
+  appointmentId String
+  openingId     String?
+  openingNumber Int
+  windowType    String
+  status        String    @default("in_progress")
+  startedBy     String?
+  completedBy   String?
+  completedAt   DateTime?
+  metadata      Json?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  values      SpecialtyMeasurementValue[]
+  validations SpecialtyMeasurementValidation[]
+
+  appointment Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+  @@index([appointmentId])
+  @@index([status])
+  @@index([openingId])
+}
+
+model SpecialtyMeasurementValue {
+  id             String    @id @default(cuid())
+  sessionId      String
+  appointmentId  String
+  openingNumber  Int?
+  dimensionKey   String
+  dimensionLabel String
+  rawValue       Float?
+  adjustedValue  Float?
+  sourceType     String    @default("manual")
+  approved       Boolean   @default(false)
+  approvedAt     DateTime?
+  metadata       Json?
+  createdAt      DateTime  @default(now())
+
+  session   SpecialtyMeasurementSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  updatedAt DateTime                    @default(now()) @updatedAt
+
+  @@index([sessionId])
+}
+
+model SpecialtyMeasurementValidation {
+  id            String    @id @default(cuid())
+  sessionId     String
+  appointmentId String
+  openingNumber Int?
+  issueType     String
+  message       String
+  severity      String    @default("high")
+  resolved      Boolean   @default(false)
+  resolvedAt    DateTime?
+  createdAt     DateTime  @default(now())
+
+  session   SpecialtyMeasurementSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  updatedAt DateTime                    @default(now()) @updatedAt
+
+  @@index([sessionId])
+}
+
+// ═══════════════════════════════════════════════════════════
+// WORKBOOK TEMPLATE ENGINE TABLES
+// ═══════════════════════════════════════════════════════════
+
+model WorkbookTemplate {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  fileName      String
+  filePath      String
+  storageBucket String?
+  isActive      Boolean  @default(false)
+  createdBy     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  versions WorkbookTemplateVersion[]
+  exports  WorkbookExportJob[]
+}
+
+model WorkbookTemplateVersion {
+  id            String   @id @default(cuid())
+  templateId    String
+  versionNumber Int
+  fileName      String
+  filePath      String
+  sheetNames    String[] // Array of sheet names detected
+  isActive      Boolean  @default(false)
+  changeNotes   String?
+  createdBy     String?
+  createdAt     DateTime @default(now())
+
+  template      WorkbookTemplate       @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  fieldMappings WorkbookFieldMapping[]
+  exports       WorkbookExportJob[]
+  updatedAt     DateTime               @default(now()) @updatedAt
+
+  @@unique([templateId, versionNumber])
+  @@index([templateId])
+}
+
+model WorkbookFieldMapping {
+  id              String   @id @default(cuid())
+  versionId       String
+  sheetName       String
+  cellAddress     String
+  mergeRange      String?
+  fieldKey        String
+  fieldLabel      String
+  fieldType       String // text, number, currency, date, boolean, select, formula, signature
+  sourceType      String // customer, appointment, opening, quote, pricing, user, calculated, manual
+  sourcePath      String?
+  formula         String?
+  required        Boolean  @default(false)
+  aiPopulatable   Boolean  @default(false)
+  validationRules String?
+  metadata        Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  version     WorkbookTemplateVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  fieldValues WorkbookFieldValue[]
+
+  @@unique([versionId, sheetName, cellAddress])
+  @@index([versionId])
+  @@index([fieldKey])
+}
+
+model WorkbookFieldValue {
+  id              String    @id @default(cuid())
+  mappingId       String
+  appointmentId   String
+  value           String?
+  normalizedValue String?
+  sourceType      String? // typed, voice, ai, rule, formula, manual
+  sourceText      String?
+  confidence      Float?
+  reviewStatus    String    @default("pending") // pending, approved, rejected
+  approvedBy      String?
+  approvedAt      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  mapping WorkbookFieldMapping @relation(fields: [mappingId], references: [id], onDelete: Cascade)
+
+  @@index([appointmentId])
+  @@index([mappingId])
+}
+
+model WorkbookExportJob {
+  id             String    @id @default(cuid())
+  appointmentId  String
+  templateId     String
+  versionId      String?
+  exportFormat   String    @default("xlsx") // xlsx, pdf
+  status         String    @default("pending") // pending, processing, completed, failed
+  filePath       String?
+  storageBucket  String?
+  fileSize       Int?
+  errorMessage   String?
+  reconciliation Json? // Reconciliation results snapshot
+  metadata       Json?
+  createdBy      String?
+  createdAt      DateTime  @default(now())
+  completedAt    DateTime?
+
+  template WorkbookTemplate         @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  version  WorkbookTemplateVersion? @relation(fields: [versionId], references: [id])
+
+  @@index([appointmentId])
+  @@index([templateId])
+  @@index([versionId])
+}
+
+// ═══════════════════════════════════════════════════════════
+// REFERENCE DOCUMENT TABLES
+// ═══════════════════════════════════════════════════════════
+
+model ReferenceDocument {
+  id                     String    @id @default(cuid())
+  documentKey            String    @unique
+  displayName            String
+  fileName               String
+  filePath               String
+  documentType           String // warranty, disclosure, finance, compliance, template
+  workflowAreas          String[] // where the document is used
+  customerFacing         Boolean   @default(false)
+  internalOnly           Boolean   @default(false)
+  requiredForPacket      Boolean   @default(false)
+  appliesWhen            String? // condition description
+  version                String?
+  effectiveDate          DateTime?
+  summary                String?
+  requiredAcknowledgment Boolean   @default(false)
+  exportPacketSection    String?
+  isActive               Boolean   @default(true)
+  metadata               Json?
+  createdBy              String?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  acknowledgments DocumentAcknowledgment[]
+
+  @@index([documentType])
+}
+
+model DocumentAcknowledgment {
+  id                 String    @id @default(cuid())
+  documentId         String
+  appointmentId      String
+  acknowledgmentType String // reviewed, provided, acknowledged, in_packet
+  value              Boolean   @default(false)
+  acknowledgedBy     String?
+  acknowledgedAt     DateTime?
+  notes              String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  document ReferenceDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([documentId, appointmentId, acknowledgmentType])
+  @@index([appointmentId])
+}
+
+model LeadDisclosureReview {
+  id                   String    @id @default(cuid())
+  appointmentId        String    @unique
+  customerId           String
+  homeBuiltYear        Int?
+  pre1978Status        String    @default("unknown") // yes, no, unknown
+  disclosureRequired   Boolean   @default(false)
+  disclosureProvided   Boolean   @default(false)
+  reviewedWithCustomer Boolean   @default(false)
+  customerAcknowledged Boolean   @default(false)
+  reviewedBy           String?
+  reviewedAt           DateTime?
+  notes                String?
+  metadata             Json?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  @@index([customerId])
+}
+
+// ═══════════════════════════════════════════════════════════
+// FINANCE MODULE — Financing options catalog + proposal selections
+// ═══════════════════════════════════════════════════════════
+
+/// Tracks a batch import of finance options from a spreadsheet.
+model FinanceOptionImportBatch {
+  id            String   @id @default(cuid())
+  companyId     String? // null = global (super-admin seeded)
+  uploadedById  String // userId who ran the import
+  fileName      String
+  originalPath  String?
+  sheetNames    Json? // array of sheet names found
+  rowCount      Int      @default(0)
+  importedCount Int      @default(0)
+  skippedCount  Int      @default(0)
+  errorCount    Int      @default(0)
+  status        String   @default("pending") // pending, completed, failed
+  errorLog      Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  options FinanceOption[]
+
+  @@index([companyId])
+  @@index([uploadedById])
+  @@index([status])
+}
+
+/// A single finance option / payment plan (from spreadsheet or manually entered).
+model FinanceOption {
+  id            String  @id @default(cuid())
+  companyId     String? // null = global; non-null = company-specific
+  importBatchId String? // link to FinanceOptionImportBatch if imported
+
+  // Identification (keeping planKey for backward compat)
+  planKey     String  @unique // stable machine key, e.g. "zero-6mo"
+  planCode    String? // lender plan code, e.g. "2317"
+  lenderName  String? // lender/finance company name
+  name        String // full program name, e.g. "6 months @ 0% interest"
+  displayName String? // short customer-facing label
+
+  // Terms
+  termMonths             Int
+  apr                    Float    @default(0) // annual rate, e.g. 6.99
+  promoType              String // interest_free | fixed_rate | same_as_cash | cash_down | none
+  promoAprPercent        Decimal? @db.Decimal(6, 4) // promo rate (often 0)
+  deferredInterestMonths Int? // months of deferred interest
+  sameAsCashMonths       Int? // same-as-cash period
+
+  // Amount rules
+  minimumAmount Decimal? @db.Decimal(12, 2)
+  maximumAmount Decimal? @db.Decimal(12, 2)
+
+  // Down payment
+  downPaymentPercent Decimal? @db.Decimal(6, 4) // e.g. 0.50 for 50%
+  downPaymentAmount  Decimal? @db.Decimal(12, 2) // fixed dollar amount
+
+  // Monthly payment calculation
+  monthlyPaymentFactor Decimal? @db.Decimal(12, 8) // e.g. 0.031249 for 36mo/6.99%
+  paymentFormula       String? // kept for backward compat
+
+  // Formula metadata
+  formulaType String @default("zero_interest") // zero_interest | factor | amortized | half_down | custom
+  formulaJson Json? // raw formula metadata from spreadsheet
+
+  // Disclosure / legal
+  disclosureText String?
+
+  // Source tracking
+  sourceSheet     String?
+  sourceRowNumber Int?
+  sourceHash      String? @unique // SHA-256 dedup key
+
+  // Display
+  sortOrder Int     @default(0)
+  isActive  Boolean @default(true)
+
+  // Misc
+  metadata  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  importBatch FinanceOptionImportBatch?     @relation(fields: [importBatchId], references: [id], onDelete: Cascade)
+  selections  AppointmentFinanceSelection[]
+
+  @@index([companyId])
+  @@index([importBatchId])
+  @@index([planCode])
+  @@index([termMonths])
+  @@index([isActive])
+  @@index([sourceHash])
+}
+
+/// Records which finance option a sales rep selected for an appointment/proposal.
+model AppointmentFinanceSelection {
+  id              String  @id @default(cuid())
+  companyId       String? // company scoping
+  appointmentId   String  @unique // one selection per appointment (or use non-unique if multi needed)
+  financeOptionId String
+
+  // Amounts at time of selection (snapshot — option may change later)
+  jobAmount         Float? // = appt.totalAmount at time of selection
+  downPaymentAmount Decimal? @db.Decimal(12, 2)
+  amountFinanced    Float? // financedAmount
+  monthlyPayment    Float? // estimatedMonthlyPayment
+
+  // Term/rate overrides (captured at selection time)
+  termMonths Int?
+  aprPercent Decimal? @db.Decimal(6, 4)
+
+  // Totals
+  totalPayments Decimal? @db.Decimal(12, 2)
+  totalInterest Decimal? @db.Decimal(12, 2)
+
+  // Disclosure snapshot
+  disclosureText String?
+
+  // Workflow flags
+  discussed Boolean @default(false) // discussed with customer
+  inPacket  Boolean @default(false) // include in proposal packet
+
+  selectedBy String? // userId
+  selectedAt DateTime @default(now())
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  financeOption FinanceOption @relation(fields: [financeOptionId], references: [id], onDelete: Cascade)
+
+  @@index([financeOptionId])
+  @@index([companyId])
+  @@index([appointmentId])
+}
+
+model CustomerDocumentPacket {
+  id            String    @id @default(cuid())
+  appointmentId String
+  customerId    String
+  packetType    String    @default("standard") // standard, proposal, final
+  status        String    @default("draft") // draft, assembled, exported
+  exportFormat  String? // pdf, xlsx
+  filePath      String?
+  fileSize      Int?
+  documents     Json? // Array of included document keys
+  metadata      Json?
+  createdBy     String?
+  createdAt     DateTime  @default(now())
+  exportedAt    DateTime?
+
+  @@index([appointmentId])
+  @@index([customerId])
+}
+
+model DocumentExportLog {
+  id              String   @id @default(cuid())
+  appointmentId   String
+  documentKey     String
+  documentVersion String?
+  exportFormat    String?
+  exportedBy      String?
+  exportedAt      DateTime @default(now())
+  metadata        Json?
+
+  @@index([appointmentId])
+  @@index([documentKey])
+}
+
+// ═══════════════════════════════════════════════════════════
+// COMMISSION MODULE — Private sales rep commission tracking
+// ═══════════════════════════════════════════════════════════
+
+// ── Commission Catalog — reusable price/commission rate table ──
+// Imported from the BTR Commission Sheet (CS-2400) and any future sheets.
+// Each row is one line item with its price, commission type, and source info.
+model CommissionCatalogItem {
+  id        String  @id @default(cuid())
+  companyId String? // null = global (super-admin seeded); non-null = company-specific
+
+  // Classification
+  category    String // Windows | Patio Doors | Options | Other Products | Additional Labor Charges | Value Plus / Energy Star Packs
+  subcategory String? // Double Hung | Other Styles | Specialty Windows | etc.
+  itemName    String // Human-readable label (e.g. "4000 DH Mech/Weld")
+  sku         String? // e.g. "3001", "3001-FE"
+  description String?
+
+  // Price
+  priceType    String   @default("fixed") // fixed | book | percent_off | job_amount | per_unit
+  priceAmount  Decimal? @db.Decimal(12, 2) // e.g. 365.00 — null if BOOK/percent
+  priceAmount2 Decimal? @db.Decimal(12, 2) // e.g. 135.00 for ranges like $115/$135
+  pricePercent Decimal? @db.Decimal(6, 4) // e.g. -0.20 for "20% Off"
+
+  // Commission
+  commissionType    String   @default("fixed") // fixed | percent | none
+  commissionAmount  Decimal? @db.Decimal(12, 2) // e.g. 20.00
+  commissionPercent Decimal? @db.Decimal(6, 4) // e.g. 0.10 for 10%
+
+  // Unit / per-unit context
+  unit String? // foot | square_foot | pair | pane | unit | job — null = each
+
+  // Source tracking
+  sourceSheet     String? // sheet name in the workbook
+  sourceRowNumber Int? // row number in the sheet (1-indexed)
+  sourceHash      String? @unique // SHA-256 of key fields — prevents duplicate imports
+
+  notes    String?
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyId])
+  @@index([category])
+  @@index([subcategory])
+  @@index([isActive])
+  @@index([sourceHash])
+}
+
+model CommissionImport {
+  id              String    @id @default(cuid())
+  userId          String
+  sourceFileName  String
+  sourceFilePath  String?
+  sourceSheetName String?
+  totalRows       Int       @default(0)
+  importedRows    Int       @default(0)
+  skippedRows     Int       @default(0)
+  failedRows      Int       @default(0)
+  status          String    @default("pending") // pending, mapping, importing, completed, failed
+  mappingStatus   String    @default("needs_mapping") // needs_mapping, mapped, confirmed
+  columnMapping   Json? // { sourceCol: appField } mapping
+  metadata        Json? // workbook metadata, detected headers, etc.
+  errorLog        Json?
+  importedAt      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user    User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rows    CommissionImportRow[]
+  records CommissionRecord[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+model CommissionImportRow {
+  id           String   @id @default(cuid())
+  importId     String
+  rowNumber    Int
+  rawData      Json // Original cell values from the workbook
+  mappedData   Json? // Mapped to app field names
+  status       String   @default("pending") // pending, imported, skipped, failed, duplicate
+  errorMessage String?
+  recordId     String? // Link to created CommissionRecord
+  createdAt    DateTime @default(now())
+
+  import_   CommissionImport @relation(fields: [importId], references: [id], onDelete: Cascade)
+  updatedAt DateTime         @default(now()) @updatedAt
+
+  @@unique([importId, rowNumber])
+  @@index([importId])
+  @@index([status])
+}
+
+model CommissionRecord {
+  id              String  @id @default(cuid())
+  userId          String
+  importId        String?
+  sourceFileName  String?
+  sourceSheetName String?
+  sourceRowNumber Int?
+
+  // Customer / Job info
+  customerName    String?
+  customerId_     String? // WW customer ID from sheet
+  customerAddress String?
+  customerCity    String?
+  customerState   String?
+  customerZip     String?
+  customerPhone   String?
+  region          String?
+
+  // Job details
+  contractNumber String?
+  orderNumber    String?
+  soldDate       DateTime?
+  installDate    DateTime?
+  salesRepName   String?
+  salesRepNumber String?
+  result         String? // Sale result from sheet
+  numWindows     Int?
+  productTypes   Json? // Array of product types/counts
+
+  // Financial
+  jobAmount         Decimal? @db.Decimal(12, 2)
+  totalSaleAmount   Decimal? @db.Decimal(12, 2)
+  commissionableAmt Decimal? @db.Decimal(12, 2)
+  commissionRate    Decimal? @db.Decimal(5, 4) // e.g. 0.08 for 8%
+  commissionAmount  Decimal? @db.Decimal(12, 2)
+  paidAmount        Decimal? @default(0) @db.Decimal(12, 2)
+  unpaidAmount      Decimal? @db.Decimal(12, 2)
+  adjustedAmount    Decimal? @db.Decimal(12, 2)
+  adminFee          Decimal? @db.Decimal(12, 2)
+
+  // Status tracking
+  commissionStatus String    @default("imported") // imported, pending, expected, paid, partially_paid, disputed, adjusted, ignored
+  paymentDate      DateTime?
+  checkNumber      String?
+  notes            String?
+  comments         String?
+
+  // Metadata
+  metadata  Json?
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  user        User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  import_     CommissionImport?      @relation(fields: [importId], references: [id])
+  links       CommissionRecordLink[]
+  adjustments CommissionAdjustment[]
+  payments    CommissionPayment[]
+
+  @@index([userId])
+  @@index([importId])
+  @@index([commissionStatus])
+  @@index([soldDate])
+  @@index([customerName])
+  @@index([isDeleted])
+}
+
+model CommissionRecordLink {
+  id              String    @id @default(cuid())
+  commissionId    String
+  appointmentId   String?
+  customerId      String?
+  linkType        String    @default("manual") // manual, auto_suggested, confirmed
+  matchConfidence Float? // 0-1 confidence score
+  matchReason     String? // "address_match", "name_match", "date_match"
+  confirmedAt     DateTime?
+  confirmedBy     String?
+  createdAt       DateTime  @default(now())
+
+  commission CommissionRecord @relation(fields: [commissionId], references: [id], onDelete: Cascade)
+  updatedAt  DateTime         @default(now()) @updatedAt
+
+  @@index([commissionId])
+  @@index([appointmentId])
+  @@index([customerId])
+}
+
+model CommissionAdjustment {
+  id             String   @id @default(cuid())
+  commissionId   String
+  adjustmentType String // correction, bonus, deduction, chargeback
+  amount         Decimal  @db.Decimal(12, 2)
+  reason         String?
+  notes          String?
+  adjustedBy     String?
+  adjustedAt     DateTime @default(now())
+
+  commission CommissionRecord @relation(fields: [commissionId], references: [id], onDelete: Cascade)
+  updatedAt  DateTime         @default(now()) @updatedAt
+
+  @@index([commissionId])
+}
+
+model CommissionPayment {
+  id            String    @id @default(cuid())
+  commissionId  String
+  amount        Decimal   @db.Decimal(12, 2)
+  paymentDate   DateTime?
+  checkNumber   String?
+  paymentMethod String? // check, direct_deposit, cash
+  notes         String?
+  recordedBy    String?
+  createdAt     DateTime  @default(now())
+
+  commission CommissionRecord @relation(fields: [commissionId], references: [id], onDelete: Cascade)
+  updatedAt  DateTime         @default(now()) @updatedAt
+
+  @@index([commissionId])
+  @@index([paymentDate])
+}
+
+// ═══════════════════════════════════════════════════════════
+// WALKTHROUGH ENGINE
+// Room-by-room field walkthrough system
+// ═══════════════════════════════════════════════════════════
+
+model WalkthroughSession {
+  id             String    @id @default(cuid())
+  appointmentId  String
+  userId         String
+  status         String    @default("in_progress")
+  currentRoom    String?
+  completedRooms Json      @default("[]")
+  totalRooms     Int       @default(0)
+  completionPct  Float     @default(0)
+  startedAt      DateTime  @default(now())
+  completedAt    DateTime?
+  metadata       Json?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  rooms WalkthroughRoom[]
+
+  @@index([appointmentId])
+  @@index([userId])
+}
+
+model WalkthroughRoom {
+  id            String   @id @default(cuid())
+  sessionId     String
+  appointmentId String
+  roomName      String
+  roomType      String   @default("other")
+  floorNumber   Int      @default(1)
+  sortOrder     Int      @default(0)
+  openingCount  Int      @default(0)
+  completionPct Float    @default(0)
+  status        String   @default("pending")
+  notes         String?
+  metadata      Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  session   WalkthroughSession       @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  openings  WalkthroughRoomOpening[]
+  roomNotes WalkthroughRoomNote[]
+
+  @@index([sessionId])
+  @@index([appointmentId])
+}
+
+model WalkthroughRoomOpening {
+  id              String   @id @default(cuid())
+  roomId          String
+  openingId       String?
+  openingNumber   Int?
+  productType     String?
+  width           Float?
+  height          Float?
+  notes           String?
+  hasPhoto        Boolean  @default(false)
+  hasSketchMarker Boolean  @default(false)
+  hasMeasurement  Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  room      WalkthroughRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  updatedAt DateTime        @default(now()) @updatedAt
+
+  @@index([roomId])
+  @@index([openingId])
+}
+
+model WalkthroughRoomNote {
+  id        String   @id @default(cuid())
+  roomId    String
+  noteType  String   @default("text")
+  noteText  String?
+  audioUrl  String?
+  createdAt DateTime @default(now())
+
+  room      WalkthroughRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  updatedAt DateTime        @default(now()) @updatedAt
+}
+
+// ═══════════════════════════════════════════════════════════
+// OPENING TEMPLATES
+// Reusable configuration presets for openings
+// ═══════════════════════════════════════════════════════════
+
+model OpeningTemplate {
+  id              String   @id @default(cuid())
+  name            String
+  description     String?
+  category        String   @default("standard")
+  productCategory String?
+  interiorColor   String?
+  exteriorColor   String?
+  gridStyle       String?
+  temperedGlass   String?
+  obscureGlass    String?
+  screenOption    String?
+  foamEnhanced    Boolean? @default(false)
+  installNotes    String?
+  removalType     String?
+  isDefault       Boolean  @default(false)
+  usageCount      Int      @default(0)
+  metadata        Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  usageLogs OpeningTemplateUsageLog[]
+}
+
+model OpeningTemplateUsageLog {
+  id            String   @id @default(cuid())
+  templateId    String
+  appointmentId String?
+  openingId     String?
+  userId        String?
+  appliedAt     DateTime @default(now())
+
+  template OpeningTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@index([appointmentId])
+  @@index([openingId])
+  @@index([userId])
+}
+
+// ═══════════════════════════════════════════════════════════
+// AI CHAT ENGINE
+// Context-aware appointment assistant
+// ═══════════════════════════════════════════════════════════
+
+model AiChatSession {
+  id            String   @id @default(cuid())
+  appointmentId String?
+  userId        String
+  status        String   @default("active")
+  createdAt     DateTime @default(now())
+
+  messages AiChatMessage[]
+
+  @@index([appointmentId])
+  @@index([userId])
+}
+
+model AiChatMessage {
+  id          String   @id @default(cuid())
+  sessionId   String
+  role        String   @default("user")
+  content     String
+  actionItems Json?
+  createdAt   DateTime @default(now())
+
+  session   AiChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  updatedAt DateTime      @default(now()) @updatedAt
+}
+
+// ═══════════════════════════════════════════════════════════
+// CALLBACK RISK SCORING
+// ═══════════════════════════════════════════════════════════
+
+model CallbackRiskScore {
+  id              String   @id @default(cuid())
+  appointmentId   String
+  overallRisk     Float    @default(0)
+  measurementRisk Float    @default(0)
+  sketchRisk      Float    @default(0)
+  pricingRisk     Float    @default(0)
+  notesRisk       Float    @default(0)
+  signatureRisk   Float    @default(0)
+  riskLevel       String   @default("REVIEW")
+  blockers        Json     @default("[]")
+  computedAt      DateTime @default(now())
+
+  @@index([appointmentId])
+}
+
+// ═══════════════════════════════════════════════════════════
+// MOBILE OFFLINE SYNC
+// ═══════════════════════════════════════════════════════════
+
+model MobileSyncQueue {
+  id            String    @id @default(cuid())
+  companyId     String?
+  userId        String
+  appointmentId String?
+  entityType    String
+  entityId      String?
+  operation     String // create | update | delete
+  payload       Json
+  status        String    @default("pending")
+  retryCount    Int       @default(0)
+  error         String?
+  processedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([appointmentId])
+  @@index([status])
+  @@index([companyId])
+  @@index([entityId])
+}
+
+model MobileOfflineDraft {
+  id            String    @id @default(cuid())
+  companyId     String?
+  userId        String
+  appointmentId String?
+  draftType     String
+  draftData     Json
+  version       Int       @default(1)
+  isConflicted  Boolean   @default(false)
+  conflictData  Json?
+  syncedAt      DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([appointmentId])
+  @@index([companyId])
+}
+
+// ═══════════════════════════════════════════════════════════
+// APPOINTMENT QUALITY SCORING
+// ═══════════════════════════════════════════════════════════
+
+model AppointmentQualityScore {
+  id                         String   @id @default(cuid())
+  appointmentId              String
+  companyId                  String?
+  // Core score (used by both AI scorer and mobile route)
+  overallScore               Float?
+  // Mobile quality-score route fields (POST /api/mobile/quality-score/:id)
+  installerClarityScore      Float?
+  measurementConfidenceScore Float?
+  pricingConfidenceScore     Float?
+  contractAccuracyScore      Float?
+  sketchCompletenessScore    Float?
+  riskLevel                  String? // 'PASS' | 'REVIEW' | 'HIGH_RISK'
+  criticalIssueCount         Int      @default(0)
+  warningCount               Int      @default(0)
+  computedAt                 DateTime @default(now())
+  // AI scorer fields
+  measurementScore           Float?
+  completenessScore          Float?
+  consistencyScore           Float?
+  photoScore                 Float?
+  scoredAt                   DateTime @default(now())
+  scoredBy                   String   @default("ai")
+  notes                      String?
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+
+  @@index([appointmentId])
+  @@index([companyId])
+}
+
+// ═══════════════════════════════════════════════════════════
+// AI CREDIT SYSTEM
+// ═══════════════════════════════════════════════════════════
+
+model AiCreditAccount {
+  id                 String   @id @default(cuid())
+  companyId          String   @unique
+  planName           String   @default("starter")
+  monthlyCreditLimit Int      @default(1000)
+  monthlyCreditsUsed Int      @default(0)
+  bonusCredits       Int      @default(0)
+  hardLimitEnabled   Boolean  @default(true)
+  resetDate          DateTime @default(now())
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([companyId])
+  @@index([resetDate])
+}
+
+model AiUsageEvent {
+  id               String   @id @default(cuid())
+  companyId        String
+  userId           String
+  featureKey       String
+  provider         String   @default("gemini")
+  model            String
+  inputTokens      Int?
+  outputTokens     Int?
+  imageCount       Int      @default(0)
+  estimatedCostUsd Float?
+  creditsUsed      Int      @default(0)
+  cacheHit         Boolean  @default(false)
+  requestHash      String?
+  status           String   @default("success")
+  errorMessage     String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @default(now()) @updatedAt
+
+  @@index([companyId])
+  @@index([userId])
+  @@index([featureKey])
+  @@index([requestHash])
+  @@index([createdAt])
+}
+
+model AiFeatureLimit {
+  id                 String   @id @default(cuid())
+  featureKey         String   @unique
+  displayName        String
+  monthlyLimit       Int?
+  dailyLimit         Int?
+  perRequestLimit    Int      @default(50)
+  creditsPerCall     Int      @default(5)
+  defaultModel       String?
+  fallbackModel      String?
+  requiresHumanClick Boolean  @default(true)
+  cacheTtlSeconds    Int      @default(3600)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([featureKey])
+}
+
+model AiCacheEntry {
+  id           String   @id @default(cuid())
+  companyId    String
+  featureKey   String
+  requestHash  String
+  model        String
+  responseJson Json
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
+
+  @@unique([companyId, featureKey, requestHash])
+  @@index([companyId])
+  @@index([featureKey])
+  @@index([requestHash])
+  @@index([expiresAt])
+}
+
+model AiUpgradeLink {
+  id            String   @id @default(cuid())
+  planName      String   @unique
+  stripePriceId String?
+  checkoutUrl   String?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// ================================================================
+// ASTARI AI COMMAND CENTER MODELS
+// ================================================================
+
+model AstariCommand {
+  id          String   @id @default(cuid())
+  companyId   String
+  userId      String
+  input       String
+  output      String?
+  status      String   @default("pending") // pending | running | done | error
+  featureKey  String   @default("astari.command")
+  creditsUsed Int      @default(0)
+  cached      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([companyId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model AstariTask {
+  id           String    @id @default(cuid())
+  companyId    String
+  createdById  String
+  assignedToId String?
+  title        String
+  description  String?
+  status       String    @default("todo") // todo | in_progress | done | blocked
+  priority     String    @default("medium") // low | medium | high | critical
+  dueDate      DateTime?
+  tags         String[]
+  aiGenerated  Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([companyId])
+  @@index([createdById])
+  @@index([status])
+  @@index([priority])
+  @@index([createdAt])
+  @@index([assignedToId])
+}
+
+model AstariWorkflow {
+  id          String               @id @default(cuid())
+  companyId   String
+  createdById String
+  name        String
+  description String?
+  status      String               @default("draft") // draft | active | archived
+  triggerType String               @default("manual") // manual | scheduled | event
+  steps       AstariWorkflowStep[]
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  @@index([companyId])
+  @@index([createdById])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model AstariWorkflowStep {
+  id         String   @id @default(cuid())
+  workflowId String
+  stepOrder  Int
+  name       String
+  actionType String   @default("ai_prompt") // ai_prompt | notification | webhook | condition
+  config     Json     @default("{}")
+  status     String   @default("pending") // pending | running | done | error | skipped
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  workflow AstariWorkflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  @@index([workflowId])
+}
+
+model AstariKnowledgeItem {
+  id          String   @id @default(cuid())
+  companyId   String
+  createdById String
+  title       String
+  content     String
+  summary     String?
+  tags        String[]
+  sourceType  String   @default("manual") // manual | ai_generated | imported
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([companyId])
+  @@index([createdById])
+  @@index([createdAt])
+}
+
+model AstariActionRun {
+  id           String   @id @default(cuid())
+  companyId    String
+  userId       String
+  workflowId   String?
+  actionType   String
+  status       String   @default("running") // running | done | error
+  input        Json     @default("{}")
+  output       Json?
+  durationMs   Int?
+  errorMessage String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
+
+  @@index([companyId])
+  @@index([userId])
+  @@index([workflowId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// ═══════════════════════════════════════════════════════════
+// PRE-VISIT & ADDRESS-FIRST WORKFLOW
+// ═══════════════════════════════════════════════════════════
+
+model PreVisitPropertyProfile {
+  id                           String   @id @default(cuid())
+  companyId                    String
+  userId                       String
+  customerId                   String?
+  appointmentId                String?
+  address                      String
+  formattedAddress             String?
+  lat                          Float?
+  lng                          Float?
+  propertyFactsJson            Json?
+  imageryStatus                String   @default("pending")
+  outlineAvailable             Boolean  @default(false)
+  aerialAvailable              Boolean  @default(false)
+  streetViewAvailable          Boolean  @default(false)
+  estimatedOpeningsJson        Json?
+  visibleWindowSuggestionsJson Json?
+  suggestedAssumptionsJson     Json?
+  limitationsJson              Json?
+  confidenceLevel              String?
+  sourceJson                   Json?
+  createdAt                    DateTime @default(now())
+  updatedAt                    DateTime @updatedAt
+
+  @@index([companyId])
+  @@index([userId])
+  @@index([customerId])
+  @@index([appointmentId])
+  @@index([address])
+}
+
+model PreVisitVisualSource {
+  id           String   @id @default(cuid())
+  companyId    String
+  profileId    String
+  sourceType   String
+  sourceUrl    String?
+  metadataJson Json?
+  imageHash    String?
+  available    Boolean  @default(false)
+  errorMessage String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([companyId])
+  @@index([profileId])
+  @@index([sourceType])
+}
+
+model PreVisitWindowSuggestion {
+  id            String   @id @default(cuid())
+  companyId     String
+  profileId     String
+  elevation     String?
+  suggestedType String?
+  confidence    String?
+  sourceType    String
+  sourceId      String?
+  status        String   @default("pending")
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([companyId])
+  @@index([profileId])
+  @@index([status])
+}
+
+model PreVisitChecklistItem {
+  id        String   @id @default(cuid())
+  companyId String
+  profileId String
+  category  String
+  label     String
+  status    String   @default("pending")
+  severity  String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyId])
+  @@index([profileId])
+}
+
+model ExteriorInspection {
+  id                        String   @id @default(cuid())
+  companyId                 String
+  userId                    String
+  customerId                String?
+  appointmentId             String?
+  broadQuoteId              String?
+  status                    String   @default("pending")
+  overallInstallComplexity  String?
+  homeownerFinishPreference String?
+  budgetPreference          String?
+  notes                     String?
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+
+  @@index([companyId])
+  @@index([userId])
+  @@index([appointmentId])
+  @@index([customerId])
+}
+
+model ExteriorInspectionOpening {
+  id                          String   @id @default(cuid())
+  companyId                   String
+  inspectionId                String
+  openingId                   String?
+  elevation                   String
+  openingLabel                String
+  existingWindowType          String?
+  exteriorSurface             String?
+  existingInstallStyle        String?
+  removalDifficulty           String?
+  recommendedInstallMethod    String?
+  costEffectiveRecommendation String?
+  premiumFinishRecommendation String?
+  laborFlagsJson              Json?
+  finishPreference            String?
+  notes                       String?
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
+
+  @@index([companyId])
+  @@index([inspectionId])
+  @@index([openingId])
+}
+
+model FinalReviewItem {
+  id               String    @id @default(cuid())
+  companyId        String
+  customerId       String?
+  appointmentId    String?
+  /// Links this finding to a specific Opening record
+  openingId        String?
+  /// Rep user who triggered the check (derived server-side, never client-trusted)
+  userId           String?
+  sourceType       String
+  sourceId         String?
+  issueType        String?
+  field            String?
+  severity         String
+  category         String
+  /// Short human-readable title for the finding card
+  title            String?
+  message          String
+  /// Human-readable suggested action text (advisory only — never auto-applied)
+  suggestedAction  String?
+  /// If true, user must explicitly approve before the system takes any action
+  requiresApproval Boolean   @default(true)
+  /// 0.0–1.0 confidence score, null for deterministic findings
+  confidence       Float?
+  /// Where this finding came from
+  source           String? // deterministic_rule | ai_assistant | sync_engine | photo_qa | pricing_qa
+  status           String    @default("open") // open | applied | ignored | reviewed | manager_review
+  resolvedAt       DateTime?
+  resolvedBy       String?
+  resolutionAction String?
+  overrideReason   String?
+  metadataJson     String?   @db.Text
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([companyId])
+  @@index([appointmentId])
+  @@index([openingId])
+  @@index([userId])
+  @@index([severity])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model ReviewActionLog {
+  id            String   @id @default(cuid())
+  companyId     String
+  userId        String
+  appointmentId String
+  issueId       String?
+  issueType     String?
+  actionType    String
+  payload       String?  @db.Text
+  createdAt     DateTime @default(now())
+
+  company     Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  appointment Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+  @@index([appointmentId])
+  @@index([userId])
+}
+
+// ─────────────────────────────────────────────────────────
+// Property Vision / Quick Quote Vision System
+// ─────────────────────────────────────────────────────────
+
+model PropertyResearchProfile {
+  id               String   @id @default(cuid())
+  companyId        String
+  userId           String
+  customerId       String?
+  appointmentId    String?
+  address          String
+  formattedAddress String?
+  lat              Float?
+  lng              Float?
+  status           String   @default("pending")
+  confidence       Float    @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  company     Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customer    Customer?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  appointment Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+
+  sources          PropertyResearchSource[]
+  images           PropertyResearchImage[]
+  suggestions      OpeningSuggestion[]
+  researchSessions QuickQuoteResearchSession[]
+
+  @@index([companyId])
+  @@index([userId])
+  @@index([customerId])
+  @@index([appointmentId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model PropertyResearchSource {
+  id            String   @id @default(cuid())
+  companyId     String
+  profileId     String
+  provider      String   @default("unknown")
+  sourceType    String
+  title         String?
+  url           String?
+  domain        String?
+  snippet       String?
+  licenseStatus String   @default("unknown")
+  metadataJson  Json?
+  status        String   @default("pending")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  company Company                 @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  profile PropertyResearchProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  images    PropertyResearchImage[]
+  evidences OpeningEvidence[]
+
+  @@index([companyId])
+  @@index([profileId])
+  @@index([provider])
+  @@index([sourceType])
+  @@index([status])
+}
+
+model OpeningSuggestion {
+  id                 String   @id @default(cuid())
+  companyId          String
+  profileId          String
+  label              String
+  openingType        String   @default("window")
+  subtype            String?
+  elevation          String?
+  confidence         Float    @default(0)
+  status             String   @default("pending")
+  reasoning          String?
+  evidenceJson       Json?
+  bboxJson           Json?
+  finalQuoteEligible Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  company Company                 @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  profile PropertyResearchProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  evidences OpeningEvidence[]
+
+  @@index([companyId])
+  @@index([profileId])
+  @@index([label])
+  @@index([status])
+}
+
+model QuickQuoteResearchSession {
+  id              String   @id @default(cuid())
+  companyId       String
+  userId          String
+  profileId       String
+  broadQuoteId    String?
+  status          String   @default("active")
+  assumptionsJson Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  company Company                 @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user    User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  profile PropertyResearchProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+  @@index([userId])
+  @@index([profileId])
+}
+
+model PropertyResearchImage {
+  id             String   @id @default(cuid())
+  companyId      String
+  profileId      String
+  sourceId       String?
+  sourceType     String
+  imageUrl       String?
+  storagePath    String?
+  imageHash      String?
+  licenseStatus  String   @default("unknown")
+  metadataJson   Json?
+  analysisStatus String   @default("pending")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  company Company                 @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  profile PropertyResearchProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  source  PropertyResearchSource? @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+
+  @@index([companyId])
+  @@index([profileId])
+  @@index([sourceId])
+  @@index([sourceType])
+  @@index([imageHash])
+}
+
+model OpeningEvidence {
+  id           String   @id @default(cuid())
+  companyId    String
+  suggestionId String
+  sourceType   String
+  sourceId     String?
+  description  String
+  confidence   Float    @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  company    Company                 @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  suggestion OpeningSuggestion       @relation(fields: [suggestionId], references: [id], onDelete: Cascade)
+  source     PropertyResearchSource? @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+
+  @@index([companyId])
+  @@index([suggestionId])
+  @@index([sourceId])
+}
+
+// ═══════════════════════════════════════════════════════════
+// MOBILE RECORDING SYSTEM
+// Voice/audio recordings captured in the field, with transcripts
+// and AI-extracted field values for opening measurements.
+// ═══════════════════════════════════════════════════════════
+
+model MobileRecording {
+  id            String                           @id @default(cuid())
+  userId        String
+  appointmentId String?
+  openingId     String?
+  status        String                           @default("saved") // saved | processing | failed
+  syncStatus    String                           @default("pending") // pending | synced | failed
+  durationSecs  Float?
+  fileUrl       String? // S3 or Supabase Storage URL (optional)
+  transcripts   MobileRecordingTranscript[]
+  extractions   MobileRecordingFieldExtraction[]
+  createdAt     DateTime                         @default(now())
+  updatedAt     DateTime                         @updatedAt
+
+  @@index([userId])
+  @@index([appointmentId])
+  @@index([openingId])
+}
+
+model MobileRecordingTranscript {
+  id          String   @id @default(cuid())
+  recordingId String
+  text        String
+  confidence  Float?
+  startMs     Int?
+  endMs       Int?
+  speaker     String?
+  createdAt   DateTime @default(now())
+
+  recording MobileRecording @relation(fields: [recordingId], references: [id], onDelete: Cascade)
+  updatedAt DateTime        @default(now()) @updatedAt
+
+  @@index([recordingId])
+}
+
+model MobileRecordingFieldExtraction {
+  id              String    @id @default(cuid())
+  recordingId     String
+  appointmentId   String?
+  openingNumber   Int?
+  targetTable     String // 'Opening' | 'Appointment'
+  targetField     String
+  rawValue        String?
+  normalizedValue String?
+  status          String    @default("pending") // pending | approved | rejected | applied
+  appliedBy       String?
+  approvedAt      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  recording MobileRecording @relation(fields: [recordingId], references: [id], onDelete: Cascade)
+
+  @@index([recordingId])
+  @@index([appointmentId])
+  @@index([status])
+}
+
+// -----------------------------------------------------------
+// FOLLOW-UPS & NOTIFICATIONS
+// -----------------------------------------------------------
+
+model FollowUp {
+  id                    String    @id @default(cuid())
+  companyId             String
+  userId                String
+  customerId            String?
+  appointmentId         String?
+  proposalId            String?
+  type                  String
+  status                String    @default("scheduled")
+  title                 String
+  notes                 String?
+  scheduledAt           DateTime
+  reminderAt            DateTime?
+  reminderMinutesBefore Int?
+  notificationEnabled   Boolean   @default(true)
+  notificationStatus    String?
+  calendarEventId       String?
+  icsGenerated          Boolean   @default(false)
+  source                String?
+  completedAt           DateTime?
+  metadataJson          Json?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  company     Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customer    Customer?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  appointment Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+
+  @@index([companyId])
+  @@index([userId])
+  @@index([customerId])
+  @@index([appointmentId])
+  @@index([proposalId])
+  @@index([scheduledAt])
+  @@index([status])
+}
+
+model PushSubscription {
+  id          String   @id @default(cuid())
+  companyId   String
+  userId      String
+  endpoint    String
+  p256dh      String
+  auth        String
+  userAgent   String?
+  deviceLabel String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([endpoint])
+  @@index([companyId])
+  @@index([userId])
+}
+
+// ═══════════════════════════════════════════════════════════
+// SKETCH EXPORT — Supabase Storage references for sketch PNGs
+// Each SketchExport represents one rendered sketch PNG stored
+// in the 'sketch-exports' bucket, scoped by company + appointment.
+// ═══════════════════════════════════════════════════════════
+
+model SketchExport {
+  id              String    @id @default(cuid())
+  companyId       String
+  appointmentId   String
+  createdByUserId String
+  storageBucket   String
+  storagePath     String
+  mimeType        String    @default("image/png")
+  widthPx         Int?
+  heightPx        Int?
+  sourceHash      String? // hash of marker data — used to detect staleness
+  version         Int       @default(1)
+  sourceUpdatedAt DateTime?
+  metadataJson    Json?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  appointment        Appointment         @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  generatedDocuments GeneratedDocument[]
+
+  @@index([companyId])
+  @@index([appointmentId])
+  @@index([createdByUserId])
+  @@index([createdAt])
+}
+
+// ═══════════════════════════════════════════════════════════
+// GENERATED DOCUMENT — Supabase Storage references for XLSX/PDF
+// Each GeneratedDocument represents one XLSX or PDF stored in
+// the 'generated-documents' bucket, scoped by company + appointment.
+// Links to a SketchExport so we can detect when sketch has changed.
+// ═══════════════════════════════════════════════════════════
+
+model GeneratedDocument {
+  id                   String   @id @default(cuid())
+  companyId            String
+  appointmentId        String
+  customerId           String?
+  createdByUserId      String
+  documentType         String // order_form | proposal | contract | warranty | maintenance_agreement | finance_options
+  status               String   @default("generating") // generating | ready | failed | stale
+  storageBucket        String
+  storagePath          String? // primary storage path (PDF if both, else XLSX)
+  xlsxStoragePath      String?
+  pdfStoragePath       String?
+  mimeType             String   @default("application/pdf")
+  fileName             String
+  version              Int      @default(1)
+  sourceSketchExportId String?
+  metadataJson         Json?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  appointment        Appointment   @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  sourceSketchExport SketchExport? @relation(fields: [sourceSketchExportId], references: [id], onDelete: SetNull)
+
+  @@index([companyId])
+  @@index([appointmentId])
+  @@index([customerId])
+  @@index([createdByUserId])
+  @@index([documentType])
+  @@index([status])
+  @@index([createdAt])
+  @@index([sourceSketchExportId])
+}
+
+// -------------------------------------------------------
+// FIELD MANUAL + INTERACTIVE TRAINING � Models
+// -------------------------------------------------------
+
+model FieldManualCategory {
+  id          String   @id @default(cuid())
+  companyId   String?
+  slug        String
+  title       String
+  description String?
+  icon        String?
+  sortOrder   Int      @default(0)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  articles FieldManualArticle[]
+
+  @@unique([slug, companyId])
+  @@index([companyId])
+  @@index([active])
+}
+
+model FieldManualArticle {
+  id                       String   @id @default(cuid())
+  companyId                String?
+  categoryId               String?
+  slug                     String
+  title                    String
+  summary                  String?
+  bodyMarkdown             String   @db.Text
+  decisionGuideJson        Json?
+  doChooseJson             Json?
+  doNotChooseJson          Json?
+  requiredPhotosJson       Json?
+  requiredMeasurementsJson Json?
+  chargeableOptionsJson    Json?
+  managerReviewFlagsJson   Json?
+  commonMistakesJson       Json?
+  installerNotesJson       Json?
+  contractNotesJson        Json?
+  relatedWindowTypesJson   Json?
+  relatedDoorTypesJson     Json?
+  relatedSidingTypesJson   Json?
+  tagsJson                 Json?
+  videoAssetsJson          Json?
+  status                   String   @default("published") // draft | published | archived
+  version                  Int      @default(1)
+  createdByUserId          String?
+  approvedByUserId         String?
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  category FieldManualCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@unique([slug, companyId])
+  @@index([companyId])
+  @@index([categoryId])
+  @@index([status])
+  @@index([createdByUserId])
+  @@index([approvedByUserId])
+}
+
+model TrainingAsset {
+  id                  String   @id @default(cuid())
+  companyId           String?
+  title               String
+  description         String?
+  sourceType          String // image | video | youtube | link | pdf
+  sourceUrl           String
+  embedUrl            String?
+  thumbnailUrl        String?
+  attribution         String?
+  copyrightNote       String?
+  approvedForTraining Boolean  @default(false)
+  category            String?
+  tagsJson            Json?
+  metadataJson        Json?
+  createdByUserId     String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([companyId])
+  @@index([sourceType])
+  @@index([approvedForTraining])
+}
+
+model TrainingPath {
+  id               String   @id @default(cuid())
+  companyId        String?
+  slug             String
+  title            String
+  description      String?
+  roleTarget       String   @default("sales_rep") // sales_rep | manager | auditor | installer | all
+  required         Boolean  @default(false)
+  sortOrder        Int      @default(0)
+  active           Boolean  @default(true)
+  iconEmoji        String?
+  estimatedMinutes Int      @default(30)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  lessons  TrainingLesson[]
+  progress TrainingProgress[]
+  reviews  ManagerTrainingReview[]
+
+  @@unique([slug, companyId])
+  @@index([companyId])
+  @@index([roleTarget])
+}
+
+model TrainingLesson {
+  id              String   @id @default(cuid())
+  companyId       String?
+  trainingPathId  String
+  title           String
+  summary         String?
+  lessonType      String // article | video | quiz | scenario | measurement_practice | chargeback_sim | contract_sim
+  bodyMarkdown    String?  @db.Text
+  assetIdsJson    Json?
+  quizJson        Json?
+  scenarioJson    Json?
+  sortOrder       Int      @default(0)
+  passingScore    Int      @default(70)
+  durationMinutes Int      @default(5)
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  path      TrainingPath           @relation(fields: [trainingPathId], references: [id], onDelete: Cascade)
+  progress  TrainingProgress[]
+  questions TrainingQuestionBank[]
+
+  @@index([companyId])
+  @@index([trainingPathId])
+}
+
+model TrainingProgress {
+  id             String    @id @default(cuid())
+  companyId      String?
+  userId         String
+  trainingPathId String
+  lessonId       String?
+  status         String    @default("not_started") // not_started | in_progress | passed | failed | completed
+  score          Int?
+  attempts       Int       @default(0)
+  timeSpentSec   Int       @default(0)
+  completedAt    DateTime?
+  metadataJson   Json?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  path   TrainingPath    @relation(fields: [trainingPathId], references: [id], onDelete: Cascade)
+  lesson TrainingLesson? @relation(fields: [lessonId], references: [id])
+
+  @@index([companyId])
+  @@index([userId])
+  @@index([trainingPathId])
+  @@index([lessonId])
+  @@index([status])
+}
+
+model TrainingQuestionBank {
+  id                  String   @id @default(cuid())
+  companyId           String?
+  lessonId            String?
+  questionType        String // multiple_choice | photo_choice | measurement | scenario | true_false
+  questionText        String
+  imageAssetId        String?
+  videoAssetId        String?
+  optionsJson         Json
+  correctAnswerJson   Json
+  explanationMarkdown String?  @db.Text
+  difficulty          String   @default("intermediate") // beginner | intermediate | advanced
+  tagsJson            Json?
+  active              Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  lesson TrainingLesson? @relation(fields: [lessonId], references: [id], onDelete: SetNull)
+
+  @@index([companyId])
+  @@index([lessonId])
+  @@index([questionType])
+}
+
+model ManagerTrainingReview {
+  id             String    @id @default(cuid())
+  companyId      String?
+  userId         String
+  reviewerUserId String
+  trainingPathId String
+  status         String    @default("pending") // pending | approved | rejected | needs_work
+  notes          String?
+  score          Int?
+  approvedAt     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  path TrainingPath @relation(fields: [trainingPathId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+  @@index([userId])
+  @@index([reviewerUserId])
+  @@index([trainingPathId])
+}
+
+model ContentSource {
+  id         String   @id @default(cuid())
+  companyId  String?
+  sourceName String
+  sourceUrl  String
+  sourceType String // website | youtube | google | manual_upload
+  approved   Boolean  @default(false)
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([companyId])
+  @@index([sourceType])
+  @@index([approved])
+}
+
+// Maps a UI feature to a manual article/lesson for contextual help.
+model ManualFeatureLink {
+  id               String   @id @default(cuid())
+  companyId        String?
+  featureKey       String
+  routePattern     String?
+  componentKey     String?
+  articleSlug      String?
+  lessonId         String?
+  validationRuleId String?
+  helpLabel        String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([featureKey, companyId])
+  @@index([companyId])
+  @@index([featureKey])
+}
+
+// ═══════════════════════════════════════════════════════════
+// OFFLINE SYNC
+// ═══════════════════════════════════════════════════════════
+
+// Dedicated idempotency key table for offline push sync.
+// Replaces the previous fragile AuditLog text-search approach.
+// Keys are scoped to companyId+deviceId and expire after 7 days.
+model SyncIdempotencyKey {
+  id             String   @id @default(cuid())
+  companyId      String
+  userId         String
+  deviceId       String
+  idempotencyKey String   @unique
+  entityType     String
+  operation      String
+  entityLocalId  String?
+  entityCloudId  String?
+  responseJson   String? // cached response for replay
+  createdAt      DateTime @default(now())
+  expiresAt      DateTime // set to createdAt + 7 days; cleaned up by cron
+  updatedAt      DateTime @default(now()) @updatedAt
+
+  @@index([companyId, userId])
+  @@index([expiresAt])
+  @@index([deviceId])
+}
+
+// ═══════════════════════════════════════════════════════════
+// FIELD INTELLIGENCE
+// ═══════════════════════════════════════════════════════════
+
+model FieldIntelligenceFinding {
+  id               String    @id @default(cuid())
+  companyId        String?
+  appointmentId    String
+  openingId        String?
+  userId           String?
+  category         String
+  severity         String
+  title            String
+  message          String
+  suggestedAction  String?
+  status           String    @default("open") // open, applied, ignored, reviewed, manager_review
+  requiresApproval Boolean   @default(false)
+  confidence       Float     @default(1.0)
+  source           String    @default("smart_check")
+  metadataJson     Json?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  resolvedAt       DateTime?
+  resolvedBy       String?
+
+  @@index([companyId])
+  @@index([appointmentId])
+  @@index([openingId])
+  @@index([severity])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// -----------------------------------------------------------
+// QUOTE GROUPS & COMBINED QUOTES
+// -----------------------------------------------------------
+
+model QuoteGroup {
+  id            String    @id @default(cuid())
+  localId       String?
+  cloudId       String?
+  appointmentId String
+  customerId    String?
+  name          String
+  description   String?
+  status        String    @default("draft") // draft | presented | accepted | declined | archived
+  sortOrder     Int       @default(0)
+  isWholeJob    Boolean   @default(false)
+  subtotal      Float     @default(0)
+  discount      Float     @default(0)
+  tax           Float     @default(0)
+  total         Float     @default(0)
+  pricingStatus String    @default("current") // current | stale | needs_review
+  syncStatus    String    @default("synced") // offline sync state
+  deletedAt     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  appointment    Appointment          @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  openings       QuoteGroupOpening[]
+  combinedQuotes CombinedQuoteGroup[]
+
+  @@index([appointmentId])
+  @@index([localId])
+}
+
+model QuoteGroupOpening {
+  id                    String   @id @default(cuid())
+  quoteGroupId          String
+  openingId             String
+  markerId              String?
+  openingNumberSnapshot Int?
+  sortOrder             Int      @default(0)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  quoteGroup QuoteGroup @relation(fields: [quoteGroupId], references: [id], onDelete: Cascade)
+  opening    Opening    @relation(fields: [openingId], references: [id], onDelete: Cascade)
+
+  @@index([quoteGroupId])
+  @@index([openingId])
+}
+
+model CombinedQuote {
+  id             String    @id @default(cuid())
+  localId        String?
+  cloudId        String?
+  appointmentId  String
+  customerId     String?
+  name           String
+  description    String?
+  status         String    @default("draft") // draft | presented | accepted | declined | archived
+  subtotal       Float     @default(0)
+  discount       Float     @default(0)
+  tax            Float     @default(0)
+  total          Float     @default(0)
+  pricingStatus  String    @default("current") // current | stale | needs_review
+  useForContract Boolean   @default(false)
+  syncStatus     String    @default("synced")
+  deletedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  appointment Appointment          @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  quoteGroups CombinedQuoteGroup[]
+
+  @@index([appointmentId])
+  @@index([localId])
+}
+
+model CombinedQuoteGroup {
+  id              String   @id @default(cuid())
+  combinedQuoteId String
+  quoteGroupId    String
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  combinedQuote CombinedQuote @relation(fields: [combinedQuoteId], references: [id], onDelete: Cascade)
+  quoteGroup    QuoteGroup    @relation(fields: [quoteGroupId], references: [id], onDelete: Cascade)
+
+  @@index([combinedQuoteId])
+  @@index([quoteGroupId])
+}
+
+model JobSiteVisit {
+  id         String   @id @default(cuid())
+  userId     String
+  companyId  String?
+  customerId String?
+  siteName   String?
+  address    String?
+  city       String?
+  state      String?  @default("LA")
+  zip        String?
+  visitedAt  DateTime @default(now())
+  learned    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id])
+  company  Company?  @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  customer Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([companyId])
+  @@index([visitedAt])
+}
+
+// ═══════════════════════════════════════════════════════════
+// EMAIL LOG
+// ═══════════════════════════════════════════════════════════
+
+model EmailLog {
+  id            String   @id @default(cuid())
+  customerId    String
+  companyId     String?
+  sentByUserId  String
+  toEmail       String
+  fromEmail     String
+  subject       String
+  bodyText      String?
+  bodyHtml      String?
+  attachments   Json?    // Array of { name: string, url: string, storagePath: string }
+  status        String   @default("sent") // sent | failed
+  errorMessage  String?
+  createdAt     DateTime @default(now())
+
+  customer      Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  sentBy        User     @relation(fields: [sentByUserId], references: [id])
+  
+  @@index([customerId])
+  @@index([companyId])
+}
+
+// ── Sketch Annotations (Quick Notes) ────────────────────────────────────
+model SketchAnnotation {
+  id             String   @id @default(cuid())
+  appointmentId  String
+  sketchId       String?
+  markerId       String?
+  openingId      String?
+  type           String   @default("note")
+  text           String   @default("")
+  x              Float    @default(0)
+  y              Float    @default(0)
+  width          Float    @default(120)
+  height         Float    @default(60)
+  rotation       Float?   @default(0)
+  color          String?  @default("#FFEB3B")
+  syncStatus     String   @default("clean")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  appointment Appointment @relation(fields: [appointmentId], references: [id])
+
+  @@index([appointmentId])
+  @@index([sketchId])
+}
+
+model AddressVisuals {
+  id                      String   @id @default(uuid())
+  appointmentId           String   @unique
+  customerId              String?
+  address                 String?
+  lat                     Float?
+  lng                     Float?
+  provider                String   @default("mapbox")
+  mapSnapshotId           String?
+  satelliteSnapshotId     String?
+  streetViewSnapshotId    String?
+  propertyOutlineId       String?
+  selectedPrimaryView     String   @default("map")
+  rotationDegrees         Float    @default(0)
+  bearingDegrees          Float    @default(0)
+  pitchDegrees            Float    @default(0)
+  zoom                    Float    @default(18)
+  confirmedFrontElevation Boolean  @default(false)
+  frontElevationDirection String?
+  offlineReady            Boolean  @default(false)
+  syncStatus              String   @default("clean")
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  appointment Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+}
+

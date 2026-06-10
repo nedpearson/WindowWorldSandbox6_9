@@ -1,0 +1,65 @@
+{
+  "name": "desktop",
+  "version": "1.1.0",
+  "description": "Window World Assistant Field App",
+  "author": "Ned Pearson",
+  "main": "dist/main.js",
+  "scripts": {
+    "dev": "tsc && electron .",
+    "build": "tsc",
+    "package": "electron-builder build --win",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "electron-log": "^5.4.4",
+    "electron-serve": "^3.0.1",
+    "electron-updater": "^6.8.3",
+    "exceljs": "^3.10.0"
+  },
+  "devDependencies": {
+    "electron": "^42.0.0",
+    "electron-builder": "^26.8.1",
+    "typescript": "^5.0.0"
+  },
+  "build": {
+    "appId": "com.windowworld.assistant",
+    "productName": "Window World Assistant",
+    "electronVersion": "42.0.0",
+    "publish": null,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "package.json",
+      {
+        "from": "../web/dist",
+        "to": "web/dist",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "../../server/templates",
+        "to": "templates",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "../web/public/icons/icon-512.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "WWA Field"
+    }
+  }
+}

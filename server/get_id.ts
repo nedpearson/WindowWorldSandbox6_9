@@ -1,0 +1,1 @@
+import { PrismaClient } from '@prisma/client'; const prisma = new PrismaClient(); async function main() { const a = await prisma.appointment.findFirst({where: { openings: {some: {}}}}); console.log('APPT_ID=' + a?.id); } main().finally(() => { prisma.$disconnect() });

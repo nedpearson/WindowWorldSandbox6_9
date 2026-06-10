@@ -1,0 +1,57 @@
+{
+  "styles": [
+    { "id": "A1", "name": "Colonial Flat Full", "profile": "flat", "pattern": "colonial" },
+    { "id": "B1", "name": "Colonial Contour Full", "profile": "contoured", "pattern": "colonial" },
+    { "id": "C1", "name": "Colonial Brass Full", "profile": "brass", "pattern": "colonial" },
+    { "id": "D1", "name": "Diamond Full", "profile": "flat", "pattern": "diamond" },
+    { "id": "E1", "name": "Single Prairie Flat Full", "profile": "flat", "pattern": "prairie" },
+    { "id": "E4", "name": "Double Prairie Flat Full", "profile": "flat", "pattern": "prairie" },
+    { "id": "F1", "name": "Single Prairie Contour Full", "profile": "contoured", "pattern": "prairie" },
+    { "id": "F4", "name": "Double Prairie Contour Full", "profile": "contoured", "pattern": "prairie" },
+    { "id": "G1", "name": "Single Perimeter Contour Full", "profile": "contoured", "pattern": "perimeter" },
+    { "id": "G2", "name": "Double Perimeter Contour Full", "profile": "contoured", "pattern": "perimeter" },
+    { "id": "G3", "name": "Single Perimeter Flat Full", "profile": "flat", "pattern": "perimeter" },
+    { "id": "G4", "name": "Double Perimeter Flat Full", "profile": "flat", "pattern": "perimeter" },
+    { "id": "K1", "name": "Craftsman", "profile": "flat", "pattern": "craftsman", "casementOnly": true }
+  ],
+  "sdlOptions": [
+    { "id": "SDL-7/8", "size": "7/8\"", "label": "SDL 7/8\"" },
+    { "id": "SDL-1-1/4", "size": "1-1/4\"", "label": "SDL 1-1/4\"" }
+  ],
+  "sdlRules": {
+    "mustSpecifyOnOrderForm": true,
+    "notWrittenAsA1OrB1": true,
+    "cannotBeDiscounted": true,
+    "commissionPercent": 10,
+    "pricingFactors": ["size", "windowStyle", "unitedInches", "location", "verticalLineCount"],
+    "doubleCheckRequired": true
+  },
+  "restrictions": [
+    {
+      "id": "ext-color-requires-B1",
+      "condition": "hasExteriorColor",
+      "requiredStyle": "B1",
+      "message": "Windows with exterior color must have B1 CONTOURED grids",
+      "sourcePage": 71
+    },
+    {
+      "id": "L200-requires-B1",
+      "series": ["L200"],
+      "requiredStyle": "B1",
+      "message": "L-2000 series must have B1 CONTOURED grids",
+      "sourcePage": 71
+    },
+    {
+      "id": "diamond-must-be-A1",
+      "pattern": "diamond",
+      "requiredStyle": "A1",
+      "message": "Diamond grids must be A1 FLAT",
+      "sourcePage": 71
+    }
+  ],
+  "specialShapeGridPatterns": {
+    "S140": { "sdlPatterns": ["CTX-1", "CTX-2", "CTX-3", "CTX-12"] },
+    "S144": { "sdlPatterns": ["EBX-17", "EBX-18", "EBX-24", "EBX-25"] },
+    "S146": { "sdlPatterns": ["HEX-1"] }
+  }
+}

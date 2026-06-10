@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  typecheck:
+    name: Type Check & Validate
+    runs-on: ubuntu-latest
+
+    env:
+      # Prisma needs these defined to validate schema — values are CI dummies, no real DB needed
+      DATABASE_URL: "postgresql://ci:ci@localhost:5432/ci?pgbouncer=true"
+      DIRECT_URL: "postgresql://ci:ci@localhost:5432/ci"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+        working-directory: server
+
+      - name: Validate Prisma schema
+        run: npx prisma validate
+        working-directory: server
+
+      - name: Run Typechecks
+        run: npm run typecheck
+
+      - name: Run Frontend Tests
+        run: npm run test
+        working-directory: apps/web
+
+      - name: Run Server Unit Tests
+        run: npx vitest run src/services src/utils
+        working-directory: server

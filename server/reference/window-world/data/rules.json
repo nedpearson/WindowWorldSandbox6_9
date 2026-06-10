@@ -1,0 +1,2433 @@
+[
+  {
+    "id": "BTR-2026-001",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 13,
+    "sourceSection": "L200 Series Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "L-2000 series windows do not have an exterior color option",
+    "appliesTo": ["L-2000"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "color",
+    "validationMessage": "Exterior color is not available on L-2000 series windows.",
+    "conditions": {
+      "series": "L-2000",
+      "option": "exteriorColor"
+    },
+    "action": {
+      "type": "reject",
+      "reason": "Exterior color option does not exist for L-2000 series"
+    }
+  },
+  {
+    "id": "BTR-2026-002",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 13,
+    "sourceSection": "L200 Series Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "There is no single hung option in L-2000 series. Only the 03A0 model has single hung.",
+    "appliesTo": ["L-2000"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "windowType",
+    "validationMessage": "Single hung windows are not available in the L-2000 series. Use 03A0 for single hung.",
+    "conditions": {
+      "series": "L-2000",
+      "windowType": "singleHung"
+    },
+    "action": {
+      "type": "reject",
+      "reason": "Single hung only available in 03A0 series"
+    }
+  },
+  {
+    "id": "BTR-2026-003",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 13,
+    "sourceSection": "L200 Series Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Full screen cannot be made on picture windows, 3-lite sliders, or arch-top windows",
+    "appliesTo": ["L-2000", "03A0", "3000"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "screen",
+    "validationMessage": "Full screen is not available on picture windows, 3-lite sliders, or arch-top windows.",
+    "conditions": {
+      "screenType": "fullScreen",
+      "windowType": ["pictureWindow", "3-liteSlider", "archTop"]
+    },
+    "action": {
+      "type": "reject",
+      "reason": "Full screen cannot be manufactured for these window types"
+    }
+  },
+  {
+    "id": "BTR-2026-004",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 13,
+    "sourceSection": "L200 Series Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Full screens come standard with any window with an exterior color. Half screens are not available on these units.",
+    "appliesTo": ["L-2000", "03A0", "3000"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "override",
+    "ruleType": "screen",
+    "validationMessage": "Windows with exterior color automatically include full screens. Half screens are not available on exterior color units.",
+    "conditions": {
+      "hasExteriorColor": true
+    },
+    "action": {
+      "type": "setDefault",
+      "screenType": "fullScreen",
+      "halfScreenAvailable": false
+    }
+  },
+  {
+    "id": "BTR-2026-005",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 13,
+    "sourceSection": "L200 Series Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Clay vinyl color cannot be made in L-2000 (FUSION) and 0700 series",
+    "appliesTo": ["L-2000", "0700"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "color",
+    "validationMessage": "Clay color is not available for L-2000 (FUSION) or 0700 series windows.",
+    "conditions": {
+      "series": ["L-2000", "0700"],
+      "vinylColor": "clay"
+    },
+    "action": {
+      "type": "reject",
+      "reason": "Clay color cannot be manufactured in L-2000 (FUSION) or 0700 series"
+    }
+  },
+  {
+    "id": "BTR-2026-006",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 13,
+    "sourceSection": "L200 Series Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Interior color cannot be made in L-2000 (FUSION) series",
+    "appliesTo": ["L-2000"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "color",
+    "validationMessage": "Interior color is not available for L-2000 (FUSION) series windows.",
+    "conditions": {
+      "series": "L-2000",
+      "option": "interiorColor"
+    },
+    "action": {
+      "type": "reject",
+      "reason": "Interior color cannot be manufactured in L-2000 (FUSION) series"
+    }
+  },
+  {
+    "id": "BTR-2026-007",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 13,
+    "sourceSection": "L200 Series Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "L-2000 series must have B1 CONTOURED grids",
+    "appliesTo": ["L-2000"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "grid",
+    "validationMessage": "L-2000 series windows must use B1 CONTOURED grids.",
+    "conditions": {
+      "series": "L-2000",
+      "hasGrids": true
+    },
+    "action": {
+      "type": "override",
+      "gridType": "B1",
+      "gridStyle": "CONTOURED"
+    }
+  },
+  {
+    "id": "BTR-2026-008",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 13,
+    "sourceSection": "L200 Series Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "All small sliders and small picture windows with UI 83 and below are charged at $285",
+    "appliesTo": ["L-2000"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "pricing",
+    "ruleType": "minimumPrice",
+    "validationMessage": "Small sliders and picture windows (UI ≤83) are priced at $285.",
+    "conditions": {
+      "windowType": ["slider", "pictureWindow"],
+      "unitedInches": { "max": 83 }
+    },
+    "action": {
+      "type": "setPrice",
+      "price": 285
+    }
+  },
+  {
+    "id": "BTR-2026-009",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 13,
+    "sourceSection": "L200 Series Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Tapcon concrete attachment charge is $10 per unit for L200 series",
+    "appliesTo": ["L-2000"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "adder",
+    "ruleType": "installation",
+    "validationMessage": "Tapcon concrete attachment adds $10 per unit.",
+    "conditions": {
+      "attachmentType": "tapcon"
+    },
+    "action": {
+      "type": "addCharge",
+      "amount": 10,
+      "per": "unit"
+    }
+  },
+  {
+    "id": "BTR-2026-010",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 15,
+    "sourceSection": "03A0 Series Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Vent stops are not available on 03A0 series",
+    "appliesTo": ["03A0"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "hardware",
+    "validationMessage": "Vent stops are not available on 03A0 series windows.",
+    "conditions": {
+      "series": "03A0",
+      "option": "ventStops"
+    },
+    "action": {
+      "type": "reject",
+      "reason": "Vent stops not available on 03A0 series"
+    }
+  },
+  {
+    "id": "BTR-2026-011",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 15,
+    "sourceSection": "03A0 Series Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Full screen cannot be made on picture windows, 3-lite sliders, or arch-top windows (03A0)",
+    "appliesTo": ["03A0"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "screen",
+    "validationMessage": "Full screen is not available on picture windows, 3-lite sliders, or arch-top windows in 03A0 series.",
+    "conditions": {
+      "series": "03A0",
+      "screenType": "fullScreen",
+      "windowType": ["pictureWindow", "3-liteSlider", "archTop"]
+    },
+    "action": {
+      "type": "reject",
+      "reason": "Full screen cannot be manufactured for these window types in 03A0 series"
+    }
+  },
+  {
+    "id": "BTR-2026-012",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 15,
+    "sourceSection": "03A0 Series Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Interior color cannot be made in 03A0 single hung or all arch-tops (S140, S144, S146)",
+    "appliesTo": ["03A0-SH", "S140", "S144", "S146"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "color",
+    "validationMessage": "Interior color is not available for 03A0 single hung or arch-top models (S140, S144, S146).",
+    "conditions": {
+      "model": ["03A0-SH", "S140", "S144", "S146"],
+      "option": "interiorColor"
+    },
+    "action": {
+      "type": "reject",
+      "reason": "Interior color not available on these models"
+    }
+  },
+  {
+    "id": "BTR-2026-013",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 15,
+    "sourceSection": "03A0 Series Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Windows with exterior color must have B1 CONTOURED grids (03A0)",
+    "appliesTo": ["03A0"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "grid",
+    "validationMessage": "03A0 series windows with exterior color must use B1 CONTOURED grids.",
+    "conditions": {
+      "series": "03A0",
+      "hasExteriorColor": true,
+      "hasGrids": true
+    },
+    "action": {
+      "type": "override",
+      "gridType": "B1",
+      "gridStyle": "CONTOURED"
+    }
+  },
+  {
+    "id": "BTR-2026-014",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 15,
+    "sourceSection": "03A0 Series Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Diamond grids must be A1 FLAT (03A0)",
+    "appliesTo": ["03A0"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "grid",
+    "validationMessage": "Diamond grids must be A1 FLAT style in 03A0 series.",
+    "conditions": {
+      "series": "03A0",
+      "gridPattern": "diamond"
+    },
+    "action": {
+      "type": "override",
+      "gridType": "A1",
+      "gridStyle": "FLAT"
+    }
+  },
+  {
+    "id": "BTR-2026-015",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 15,
+    "sourceSection": "03A0 Series Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "All single hung windows (03A0) must be written in the specialty windows section of the contract. Cannot be combined with double hung windows on the double hung line.",
+    "appliesTo": ["03A0"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "validation",
+    "ruleType": "contractEntry",
+    "validationMessage": "03A0 single hung windows must be entered in the specialty windows section of the contract, not on the double hung line.",
+    "conditions": {
+      "model": "03A0",
+      "windowType": "singleHung"
+    },
+    "action": {
+      "type": "validate",
+      "contractSection": "specialtyWindows",
+      "cannotCombineWith": "doubleHungLine"
+    }
+  },
+  {
+    "id": "BTR-2026-016",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 15,
+    "sourceSection": "03A0 Series Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "All small sliders and small picture windows with UI 83 and below are charged at $285 (03A0)",
+    "appliesTo": ["03A0"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "pricing",
+    "ruleType": "minimumPrice",
+    "validationMessage": "Small sliders and picture windows (UI ≤83) in 03A0 series are priced at $285.",
+    "conditions": {
+      "series": "03A0",
+      "windowType": ["slider", "pictureWindow"],
+      "unitedInches": { "max": 83 }
+    },
+    "action": {
+      "type": "setPrice",
+      "price": 285
+    }
+  },
+  {
+    "id": "BTR-2026-017",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 15,
+    "sourceSection": "03A0 Series Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Rain glass is not available on 03A0 series",
+    "appliesTo": ["03A0"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "glass",
+    "validationMessage": "Rain glass is not available on 03A0 series windows.",
+    "conditions": {
+      "series": "03A0",
+      "glassType": "rain"
+    },
+    "action": {
+      "type": "reject",
+      "reason": "Rain glass not available on 03A0 series"
+    }
+  },
+  {
+    "id": "BTR-2026-018",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 15,
+    "sourceSection": "03A0 Series Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Tapcon concrete attachment charge is $10 per unit for 03A0 series",
+    "appliesTo": ["03A0"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "adder",
+    "ruleType": "installation",
+    "validationMessage": "Tapcon concrete attachment adds $10 per unit.",
+    "conditions": {
+      "series": "03A0",
+      "attachmentType": "tapcon"
+    },
+    "action": {
+      "type": "addCharge",
+      "amount": 10,
+      "per": "unit"
+    }
+  },
+  {
+    "id": "BTR-2026-019",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 17,
+    "sourceSection": "3000 Series Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "50\" maximum oriel on double hung windows",
+    "appliesTo": ["3000"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "oriel",
+    "validationMessage": "Maximum oriel on double hung windows is 50 inches.",
+    "conditions": {
+      "series": "3000",
+      "windowType": "doubleHung",
+      "oriel": { "max": 50 }
+    },
+    "action": {
+      "type": "reject",
+      "reason": "Oriel exceeds 50\" maximum for double hung windows"
+    }
+  },
+  {
+    "id": "BTR-2026-020",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 17,
+    "sourceSection": "3000 Series Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Oriel greater than 50\" can only be made on single hung windows (03A0)",
+    "appliesTo": ["03A0"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "oriel",
+    "validationMessage": "Oriel measurements over 50\" are only available on single hung windows (03A0).",
+    "conditions": {
+      "oriel": { "min": 51 },
+      "windowType": "singleHung",
+      "model": "03A0"
+    },
+    "action": {
+      "type": "allow",
+      "onlyModel": "03A0"
+    }
+  },
+  {
+    "id": "BTR-2026-021",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 17,
+    "sourceSection": "3000 Series Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Oriel is measured from top of glass to top of meeting rail",
+    "appliesTo": ["3000", "03A0"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "validation",
+    "ruleType": "measurement",
+    "validationMessage": "Oriel must be measured from the top of the glass to the top of the meeting rail.",
+    "conditions": {
+      "hasOriel": true
+    },
+    "action": {
+      "type": "validate",
+      "measurementMethod": "topOfGlass_to_topOfMeetingRail"
+    }
+  },
+  {
+    "id": "BTR-2026-022",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 17,
+    "sourceSection": "3000 Series Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Full screen cannot be made on picture windows, 3-lite sliders, or arch-top windows (3000 series)",
+    "appliesTo": ["3000"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "screen",
+    "validationMessage": "Full screen is not available on picture windows, 3-lite sliders, or arch-top windows in 3000 series.",
+    "conditions": {
+      "series": "3000",
+      "screenType": "fullScreen",
+      "windowType": ["pictureWindow", "3-liteSlider", "archTop"]
+    },
+    "action": {
+      "type": "reject",
+      "reason": "Full screen cannot be manufactured for these window types in 3000 series"
+    }
+  },
+  {
+    "id": "BTR-2026-023",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 17,
+    "sourceSection": "3000 Series Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Windows with exterior color must have B1 CONTOURED grids (3000 series)",
+    "appliesTo": ["3000"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "grid",
+    "validationMessage": "3000 series windows with exterior color must use B1 CONTOURED grids.",
+    "conditions": {
+      "series": "3000",
+      "hasExteriorColor": true,
+      "hasGrids": true
+    },
+    "action": {
+      "type": "override",
+      "gridType": "B1",
+      "gridStyle": "CONTOURED"
+    }
+  },
+  {
+    "id": "BTR-2026-024",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 17,
+    "sourceSection": "3000 Series Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Diamond grids must be A1 FLAT (3000 series)",
+    "appliesTo": ["3000"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "grid",
+    "validationMessage": "Diamond grids must be A1 FLAT style in 3000 series.",
+    "conditions": {
+      "series": "3000",
+      "gridPattern": "diamond"
+    },
+    "action": {
+      "type": "override",
+      "gridType": "A1",
+      "gridStyle": "FLAT"
+    }
+  },
+  {
+    "id": "BTR-2026-025",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 17,
+    "sourceSection": "3000 Series Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "All small sliders and small picture windows with UI 83 and below are charged at $285 (3000 series)",
+    "appliesTo": ["3000"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "pricing",
+    "ruleType": "minimumPrice",
+    "validationMessage": "Small sliders and picture windows (UI ≤83) in 3000 series are priced at $285.",
+    "conditions": {
+      "series": "3000",
+      "windowType": ["slider", "pictureWindow"],
+      "unitedInches": { "max": 83 }
+    },
+    "action": {
+      "type": "setPrice",
+      "price": 285
+    }
+  },
+  {
+    "id": "BTR-2026-026",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 17,
+    "sourceSection": "3000 Series Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Tapcon concrete attachment charge is $10 per unit for 3000 series",
+    "appliesTo": ["3000"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "adder",
+    "ruleType": "installation",
+    "validationMessage": "Tapcon concrete attachment adds $10 per unit.",
+    "conditions": {
+      "series": "3000",
+      "attachmentType": "tapcon"
+    },
+    "action": {
+      "type": "addCharge",
+      "amount": 10,
+      "per": "unit"
+    }
+  },
+  {
+    "id": "BTR-2026-027",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 19,
+    "sourceSection": "Wincore Black on Black Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "$100 adder for non-special-shape Wincore windows with UI of 120 or larger",
+    "appliesTo": ["Wincore Black on Black"],
+    "severity": "warning",
+    "active": true,
+    "calculationType": "adder",
+    "ruleType": "largeWindowAdder",
+    "validationMessage": "A $100 large window adder applies to Wincore Black on Black windows with UI ≥120.",
+    "conditions": {
+      "product": "Wincore Black on Black",
+      "windowType": "nonSpecialShape",
+      "unitedInches": { "min": 120 }
+    },
+    "action": {
+      "type": "addCharge",
+      "amount": 100,
+      "per": "window"
+    }
+  },
+  {
+    "id": "BTR-2026-028",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 20,
+    "sourceSection": "Wincore Black on Black Special Shape Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Wincore Black on Black special shape windows are priced from the non-impact pricing sheet and cannot be discounted",
+    "appliesTo": ["Wincore Black on Black"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "pricing",
+    "validationMessage": "Wincore Black on Black special shape windows must be priced from the non-impact pricing sheet and cannot be discounted.",
+    "conditions": {
+      "product": "Wincore Black on Black",
+      "windowType": "specialShape"
+    },
+    "action": {
+      "type": "priceFromSheet",
+      "pricingSheet": "Wincore non-impact",
+      "discountAllowed": false
+    }
+  },
+  {
+    "id": "BTR-2026-029",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 19,
+    "sourceSection": "Wincore Black on Black Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "SDL grids on Wincore Black on Black are priced at $60 per lite",
+    "appliesTo": ["Wincore Black on Black"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "pricing",
+    "ruleType": "grid",
+    "validationMessage": "SDL grids on Wincore Black on Black windows are $60 per lite.",
+    "conditions": {
+      "product": "Wincore Black on Black",
+      "gridType": "SDL"
+    },
+    "action": {
+      "type": "setPrice",
+      "pricePerLite": 60
+    }
+  },
+  {
+    "id": "BTR-2026-030",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 19,
+    "sourceSection": "Wincore Black on Black Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Single charge per window/SGD for both inside and outside black color on Wincore",
+    "appliesTo": ["Wincore Black on Black"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "pricing",
+    "ruleType": "color",
+    "validationMessage": "There is a single charge per window or sliding patio door for both inside and outside black on Wincore.",
+    "conditions": {
+      "product": "Wincore Black on Black"
+    },
+    "action": {
+      "type": "singleCharge",
+      "coversInteriorAndExterior": true
+    }
+  },
+  {
+    "id": "BTR-2026-031",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 19,
+    "sourceSection": "Wincore Black on Black Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Tapcon concrete attachment charge is $10 per unit for Wincore Black on Black",
+    "appliesTo": ["Wincore Black on Black"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "adder",
+    "ruleType": "installation",
+    "validationMessage": "Tapcon concrete attachment adds $10 per unit.",
+    "conditions": {
+      "product": "Wincore Black on Black",
+      "attachmentType": "tapcon"
+    },
+    "action": {
+      "type": "addCharge",
+      "amount": 10,
+      "per": "unit"
+    }
+  },
+  {
+    "id": "BTR-2026-032",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 25,
+    "sourceSection": "Awning Series Pricing Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "New construction awning frame changes to 0151 instead of 0951",
+    "appliesTo": ["0951", "0151"],
+    "severity": "warning",
+    "active": true,
+    "calculationType": "override",
+    "ruleType": "model",
+    "validationMessage": "New construction awning windows use model 0151 instead of 0951.",
+    "conditions": {
+      "windowType": "awning",
+      "constructionType": "newConstruction"
+    },
+    "action": {
+      "type": "overrideModel",
+      "from": "0951",
+      "to": "0151"
+    }
+  },
+  {
+    "id": "BTR-2026-033",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 25,
+    "sourceSection": "Awning Series Pricing Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Tapcon concrete attachment charge is $10 per unit for awning windows",
+    "appliesTo": ["0951", "0151"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "adder",
+    "ruleType": "installation",
+    "validationMessage": "Tapcon concrete attachment adds $10 per unit.",
+    "conditions": {
+      "windowType": "awning",
+      "attachmentType": "tapcon"
+    },
+    "action": {
+      "type": "addCharge",
+      "amount": 10,
+      "per": "unit"
+    }
+  },
+  {
+    "id": "BTR-2026-034",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 30,
+    "sourceSection": "Casement Series Pricing Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Any mull of two 0971 casement windows fitting within 32-72\" width and 19-79\" height (max UI 150) must be ordered as 0972 double casement",
+    "appliesTo": ["0971", "0972"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "override",
+    "ruleType": "model",
+    "validationMessage": "Two mulled 0971 casement windows within 32-72\"W × 19-79\"H (max UI 150) must be ordered as a single 0972 double casement.",
+    "conditions": {
+      "model": "0971",
+      "mullConfiguration": "two0971",
+      "width": { "min": 32, "max": 72 },
+      "height": { "min": 19, "max": 79 },
+      "unitedInches": { "max": 150 }
+    },
+    "action": {
+      "type": "overrideModel",
+      "from": "0971+0971",
+      "to": "0972"
+    }
+  },
+  {
+    "id": "BTR-2026-035",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 30,
+    "sourceSection": "Casement Series Pricing Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "New construction casement frame changes to 0171 instead of 0971",
+    "appliesTo": ["0971", "0171"],
+    "severity": "warning",
+    "active": true,
+    "calculationType": "override",
+    "ruleType": "model",
+    "validationMessage": "New construction casement windows use model 0171 instead of 0971.",
+    "conditions": {
+      "windowType": "casement",
+      "constructionType": "newConstruction"
+    },
+    "action": {
+      "type": "overrideModel",
+      "from": "0971",
+      "to": "0171"
+    }
+  },
+  {
+    "id": "BTR-2026-036",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 30,
+    "sourceSection": "Casement Series Pricing Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Tapcon concrete attachment charge is $10 per unit for casement windows",
+    "appliesTo": ["0971", "0171"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "adder",
+    "ruleType": "installation",
+    "validationMessage": "Tapcon concrete attachment adds $10 per unit.",
+    "conditions": {
+      "windowType": "casement",
+      "attachmentType": "tapcon"
+    },
+    "action": {
+      "type": "addCharge",
+      "amount": 10,
+      "per": "unit"
+    }
+  },
+  {
+    "id": "BTR-2026-037",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 32,
+    "sourceSection": "Garden Window Pricing Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Tapcon concrete attachment charge is $10 per unit for garden windows",
+    "appliesTo": ["Garden Window"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "adder",
+    "ruleType": "installation",
+    "validationMessage": "Tapcon concrete attachment adds $10 per unit.",
+    "conditions": {
+      "windowType": "gardenWindow",
+      "attachmentType": "tapcon"
+    },
+    "action": {
+      "type": "addCharge",
+      "amount": 10,
+      "per": "unit"
+    }
+  },
+  {
+    "id": "BTR-2026-038",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 60,
+    "sourceSection": "Special Shape Pricing Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Special shapes over max UI or with a dimension over 84\" get full price of max UI plus $150 adder and do not qualify for 80% discount",
+    "appliesTo": ["Special Shapes"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "adder",
+    "ruleType": "pricing",
+    "validationMessage": "Special shapes over max UI (or with a dimension over 84\") must be charged at full price of max UI plus $150 adder. No 80% discount applies.",
+    "conditions": {
+      "windowType": "specialShape",
+      "overMaxUI": true,
+      "or": { "dimensionOver": 84 }
+    },
+    "action": {
+      "type": "priceAtMaxUI",
+      "adder": 150,
+      "discountAllowed": false,
+      "noEightyPercentDiscount": true
+    }
+  },
+  {
+    "id": "BTR-2026-039",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 60,
+    "sourceSection": "Special Shape Pricing Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Polygon shapes do NOT require special shape trim",
+    "appliesTo": ["Special Shapes - Polygon"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "trim",
+    "validationMessage": "Polygon special shapes do not require special shape trim (no bent trim piece).",
+    "conditions": {
+      "windowType": "specialShape",
+      "shapeType": "polygon"
+    },
+    "action": {
+      "type": "exempt",
+      "exemptFrom": "specialShapeTrim"
+    }
+  },
+  {
+    "id": "BTR-2026-040",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 60,
+    "sourceSection": "Special Shape Pricing Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Radius shapes (arch windows) require special shape trim unless they have integrated nail fins",
+    "appliesTo": ["Special Shapes - Radius", "Arch Windows"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "validation",
+    "ruleType": "trim",
+    "validationMessage": "Radius/arch special shapes require special shape trim to be charged, unless the window has integrated nail fins.",
+    "conditions": {
+      "windowType": "specialShape",
+      "shapeType": "radius",
+      "hasIntegratedNailFins": false
+    },
+    "action": {
+      "type": "require",
+      "option": "specialShapeTrim"
+    }
+  },
+  {
+    "id": "BTR-2026-041",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 60,
+    "sourceSection": "Special Shape Pricing Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Special shapes under 24\" wide should use a 0700 or casement frame",
+    "appliesTo": ["Special Shapes"],
+    "severity": "warning",
+    "active": true,
+    "calculationType": "validation",
+    "ruleType": "frame",
+    "validationMessage": "Special shapes under 24\" wide should use a 0700 or casement frame.",
+    "conditions": {
+      "windowType": "specialShape",
+      "width": { "max": 23 }
+    },
+    "action": {
+      "type": "recommend",
+      "frameType": ["0700", "casement"]
+    }
+  },
+  {
+    "id": "BTR-2026-042",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 60,
+    "sourceSection": "Special Shape Pricing Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Nail fins on special shapes are charged by the pricing page, not the contract price of $10",
+    "appliesTo": ["Special Shapes"],
+    "severity": "warning",
+    "active": true,
+    "calculationType": "pricing",
+    "ruleType": "nailFin",
+    "validationMessage": "Nail fins on special shapes must be priced from the pricing page, not the standard $10 contract price.",
+    "conditions": {
+      "windowType": "specialShape",
+      "option": "nailFins"
+    },
+    "action": {
+      "type": "priceFromSheet",
+      "pricingSheet": "specialShapePricingPage",
+      "notContractPrice": true
+    }
+  },
+  {
+    "id": "BTR-2026-043",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 60,
+    "sourceSection": "Special Shape Pricing Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Special shape trim cannot be discounted",
+    "appliesTo": ["Special Shapes"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "trim",
+    "validationMessage": "Special shape trim cannot be discounted. It must be charged at full price.",
+    "conditions": {
+      "windowType": "specialShape",
+      "option": "specialShapeTrim"
+    },
+    "action": {
+      "type": "noDiscount",
+      "item": "specialShapeTrim"
+    }
+  },
+  {
+    "id": "BTR-2026-044",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 60,
+    "sourceSection": "Special Shape Pricing Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Trim must be added on all special shapes (with polygon exception per BTR-2026-039)",
+    "appliesTo": ["Special Shapes"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "validation",
+    "ruleType": "trim",
+    "validationMessage": "Trim must be added on all special shape windows. Exception: polygon shapes do not require special shape trim.",
+    "conditions": {
+      "windowType": "specialShape",
+      "shapeType": { "not": "polygon" }
+    },
+    "action": {
+      "type": "require",
+      "option": "trim"
+    }
+  },
+  {
+    "id": "BTR-2026-045",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 60,
+    "sourceSection": "Special Shape Pricing Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Tapcon concrete attachment charge is $10 per unit for special shapes",
+    "appliesTo": ["Special Shapes"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "adder",
+    "ruleType": "installation",
+    "validationMessage": "Tapcon concrete attachment adds $10 per unit.",
+    "conditions": {
+      "windowType": "specialShape",
+      "attachmentType": "tapcon"
+    },
+    "action": {
+      "type": "addCharge",
+      "amount": 10,
+      "per": "unit"
+    }
+  },
+  {
+    "id": "BTR-2026-046",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 61,
+    "sourceSection": "SDL Window Grid Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "SDL grids come in 7/8\" or 1-1/4\" options. Size must be stated on the order form.",
+    "appliesTo": ["SDL Grids"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "validation",
+    "ruleType": "grid",
+    "validationMessage": "SDL grid size (7/8\" or 1-1/4\") must be stated on the order form for correct pricing and ordering.",
+    "conditions": {
+      "gridType": "SDL"
+    },
+    "action": {
+      "type": "requireField",
+      "field": "sdlGridSize",
+      "validValues": ["7/8\"", "1-1/4\""]
+    }
+  },
+  {
+    "id": "BTR-2026-047",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 61,
+    "sourceSection": "SDL Window Grid Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "SDL grids are not written as A1 or B1 — they are their own style of grid",
+    "appliesTo": ["SDL Grids"],
+    "severity": "warning",
+    "active": true,
+    "calculationType": "validation",
+    "ruleType": "grid",
+    "validationMessage": "SDL grids should not be written as A1 or B1. They are their own style.",
+    "conditions": {
+      "gridType": "SDL"
+    },
+    "action": {
+      "type": "validate",
+      "gridDesignation": "SDL",
+      "notAllowed": ["A1", "B1"]
+    }
+  },
+  {
+    "id": "BTR-2026-048",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 61,
+    "sourceSection": "SDL Window Grid Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "SDL grid pricing is determined by size (7/8\" or 1-1/4\"), window style/UI, location, and vertical line count",
+    "appliesTo": ["SDL Grids"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "pricing",
+    "ruleType": "grid",
+    "validationMessage": "SDL grid pricing depends on: grid size, window style/UI, grid location (full/top/ends), and vertical line count.",
+    "conditions": {
+      "gridType": "SDL"
+    },
+    "action": {
+      "type": "priceFromSheet",
+      "factors": ["gridSize", "windowStyleUI", "location", "verticalLineCount"]
+    }
+  },
+  {
+    "id": "BTR-2026-049",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 99,
+    "sourceSection": "SDL Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "SDL grids cannot be discounted on any window",
+    "appliesTo": ["SDL Grids"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "grid",
+    "validationMessage": "SDL grids cannot be discounted on any window.",
+    "conditions": {
+      "gridType": "SDL"
+    },
+    "action": {
+      "type": "noDiscount",
+      "item": "sdlGrids"
+    }
+  },
+  {
+    "id": "BTR-2026-050",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 99,
+    "sourceSection": "SDL Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "All SDL grids have a 10% commission",
+    "appliesTo": ["SDL Grids"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "commission",
+    "ruleType": "grid",
+    "validationMessage": "SDL grids carry a 10% commission.",
+    "conditions": {
+      "gridType": "SDL"
+    },
+    "action": {
+      "type": "setCommission",
+      "commissionRate": 0.10
+    }
+  },
+  {
+    "id": "BTR-2026-051",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 99,
+    "sourceSection": "SDL Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "SDL double check paper must be stapled to front of folder for any job with SDL grids",
+    "appliesTo": ["SDL Grids"],
+    "severity": "warning",
+    "active": true,
+    "calculationType": "validation",
+    "ruleType": "documentation",
+    "validationMessage": "Jobs with SDL grids must have an SDL double check paper stapled to the front of the folder.",
+    "conditions": {
+      "gridType": "SDL"
+    },
+    "action": {
+      "type": "requireDocument",
+      "document": "SDL double check paper",
+      "location": "front of folder"
+    }
+  },
+  {
+    "id": "BTR-2026-052",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 99,
+    "sourceSection": "SDL Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Tapcon concrete attachment charge is $10 per unit for SDL windows",
+    "appliesTo": ["SDL Grids"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "adder",
+    "ruleType": "installation",
+    "validationMessage": "Tapcon concrete attachment adds $10 per unit.",
+    "conditions": {
+      "gridType": "SDL",
+      "attachmentType": "tapcon"
+    },
+    "action": {
+      "type": "addCharge",
+      "amount": 10,
+      "per": "unit"
+    }
+  },
+  {
+    "id": "BTR-2026-053",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 67,
+    "sourceSection": "S.G.D. Memos, Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Operating direction must be provided on all sliding glass doors. They are not field reversible.",
+    "appliesTo": ["SGD", "6400 Series"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "validation",
+    "ruleType": "configuration",
+    "validationMessage": "Operating direction (XO/OX/OXO) must be specified on all sliding glass doors. These are not field reversible.",
+    "conditions": {
+      "productType": "slidingGlassDoor"
+    },
+    "action": {
+      "type": "requireField",
+      "field": "operatingDirection",
+      "notation": "XO from outside looking in"
+    }
+  },
+  {
+    "id": "BTR-2026-054",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 67,
+    "sourceSection": "S.G.D. Memos, Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "XO notation is always from the outside looking in. X=operating panel, O=fixed panel.",
+    "appliesTo": ["SGD", "6400 Series"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "validation",
+    "ruleType": "configuration",
+    "validationMessage": "XO notation is always from the outside looking in. X = operating panel, O = fixed panel.",
+    "conditions": {
+      "productType": "slidingGlassDoor"
+    },
+    "action": {
+      "type": "validate",
+      "notation": "outsideLookingIn",
+      "X": "operatingPanel",
+      "O": "fixedPanel"
+    }
+  },
+  {
+    "id": "BTR-2026-055",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 67,
+    "sourceSection": "S.G.D. Memos, Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "3\" sash is standard (no charge), 5\" sash and 7\" (French) sash are charged per panel",
+    "appliesTo": ["SGD", "6400 Series"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "pricing",
+    "ruleType": "sashType",
+    "validationMessage": "3\" sash is standard (no charge). 5\" and 7\" (French) sash sizes are charged per panel.",
+    "conditions": {
+      "productType": "slidingGlassDoor",
+      "sashSize": { "options": ["3\"", "5\"", "7\""] }
+    },
+    "action": {
+      "type": "conditionalCharge",
+      "standard": "3\"",
+      "chargedPerPanel": ["5\"", "7\""]
+    }
+  },
+  {
+    "id": "BTR-2026-056",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 67,
+    "sourceSection": "S.G.D. Memos, Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Beige and Clay vinyl colors on SGD are charged separately per panel",
+    "appliesTo": ["SGD", "6400 Series"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "pricing",
+    "ruleType": "color",
+    "validationMessage": "Beige and Clay vinyl colors on sliding glass doors are charged separately per panel.",
+    "conditions": {
+      "productType": "slidingGlassDoor",
+      "vinylColor": ["beige", "clay"]
+    },
+    "action": {
+      "type": "chargePerPanel",
+      "item": "vinylColor"
+    }
+  },
+  {
+    "id": "BTR-2026-057",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 67,
+    "sourceSection": "S.G.D. Memos, Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Exterior color on SGD carries $10 commission for the salesman, entered under designated contract line",
+    "appliesTo": ["SGD", "6400 Series"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "commission",
+    "ruleType": "color",
+    "validationMessage": "Exterior color on sliding glass doors has a $10 commission. Enter in contract under the designated exterior color line.",
+    "conditions": {
+      "productType": "slidingGlassDoor",
+      "option": "exteriorColor"
+    },
+    "action": {
+      "type": "setCommission",
+      "commissionAmount": 10,
+      "contractLine": "designatedExteriorColorLine"
+    }
+  },
+  {
+    "id": "BTR-2026-058",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 67,
+    "sourceSection": "S.G.D. Memos, Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Interior color on SGD goes under door options in a blank field with no commission",
+    "appliesTo": ["SGD", "6400 Series"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "commission",
+    "ruleType": "color",
+    "validationMessage": "Interior color on sliding glass doors goes under door options with no commission.",
+    "conditions": {
+      "productType": "slidingGlassDoor",
+      "option": "interiorColor"
+    },
+    "action": {
+      "type": "setCommission",
+      "commissionRate": 0,
+      "contractSection": "doorOptions"
+    }
+  },
+  {
+    "id": "BTR-2026-059",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 67,
+    "sourceSection": "S.G.D. Memos, Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Glass requirements by region: Dallas LEE required+included, Houston LEE required+charged, BTR choice of LE or LEE",
+    "appliesTo": ["SGD", "6400 Series"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "pricing",
+    "ruleType": "glass",
+    "validationMessage": "Dallas: LEE required and included. Houston: LEE required and must be charged. Baton Rouge: choice of LE or LEE.",
+    "conditions": {
+      "productType": "slidingGlassDoor"
+    },
+    "action": {
+      "type": "regionalGlassRequirement",
+      "Dallas": { "required": "LEE", "included": true },
+      "Houston": { "required": "LEE", "included": false, "mustCharge": true },
+      "BatonRouge": { "required": false, "options": ["LE", "LEE"] }
+    }
+  },
+  {
+    "id": "BTR-2026-060",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 67,
+    "sourceSection": "S.G.D. Memos, Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Standard colonial grids on SGD are charged per panel. Prairie grids must use pricing sheet.",
+    "appliesTo": ["SGD", "6400 Series"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "pricing",
+    "ruleType": "grid",
+    "validationMessage": "Colonial grids on SGD are charged per panel on the contract. Prairie grids must be priced from the pricing sheet.",
+    "conditions": {
+      "productType": "slidingGlassDoor",
+      "hasGrids": true
+    },
+    "action": {
+      "type": "conditionalPricing",
+      "colonial": { "chargedPer": "panel", "fromContract": true },
+      "prairie": { "chargedFrom": "pricingSheet" }
+    }
+  },
+  {
+    "id": "BTR-2026-061",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 68,
+    "sourceSection": "S.G.D. Memos, Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Internal mini blinds on SGD are available in 6'8\" door height ONLY",
+    "appliesTo": ["SGD", "6400 Series"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "option",
+    "validationMessage": "Internal mini blinds are only available for 6'8\" (80\") height sliding glass doors.",
+    "conditions": {
+      "productType": "slidingGlassDoor",
+      "option": "internalMiniBlinds",
+      "doorHeight": { "required": 80 }
+    },
+    "action": {
+      "type": "reject",
+      "unlessHeight": 80,
+      "reason": "Internal mini blinds only available in 6'8\" door height"
+    }
+  },
+  {
+    "id": "BTR-2026-062",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 68,
+    "sourceSection": "S.G.D. Memos, Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Internal mini blinds on SGD are NOT available with exterior color",
+    "appliesTo": ["SGD", "6400 Series"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "option",
+    "validationMessage": "Internal mini blinds cannot be ordered with exterior color on sliding glass doors.",
+    "conditions": {
+      "productType": "slidingGlassDoor",
+      "option": "internalMiniBlinds",
+      "hasExteriorColor": true
+    },
+    "action": {
+      "type": "reject",
+      "reason": "Internal mini blinds not compatible with exterior color"
+    }
+  },
+  {
+    "id": "BTR-2026-063",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 68,
+    "sourceSection": "S.G.D. Memos, Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Internal mini blinds on 6408 and 6422 are only available with 5\" sash (rail)",
+    "appliesTo": ["6408", "6422"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "option",
+    "validationMessage": "Internal mini blinds on models 6408 and 6422 require a 5\" sash (rail).",
+    "conditions": {
+      "model": ["6408", "6422"],
+      "option": "internalMiniBlinds",
+      "sashSize": { "required": "5\"" }
+    },
+    "action": {
+      "type": "reject",
+      "unlessSash": "5\"",
+      "reason": "Mini blinds on 6408/6422 only available with 5\" sash"
+    }
+  },
+  {
+    "id": "BTR-2026-064",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 68,
+    "sourceSection": "S.G.D. Memos, Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "BBG ThermD LT (LE) internal blinds pricing - BTR only: 6405/6406/6408=$1361.25, 6409/6422=$2041.88, 6412=$2722.50",
+    "appliesTo": ["6405", "6406", "6408", "6409", "6422", "6412"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "pricing",
+    "ruleType": "option",
+    "validationMessage": "BBG ThermD LT (LE) internal blinds: 6405/6406/6408 = $1361.25, 6409/6422 = $2041.88, 6412 = $2722.50. BTR only.",
+    "conditions": {
+      "productType": "slidingGlassDoor",
+      "option": "BBG ThermD LT",
+      "glassType": "LE",
+      "region": "BatonRouge"
+    },
+    "action": {
+      "type": "setPrice",
+      "pricing": {
+        "6405": 1361.25,
+        "6406": 1361.25,
+        "6408": 1361.25,
+        "6409": 2041.88,
+        "6422": 2041.88,
+        "6412": 2722.50
+      }
+    }
+  },
+  {
+    "id": "BTR-2026-065",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 68,
+    "sourceSection": "S.G.D. Memos, Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "BBG ThermD LTSF (LEE) internal blinds pricing: 6405/6406/6408=$1694, 6409/6422=$2541, 6412=$3388",
+    "appliesTo": ["6405", "6406", "6408", "6409", "6422", "6412"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "pricing",
+    "ruleType": "option",
+    "validationMessage": "BBG ThermD LTSF (LEE) internal blinds: 6405/6406/6408 = $1694, 6409/6422 = $2541, 6412 = $3388. Required for Houston/Dallas, optional for BTR.",
+    "conditions": {
+      "productType": "slidingGlassDoor",
+      "option": "BBG ThermD LTSF",
+      "glassType": "LEE"
+    },
+    "action": {
+      "type": "setPrice",
+      "pricing": {
+        "6405": 1694.00,
+        "6406": 1694.00,
+        "6408": 1694.00,
+        "6409": 2541.00,
+        "6422": 2541.00,
+        "6412": 3388.00
+      }
+    }
+  },
+  {
+    "id": "BTR-2026-066",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 68,
+    "sourceSection": "S.G.D. Memos, Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Vinyl patio door trim: qty 1 for 2-panel doors ≤6' width (6405, 6406, 6402), qty 2+ for 3+ panels or 6402 wider than 6'",
+    "appliesTo": ["SGD", "6400 Series"],
+    "severity": "warning",
+    "active": true,
+    "calculationType": "validation",
+    "ruleType": "trim",
+    "validationMessage": "Vinyl patio door trim: 1 trim for 2-panel doors ≤6' wide, 2+ trims for 3+ panel doors or 6402 over 6' wide.",
+    "conditions": {
+      "productType": "slidingGlassDoor",
+      "option": "vinylPatioDoorTrim"
+    },
+    "action": {
+      "type": "setQuantity",
+      "twoPanelMaxSixFeet": { "models": ["6405", "6406", "6402"], "trimQty": 1 },
+      "threePlusPanels": { "trimQty": 2 },
+      "twoPanel6402OverSixFeet": { "trimQty": 2 }
+    }
+  },
+  {
+    "id": "BTR-2026-067",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 68,
+    "sourceSection": "S.G.D. Memos, Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "No additional labor charges for trim, removals, or installation on SGD. Cutback floor is acceptable under MISC LABOR.",
+    "appliesTo": ["SGD", "6400 Series"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "labor",
+    "validationMessage": "No additional labor charges for trim, removals, or installation on sliding glass doors. Cutback floor is acceptable on MISC LABOR line.",
+    "conditions": {
+      "productType": "slidingGlassDoor"
+    },
+    "action": {
+      "type": "reject",
+      "noAdditionalLabor": ["trim", "removals", "installation"],
+      "exception": { "cutbackFloor": true, "contractLine": "MISC LABOR" }
+    }
+  },
+  {
+    "id": "BTR-2026-068",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 68,
+    "sourceSection": "S.G.D. Memos, Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "SGD removals must be entered as Window Removals, not on MISC LABOR line",
+    "appliesTo": ["SGD", "6400 Series"],
+    "severity": "warning",
+    "active": true,
+    "calculationType": "validation",
+    "ruleType": "contractEntry",
+    "validationMessage": "Sliding glass door removals must be entered as Window Removals in contract entry, not on the MISC LABOR line.",
+    "conditions": {
+      "productType": "slidingGlassDoor",
+      "hasRemoval": true
+    },
+    "action": {
+      "type": "validate",
+      "contractEntry": "WindowRemovals",
+      "notAllowed": "MISC LABOR"
+    }
+  },
+  {
+    "id": "BTR-2026-069",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 69,
+    "sourceSection": "S.G.D. Memos, Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Dallas region must add $130 per panel for Low-E on SGD",
+    "appliesTo": ["SGD", "6400 Series"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "adder",
+    "ruleType": "glass",
+    "validationMessage": "Dallas region: Add $130 per panel for Low-E on sliding glass doors.",
+    "conditions": {
+      "productType": "slidingGlassDoor",
+      "region": "Dallas"
+    },
+    "action": {
+      "type": "addCharge",
+      "amount": 130,
+      "per": "panel",
+      "item": "Low-E"
+    }
+  },
+  {
+    "id": "BTR-2026-070",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 69,
+    "sourceSection": "S.G.D. Memos, Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Tapcon concrete attachment charge is $10 per unit for SGD",
+    "appliesTo": ["SGD", "6400 Series"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "adder",
+    "ruleType": "installation",
+    "validationMessage": "Tapcon concrete attachment adds $10 per unit.",
+    "conditions": {
+      "productType": "slidingGlassDoor",
+      "attachmentType": "tapcon"
+    },
+    "action": {
+      "type": "addCharge",
+      "amount": 10,
+      "per": "unit"
+    }
+  },
+  {
+    "id": "BTR-2026-071",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 71,
+    "sourceSection": "Color Option Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Clay color cannot be made in L-2000 (FUSION) and 0700 series",
+    "appliesTo": ["L-2000", "0700"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "color",
+    "validationMessage": "Clay color is not available for L-2000 (FUSION) or 0700 series windows.",
+    "conditions": {
+      "series": ["L-2000", "0700"],
+      "vinylColor": "clay"
+    },
+    "action": {
+      "type": "reject",
+      "reason": "Clay color cannot be manufactured in L-2000 or 0700 series"
+    }
+  },
+  {
+    "id": "BTR-2026-072",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 71,
+    "sourceSection": "Color Option Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Exterior color cannot be made in L-2000 (FUSION), 0700 series, or clay vinyl windows",
+    "appliesTo": ["L-2000", "0700"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "color",
+    "validationMessage": "Exterior color is not available for L-2000 (FUSION), 0700 series, or windows with clay vinyl color.",
+    "conditions": {
+      "option": "exteriorColor",
+      "blockedWhen": {
+        "series": ["L-2000", "0700"],
+        "or": { "vinylColor": "clay" }
+      }
+    },
+    "action": {
+      "type": "reject",
+      "reason": "Exterior color not available on L-2000, 0700, or clay vinyl windows"
+    }
+  },
+  {
+    "id": "BTR-2026-073",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 71,
+    "sourceSection": "Color Option Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Interior color cannot be made in L-2000 (FUSION), 03A0 single hung, or arch-tops (S140, S144, S146)",
+    "appliesTo": ["L-2000", "03A0-SH", "S140", "S144", "S146"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "color",
+    "validationMessage": "Interior color is not available for L-2000 (FUSION), 03A0 single hung, or arch-top models (S140, S144, S146).",
+    "conditions": {
+      "option": "interiorColor",
+      "blockedModels": ["L-2000", "03A0-SH", "S140", "S144", "S146"]
+    },
+    "action": {
+      "type": "reject",
+      "reason": "Interior color not available on these models"
+    }
+  },
+  {
+    "id": "BTR-2026-074",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 71,
+    "sourceSection": "Color Option Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Windows with exterior color must have B1 CONTOURED grids (global rule)",
+    "appliesTo": ["All windows with exterior color"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "grid",
+    "validationMessage": "All windows with exterior color must use B1 CONTOURED grids.",
+    "conditions": {
+      "hasExteriorColor": true,
+      "hasGrids": true
+    },
+    "action": {
+      "type": "override",
+      "gridType": "B1",
+      "gridStyle": "CONTOURED"
+    }
+  },
+  {
+    "id": "BTR-2026-075",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 71,
+    "sourceSection": "Color Option Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "L-2000 series must have B1 CONTOURED grids (global color options rule)",
+    "appliesTo": ["L-2000"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "grid",
+    "validationMessage": "L-2000 series windows must use B1 CONTOURED grids.",
+    "conditions": {
+      "series": "L-2000",
+      "hasGrids": true
+    },
+    "action": {
+      "type": "override",
+      "gridType": "B1",
+      "gridStyle": "CONTOURED"
+    }
+  },
+  {
+    "id": "BTR-2026-076",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 71,
+    "sourceSection": "Color Option Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Diamond grids must be A1 FLAT (global color options rule)",
+    "appliesTo": ["All windows"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "grid",
+    "validationMessage": "Diamond grids must always be A1 FLAT style.",
+    "conditions": {
+      "gridPattern": "diamond"
+    },
+    "action": {
+      "type": "override",
+      "gridType": "A1",
+      "gridStyle": "FLAT"
+    }
+  },
+  {
+    "id": "BTR-2026-077",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 102,
+    "sourceSection": "Audit Labor Requirement Memos - Trim",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Trim is REQUIRED for inside-set windows. Exception: wood exterior.",
+    "appliesTo": ["All windows"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "validation",
+    "ruleType": "trim",
+    "validationMessage": "Trim must be sold when windows are inside-set. Exception: windows in wood exterior do not require trim.",
+    "conditions": {
+      "installType": "insideSet",
+      "exteriorType": { "not": "wood" }
+    },
+    "action": {
+      "type": "require",
+      "option": "trim",
+      "sendToAudit": true
+    }
+  },
+  {
+    "id": "BTR-2026-078",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 102,
+    "sourceSection": "Audit Labor Requirement Memos - Trim",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Trim can be discounted to $25 (unless in a windstorm area)",
+    "appliesTo": ["All windows"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "pricing",
+    "ruleType": "trim",
+    "validationMessage": "Trim can be discounted to $25 minimum (commission drops from $5 to $3). Not applicable in windstorm areas.",
+    "conditions": {
+      "option": "trim",
+      "windstormArea": false
+    },
+    "action": {
+      "type": "allowDiscount",
+      "minimumPrice": 25,
+      "discountedCommission": 3,
+      "standardCommission": 5
+    }
+  },
+  {
+    "id": "BTR-2026-079",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 102,
+    "sourceSection": "Audit Labor Requirement Memos - Trim",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Trim must be either fully discounted or full price — no partial discounts allowed",
+    "appliesTo": ["All windows"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "trim",
+    "validationMessage": "Trim pricing must be either fully discounted or full price. Partial discounts are not permitted.",
+    "conditions": {
+      "option": "trim"
+    },
+    "action": {
+      "type": "validate",
+      "allowedPricing": ["fullPrice", "fullyDiscounted"],
+      "noPartialDiscount": true
+    }
+  },
+  {
+    "id": "BTR-2026-080",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 102,
+    "sourceSection": "Audit Labor Requirement Memos - Header Flashing",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Siding exterior likely needs header flashing. Question if missing but do not hold in audit.",
+    "appliesTo": ["All windows"],
+    "severity": "warning",
+    "active": true,
+    "calculationType": "validation",
+    "ruleType": "labor",
+    "validationMessage": "Siding exterior jobs likely need header flashing. Question if not sold but do not hold the job in audit.",
+    "conditions": {
+      "exteriorType": "siding",
+      "hasHeaderFlashing": false
+    },
+    "action": {
+      "type": "question",
+      "holdInAudit": false,
+      "message": "Confirm if header flashing is needed for siding exterior"
+    }
+  },
+  {
+    "id": "BTR-2026-081",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 102,
+    "sourceSection": "Audit Labor Requirement Memos - Header Flashing",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "If header flashing sold for brick exterior, question why but do not hold in audit",
+    "appliesTo": ["All windows"],
+    "severity": "warning",
+    "active": true,
+    "calculationType": "validation",
+    "ruleType": "labor",
+    "validationMessage": "Header flashing is unusual for brick exterior. Question why it was sold but do not hold the job in audit.",
+    "conditions": {
+      "exteriorType": "brick",
+      "hasHeaderFlashing": true
+    },
+    "action": {
+      "type": "question",
+      "holdInAudit": false,
+      "message": "Question why header flashing was sold for brick exterior",
+      "ccEmail": "jthomas@winworldinfo.com"
+    }
+  },
+  {
+    "id": "BTR-2026-082",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 103,
+    "sourceSection": "Audit Labor Requirement Memos - Window Removals",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Always ask if no charge for window removals, unless it is new construction or customer removes them",
+    "appliesTo": ["All windows"],
+    "severity": "warning",
+    "active": true,
+    "calculationType": "validation",
+    "ruleType": "labor",
+    "validationMessage": "If no charge for window removals, verify why unless it's new construction or customer is removing windows.",
+    "conditions": {
+      "hasWindowRemovals": true,
+      "removalCharge": 0,
+      "constructionType": { "not": "newConstruction" },
+      "customerRemoves": false
+    },
+    "action": {
+      "type": "sendToAudit",
+      "message": "Window removals shown but no charge on contract"
+    }
+  },
+  {
+    "id": "BTR-2026-083",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 103,
+    "sourceSection": "Audit Labor Requirement Memos - Clear Story",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Clear story: $225 minimum for first window + $75 each additional window",
+    "appliesTo": ["All windows"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "pricing",
+    "ruleType": "labor",
+    "validationMessage": "Clear story windows require $225 minimum for the first window and $75 for each additional window. Applies to mull units as well.",
+    "conditions": {
+      "installationType": "clearStory"
+    },
+    "action": {
+      "type": "setPrice",
+      "firstWindow": 225,
+      "additionalWindows": 75,
+      "appliesToMullUnits": true
+    }
+  },
+  {
+    "id": "BTR-2026-084",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 103,
+    "sourceSection": "Audit Labor Requirement Memos - Clear Story",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Exception: Small transom over front door not exceeding 8ft from ground uses $10 2nd floor charge instead of clear story pricing",
+    "appliesTo": ["Transom windows"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "override",
+    "ruleType": "labor",
+    "validationMessage": "Small transom windows over front doors that do not exceed 8ft from ground height use $10 second-floor charge instead of the clear story fee.",
+    "conditions": {
+      "windowType": "transom",
+      "location": "overFrontDoor",
+      "heightFromGround": { "max": 96 }
+    },
+    "action": {
+      "type": "override",
+      "useCharge": "secondFloor",
+      "amount": 10,
+      "skipClearStoryFee": true
+    }
+  },
+  {
+    "id": "BTR-2026-085",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 104,
+    "sourceSection": "Audit A/C Sash Memos",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "AC sash costs $90 per unit with 0% commission",
+    "appliesTo": ["Double Hung windows"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "pricing",
+    "ruleType": "option",
+    "validationMessage": "AC sash is $90 with 0% commission. Entered under window options in Leads.",
+    "conditions": {
+      "option": "acSash",
+      "windowType": "doubleHung"
+    },
+    "action": {
+      "type": "setPrice",
+      "price": 90,
+      "commissionRate": 0,
+      "contractSection": "windowOptions"
+    }
+  },
+  {
+    "id": "BTR-2026-086",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 104,
+    "sourceSection": "Audit A/C Sash Memos",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "AC sash requires AC unit measurements on order form, F5 note in Windows Express, and Job Instructions note",
+    "appliesTo": ["Double Hung windows"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "validation",
+    "ruleType": "documentation",
+    "validationMessage": "AC sash orders require: AC unit measurements on order form, F5 note in Windows Express, and a Job Instructions note saying 'Please bring AC SASH for install'.",
+    "conditions": {
+      "option": "acSash"
+    },
+    "action": {
+      "type": "requireDocumentation",
+      "requirements": [
+        { "field": "acUnitMeasurements", "location": "orderForm" },
+        { "field": "F5Note", "location": "WindowsExpress", "content": "AC sash needed with AC measurements" },
+        { "field": "jobInstructions", "content": "Please bring AC SASH for install" }
+      ]
+    }
+  },
+  {
+    "id": "BTR-2026-087",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 105,
+    "sourceSection": "Audit Glass Pack Memos",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Glass pack is priced the same as a small picture window per region",
+    "appliesTo": ["Glass Pack"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "pricing",
+    "ruleType": "product",
+    "validationMessage": "Glass pack is priced the same as a small picture window for the applicable region.",
+    "conditions": {
+      "productType": "glassPack"
+    },
+    "action": {
+      "type": "priceAs",
+      "priceEquivalent": "smallPictureWindow",
+      "perRegion": true
+    }
+  },
+  {
+    "id": "BTR-2026-088",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 105,
+    "sourceSection": "Audit Glass Pack Memos",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Glass packs require a remake form with specific fields filled in. Model is always 3004.",
+    "appliesTo": ["Glass Pack"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "validation",
+    "ruleType": "documentation",
+    "validationMessage": "Glass packs require a remake form. Model must be 3004. Includes Sold-to/Ship-to, Date, Customer ID, Job name, Reason code 01, Assembly type GP, Tip-to-Tip Y, and measurements.",
+    "conditions": {
+      "productType": "glassPack"
+    },
+    "action": {
+      "type": "requireDocument",
+      "document": "remakeForm",
+      "fields": {
+        "model": "3004",
+        "reasonCode": "01",
+        "assemblyType": "GP",
+        "tipToTip": "Y",
+        "requiredFields": ["soldTo", "shipTo", "date", "customerID", "jobName", "quantity", "width", "height", "options"]
+      }
+    }
+  },
+  {
+    "id": "BTR-2026-089",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 113,
+    "sourceSection": "Audit Memos",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Special shape and temper pricing must be listed separately on the contract. Temper charge goes under specialty window options.",
+    "appliesTo": ["Special Shapes"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "validation",
+    "ruleType": "contractEntry",
+    "validationMessage": "Special shape and temper pricing must be listed separately on the contract. Temper charge goes under 'specialty window options'. Combined pricing folders will be returned for correction.",
+    "conditions": {
+      "windowType": "specialShape",
+      "hasTempering": true
+    },
+    "action": {
+      "type": "validate",
+      "separatePricing": true,
+      "temperSection": "specialtyWindowOptions",
+      "returnIfCombined": true
+    }
+  },
+  {
+    "id": "BTR-2026-090",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 113,
+    "sourceSection": "Audit Memos",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Folders with combined special shape and temper pricing will be flagged and returned for correction",
+    "appliesTo": ["Special Shapes"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "validation",
+    "ruleType": "audit",
+    "validationMessage": "Pricing folders with combined special shape and temper pricing will be flagged and returned by the audit team for correction.",
+    "conditions": {
+      "windowType": "specialShape",
+      "pricingCombined": true
+    },
+    "action": {
+      "type": "returnForCorrection",
+      "reason": "Special shape and temper pricing must be separate"
+    }
+  },
+  {
+    "id": "BTR-2026-091",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 115,
+    "sourceSection": "Tempering Calculations & Guidelines",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Tempering formula: Width (rounded up) × Height (rounded up) ÷ 144 = sq ft (round up to whole number)",
+    "appliesTo": ["All windows requiring tempering"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "pricing",
+    "ruleType": "tempering",
+    "validationMessage": "Temper calculation: Width (rounded up) × Height (rounded up) ÷ 144 = sq ft (rounded up to whole number).",
+    "conditions": {
+      "requiresTempering": true
+    },
+    "action": {
+      "type": "calculate",
+      "formula": "ceil(ceil(width) * ceil(height) / 144)",
+      "unit": "sqft"
+    }
+  },
+  {
+    "id": "BTR-2026-092",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 115,
+    "sourceSection": "Tempering Calculations & Guidelines",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Bottom sash only (even split): divide the temper result by 2",
+    "appliesTo": ["Double Hung windows"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "pricing",
+    "ruleType": "tempering",
+    "validationMessage": "For even-split windows needing only bottom sash tempered: divide the full temper calculation by 2.",
+    "conditions": {
+      "requiresTempering": true,
+      "temperLocation": "bottomSashOnly",
+      "orielType": "evenSplit"
+    },
+    "action": {
+      "type": "calculate",
+      "formula": "ceil(ceil(width) * ceil(height) / 144) / 2",
+      "note": "Divide full window temper by 2 for even split"
+    }
+  },
+  {
+    "id": "BTR-2026-093",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 115,
+    "sourceSection": "Tempering Calculations & Guidelines",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Bottom sash only (custom oriel): subtract oriel from height, use new height in formula",
+    "appliesTo": ["Double Hung windows with custom oriel"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "pricing",
+    "ruleType": "tempering",
+    "validationMessage": "For custom oriel windows needing only bottom sash tempered: subtract oriel measurement from height and use the new height in the formula.",
+    "conditions": {
+      "requiresTempering": true,
+      "temperLocation": "bottomSashOnly",
+      "orielType": "custom"
+    },
+    "action": {
+      "type": "calculate",
+      "formula": "ceil(ceil(width) * ceil(height - oriel) / 144)",
+      "note": "Subtract oriel from height to get bottom sash height"
+    }
+  },
+  {
+    "id": "BTR-2026-094",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 115,
+    "sourceSection": "Tempering Calculations & Guidelines",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Bottom sash only (60/40 standard oriel): height × 0.40 = bottom sash height for tempering",
+    "appliesTo": ["Double Hung windows with 60/40 oriel"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "pricing",
+    "ruleType": "tempering",
+    "validationMessage": "For 60/40 standard oriel windows needing only bottom sash tempered: multiply overall height by 0.40 to get bottom sash height, then use in formula.",
+    "conditions": {
+      "requiresTempering": true,
+      "temperLocation": "bottomSashOnly",
+      "orielType": "standard60_40"
+    },
+    "action": {
+      "type": "calculate",
+      "formula": "ceil(ceil(width) * ceil(height * 0.40) / 144)",
+      "note": "Use height × 0.40 for bottom sash height in 60/40 oriel"
+    }
+  },
+  {
+    "id": "BTR-2026-095",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 117,
+    "sourceSection": "Tempering Guidelines",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "IRC R308.4.2: Glass within 24\" of a door AND bottom edge less than 60\" above floor requires tempering",
+    "appliesTo": ["All windows"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "validation",
+    "ruleType": "tempering",
+    "validationMessage": "Per IRC R308.4.2: Glass within 24\" of either side of a door with bottom edge less than 60\" above the floor must be tempered.",
+    "conditions": {
+      "adjacentToDoor": true,
+      "distanceFromDoor": { "max": 24 },
+      "bottomEdgeAboveFloor": { "max": 60 }
+    },
+    "action": {
+      "type": "require",
+      "option": "tempering",
+      "code": "IRC R308.4.2"
+    }
+  },
+  {
+    "id": "BTR-2026-096",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 118,
+    "sourceSection": "Tempering Guidelines",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Tempering required when glass >9 sq ft AND bottom edge <18\" above floor AND top edge >36\" above floor AND walking surface within 36\"",
+    "appliesTo": ["All windows"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "validation",
+    "ruleType": "tempering",
+    "validationMessage": "Tempering required when: glass pane is >9 sq ft, bottom edge is <18\" above floor, top edge is >36\" above floor, and a walking surface is within 36\" of the window.",
+    "conditions": {
+      "glassArea": { "min": 9, "unit": "sqft" },
+      "bottomEdgeAboveFloor": { "max": 18 },
+      "topEdgeAboveFloor": { "min": 36 },
+      "walkingSurfaceDistance": { "max": 36 }
+    },
+    "action": {
+      "type": "require",
+      "option": "tempering",
+      "code": "IRC R308.4"
+    }
+  },
+  {
+    "id": "BTR-2026-097",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 119,
+    "sourceSection": "Tempering Guidelines",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Glass adjacent to stairway/landing/ramp with bottom edge less than 36\" above walking surface requires tempering",
+    "appliesTo": ["All windows"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "validation",
+    "ruleType": "tempering",
+    "validationMessage": "Glass adjacent to a stairway, landing, or ramp with bottom edge less than 36\" above the walking surface must be tempered.",
+    "conditions": {
+      "adjacentTo": ["stairway", "stairLanding", "ramp"],
+      "bottomEdgeAboveWalkingSurface": { "max": 36 }
+    },
+    "action": {
+      "type": "require",
+      "option": "tempering",
+      "code": "IRC R308.4"
+    }
+  },
+  {
+    "id": "BTR-2026-098",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 13,
+    "sourceSection": "L200 Series Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Full screens on L200 have pull tabs on the screen",
+    "appliesTo": ["L-2000"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "validation",
+    "ruleType": "screen",
+    "validationMessage": "Full screens on L200 series feature pull tabs.",
+    "conditions": {
+      "series": "L-2000",
+      "screenType": "fullScreen"
+    },
+    "action": {
+      "type": "info",
+      "feature": "pullTabs"
+    }
+  },
+  {
+    "id": "BTR-2026-099",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 67,
+    "sourceSection": "S.G.D. Memos, Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Full screens come standard with any SGD with exterior color. Half screens not available on exterior color units.",
+    "appliesTo": ["SGD", "6400 Series"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "override",
+    "ruleType": "screen",
+    "validationMessage": "Sliding glass doors with exterior color automatically include full screens. Half screens are not available.",
+    "conditions": {
+      "productType": "slidingGlassDoor",
+      "hasExteriorColor": true
+    },
+    "action": {
+      "type": "setDefault",
+      "screenType": "fullScreen",
+      "halfScreenAvailable": false
+    }
+  },
+  {
+    "id": "BTR-2026-100",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 18,
+    "sourceSection": "Wincore Black on Black Pricing and Specifications",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Wincore oriel measurement should be taken from the bottom of the window to the meeting rail",
+    "appliesTo": ["Wincore Black on Black"],
+    "severity": "info",
+    "active": true,
+    "calculationType": "validation",
+    "ruleType": "measurement",
+    "validationMessage": "Wincore oriel measurement is taken from the bottom of the window to the meeting rail.",
+    "conditions": {
+      "product": "Wincore Black on Black",
+      "hasOriel": true
+    },
+    "action": {
+      "type": "validate",
+      "measurementMethod": "bottomOfWindow_to_meetingRail"
+    }
+  },
+  {
+    "id": "BTR-2026-101",
+    "sourceDocument": "2026 BTR Pricing Guidelines",
+    "sourcePage": 71,
+    "sourceSection": "Color Option Rules and Exceptions",
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "description": "Exterior color cannot be combined with clay vinyl windows",
+    "appliesTo": ["All windows"],
+    "severity": "blocker",
+    "active": true,
+    "calculationType": "restriction",
+    "ruleType": "color",
+    "validationMessage": "Exterior color is not available on clay vinyl windows.",
+    "conditions": {
+      "vinylColor": "clay",
+      "option": "exteriorColor"
+    },
+    "action": {
+      "type": "reject",
+      "reason": "Exterior color not compatible with clay vinyl"
+    }
+  }
+]

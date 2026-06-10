@@ -1,0 +1,26 @@
+{
+  "sourceDocument": {
+    "title": "2026 Pricing Guidelines",
+    "company": "Window World of BTR",
+    "locations": [
+      { "address": "8405 Airline Hwy.", "city": "Baton Rouge", "state": "LA", "zip": "70815", "type": "main" },
+      { "address": "8814 Veterans Blvd, Suite 17", "city": "Metairie", "state": "LA", "zip": "70003", "type": "satellite" },
+      { "address": "3148 Ambassador Caffery Parkway, Suite 4", "city": "Lafayette", "state": "LA", "zip": "70506", "type": "satellite" }
+    ],
+    "effectiveYear": 2026,
+    "market": "BTR",
+    "totalPages": 120,
+    "extractedImages": 89,
+    "extractedTextLines": 868
+  },
+  "dataFiles": [
+    { "file": "productModels.json", "description": "All product models with specs & size limitations", "sourcePages": "12-32" },
+    { "file": "pricingTables.json", "description": "Pricing by UI range for all products", "sourcePages": "12-66" },
+    { "file": "rules.json", "description": "Business rules with metadata", "sourcePages": "13-120" },
+    { "file": "colorOptions.json", "description": "Color availability matrix per series", "sourcePages": "70-71" },
+    { "file": "gridStyles.json", "description": "Grid style catalog with restrictions", "sourcePages": "72-99" }
+  ],
+  "extractedAt": "2026-06-04",
+  "extractionMethod": "mammoth + manual OCR from embedded images",
+  "version": "1.0.0"
+}

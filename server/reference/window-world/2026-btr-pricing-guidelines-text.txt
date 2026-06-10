@@ -1,0 +1,10 @@
+﻿usage: mammoth [-h] [--output-dir OUTPUT_DIR]
+               [--output-format {html,markdown}] [--style-map STYLE_MAP]
+               docx-path [output-path]
+node.exe : mammoth: error: argument "--output-format": Invalid choice: text (choose from [html, markdown])
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (mammoth: error:...tml, markdown]):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 

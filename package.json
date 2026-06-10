@@ -1,0 +1,54 @@
+{
+    "name": "window-world-assistant",
+    "version": "1.1.0",
+    "private": true,
+    "workspaces": [
+        "apps/web",
+        "apps/desktop",
+        "server"
+    ],
+    "scripts": {
+        "dev": "concurrently \"npm run dev:server\" \"npm run dev:web\"",
+        "dev:server": "npm run dev --workspace=server",
+        "dev:web": "npm run dev --workspace=apps/web",
+        "build": "npm run build --workspaces --if-present",
+        "build:web": "npm run build --workspace=apps/web",
+        "build:server": "npm run build --workspace=server",
+        "desktop:build": "npm run build:web && npm run build --workspace=apps/desktop && npm run package --workspace=apps/desktop",
+        "db:migrate": "npm run migrate --workspace=server",
+        "db:seed": "npm run seed --workspace=server",
+        "db:reset": "npm run db:reset --workspace=server",
+        "test": "npm run test --workspaces --if-present",
+        "typecheck": "npm run typecheck --workspaces --if-present",
+        "lint": "eslint .",
+        "scan:encoding": "node scripts/scan-encoding.mjs",
+        "audit:prod-env": "node scripts/audit-production-env.js",
+        "smoke:api": "node scripts/smoke-api.js",
+        "check:theme": "node scripts/check-theme.js"
+    },
+    "devDependencies": {
+        "@eslint/js": "^10.0.1",
+        "@typescript-eslint/eslint-plugin": "^8.60.0",
+        "@typescript-eslint/parser": "^8.60.0",
+        "concurrently": "^10.0.3",
+        "eslint": "^10.4.1",
+        "eslint-plugin-react-hooks": "^7.1.1",
+        "globals": "^17.6.0"
+    },
+    "engines": {
+        "node": ">=20.0.0"
+    },
+    "overrides": {
+        "uuid": "^14.0.0",
+        "tar": ">=6.2.1",
+        "exceljs": {
+            "uuid": "^14.0.0"
+        },
+        "gaxios": {
+            "uuid": "^14.0.0"
+        }
+    },
+    "dependencies": {
+        "tesseract.js": "^7.0.0"
+    }
+}

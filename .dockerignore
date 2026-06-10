@@ -1,0 +1,12 @@
+node_modules
+.git
+*.md
+docs
+data
+*.bat
+*.ps1
+scratch.*
+.env
+.kilocode
+apps/web/dist
+server/dist

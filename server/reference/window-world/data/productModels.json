@@ -1,0 +1,910 @@
+{
+  "sourceDocument": "2026 BTR Pricing Guidelines",
+  "effectiveYear": 2026,
+  "market": "BTR",
+  "series": [
+    {
+      "id": "L200",
+      "name": "L200 Series",
+      "fullName": "L200 Series Replacement Windows",
+      "description": "High-tech multi-chamber rigid fusion-welded vinyl extrusion",
+      "sourcePage": 12,
+      "frameProfiles": {
+        "specialShapes": "L204"
+      },
+      "notes": [
+        "No exterior color option",
+        "No single hung option (only 03A0 has SH)",
+        "Must have B1 CONTOURED grids",
+        "Clay vinyl not available",
+        "Interior color not available"
+      ],
+      "models": [
+        {
+          "id": "L201",
+          "model": "L201",
+          "type": "double_hung",
+          "name": "Double Hung",
+          "description": "Top and bottom tilt-in sashes. Double vent stops, top mount cam lock, double weatherstripping throughout. Full interlocking meeting rail with composite reinforcement.",
+          "features": ["tilt_sashes", "half_screen_standard", "double_locks_25_plus", "head_expander_no_charge"],
+          "orielNote": "Measurement from top of window (header) to center of meeting rail",
+          "sizeLimitations": {
+            "standard": { "minWidth": 11, "maxWidth": 48, "minHeight": 20, "maxHeight": 78, "maxUI": 126 }
+          }
+        },
+        {
+          "id": "L202",
+          "model": "L202",
+          "type": "slider_2lite",
+          "name": "2-Lite Sliding Window",
+          "description": "Same features as L201. Removable lift-out sashes.",
+          "features": ["lift_out_sashes", "half_screen_standard", "double_locks_25_plus", "head_expander_no_charge"],
+          "viewDirection": "As viewed from the exterior. Left hand sash is interior (primary operating sash).",
+          "sizeLimitations": {
+            "standard": { "minWidth": 18, "maxWidth": 84, "minHeight": 9, "maxHeight": 56, "maxUI": 140 }
+          }
+        },
+        {
+          "id": "L203",
+          "model": "L203",
+          "type": "slider_3lite",
+          "name": "3-Lite Sliding Window",
+          "description": "Same features as L202. Three sashes, sliding end lites, fixed center lite.",
+          "features": ["vent_screen", "double_locks_25_plus", "head_expander_no_charge"],
+          "sizeLimitations": {
+            "standard": { "minWidth": 48, "maxWidth": 108, "minHeight": 9, "maxHeight": 56, "maxUI": 164 }
+          }
+        },
+        {
+          "id": "L209",
+          "model": "L209",
+          "type": "slider_3lite_equal",
+          "name": "Equal-Lite 3-Lite Sliding Window",
+          "description": "Same features as L202. Equal lite end vents, sliding end lites, fixed center lite.",
+          "features": ["vent_screen", "double_locks_25_plus", "head_expander_no_charge"],
+          "sizeLimitations": {
+            "standard": { "minWidth": 38, "maxWidth": 108, "minHeight": 9, "maxHeight": 56, "maxUI": 164 }
+          }
+        },
+        {
+          "id": "L204",
+          "model": "L204",
+          "type": "picture",
+          "name": "Picture Window / Transom",
+          "description": "Can be mulled with L201, L202; or as transom over L201. Head expander no charge, MUST be ordered with windows.",
+          "features": ["fixed", "head_expander_no_charge"],
+          "notes": ["Larger size may require tempered glass"],
+          "sizeLimitations": {
+            "gold": { "minWidth": 9, "maxWidth": 96, "minHeight": 9, "maxHeight": 96, "maxUI": 154 },
+            "silver": { "minWidth": 9, "maxWidth": 112, "minHeight": 9, "maxHeight": 112, "maxUI": 154 }
+          }
+        }
+      ]
+    },
+    {
+      "id": "03A0",
+      "name": "03A0 Series",
+      "fullName": "03A0 Series Replacement Windows",
+      "description": "Fully welded vinyl narrowline sash and mainframe with multi-chamber design",
+      "sourcePage": 14,
+      "frameProfiles": {
+        "specialShapes": "03A4"
+      },
+      "notes": [
+        "Vent stops not available",
+        "No rain glass",
+        "Interior color not available on 03A0 Single Hung",
+        "Interior color not available on arch-tops (S140, S144, S146)",
+        "Windows with exterior color must have B1 CONTOURED grids",
+        "Diamond grids must be A1 FLAT",
+        "All single hung (03A0) sold must be written in specialty windows section of contract"
+      ],
+      "models": [
+        {
+          "id": "03A0",
+          "model": "03A0",
+          "type": "single_hung",
+          "name": "Single Hung",
+          "description": "Tilt-in bottom sash with reinforced lock rail and interlocking meeting rail. 3/4\" double strength glass.",
+          "features": ["half_screen_standard", "double_locks_29_plus", "head_expander_no_charge"],
+          "orielNote": "Measurement from top of window (header) to center of meeting rail",
+          "contractNote": "Must be written in specialty windows section of contract",
+          "sizeLimitations": {
+            "gold": { "minWidth": 12, "maxWidth": 48, "minHeight": 22, "maxHeight": 78, "maxUI": 126 },
+            "silver": { "minWidth": 12, "maxWidth": 48, "minHeight": 22, "maxHeight": 84, "maxUI": 126 },
+            "st": { "minWidth": 12, "maxWidth": 52, "minHeight": 22, "maxHeight": 96, "maxUI": 148 }
+          }
+        },
+        {
+          "id": "03A2",
+          "model": "03A2",
+          "type": "slider_2lite",
+          "name": "2-Lite Single Sliding Window",
+          "description": "Single slide sash with reinforced lock rail and interlocking meeting rail. 3/4\" double strength insulated glass. Nylon-encased tandem brass roller system.",
+          "features": ["half_screen_standard", "double_locks_29_plus", "head_expander_no_charge"],
+          "viewDirection": "As viewed from the exterior. Left hand sash is interior (primary operating sash).",
+          "sizeLimitations": {
+            "standard": { "minWidth": 18.5, "maxWidth": 72, "minHeight": 12, "maxHeight": 56, "maxUI": 128 },
+            "st": { "minWidth": 18.5, "maxWidth": 96, "minHeight": 12, "maxHeight": 72, "maxUI": 156 }
+          }
+        },
+        {
+          "id": "03A3",
+          "model": "03A3",
+          "type": "slider_3lite",
+          "name": "3-Lite Sliding Window",
+          "description": "Same features as 03A2 but with operating end vents and fixed center lite.",
+          "features": ["half_screen_standard", "double_locks_29_plus", "head_expander_no_charge"],
+          "sizeLimitations": {
+            "composite": { "minWidth": 52, "maxWidth": 108, "minHeight": 12, "maxHeight": 56, "maxUI": 164 },
+            "st_gold": { "minWidth": 52, "maxWidth": 110, "minHeight": 12, "maxHeight": 72, "maxUI": 182 },
+            "st_silver": { "minWidth": 52, "maxWidth": 120, "minHeight": 12, "maxHeight": 72, "maxUI": 192 }
+          }
+        },
+        {
+          "id": "03A9",
+          "model": "03A9",
+          "type": "slider_3lite_equal",
+          "name": "Equal-Lite 3-Lite Sliding Window",
+          "description": "Same features as 03A2 but with operating end vents and fixed center lite.",
+          "features": ["half_screen_standard", "double_locks_29_plus", "head_expander_no_charge"],
+          "sizeLimitations": {
+            "standard": { "minWidth": 52, "maxWidth": 108, "minHeight": 12, "maxHeight": 56, "maxUI": 164 },
+            "st": { "minWidth": 52, "maxWidth": 120, "minHeight": 12, "maxHeight": 72, "maxUI": 192 }
+          }
+        },
+        {
+          "id": "03A4",
+          "model": "03A4",
+          "type": "picture",
+          "name": "Picture Window / Transom",
+          "description": "Fully welded vinyl narrowline mainframe with multi-chamber design. Can be mulled with 03A0, 03A2, 03A3, 03A9; or as transom over 03A0, 03A2, 03A3, 03A9.",
+          "features": ["fixed", "head_expander_no_charge"],
+          "notes": ["Larger size may require tempered glass"],
+          "sizeLimitations": {
+            "standard": { "minWidth": 9.5, "maxWidth": 112, "minHeight": 9.5, "maxHeight": 112, "maxUI": 154 }
+          }
+        }
+      ]
+    },
+    {
+      "id": "3000",
+      "name": "3000 Series",
+      "fullName": "3000 Series Replacement Windows",
+      "description": "High-tech multi-chamber rigid fusion-welded vinyl extrusion with reinforcing",
+      "sourcePage": 16,
+      "frameProfiles": {
+        "specialShapes": "3004"
+      },
+      "notes": [
+        "50\" max oriel on DH windows",
+        ">50\" oriel can only be made on single hung windows (03A0)",
+        "Oriel measured from top of glass to top of meeting rail",
+        "3000 Series ST auto-upgrade for units >48\" wide and/or >84\" high",
+        "ST model has steel reinforcement and true sloped sill with recessed weep system",
+        "ST has stile reinforcements standard on hung units 60\" or taller"
+      ],
+      "models": [
+        {
+          "id": "3001",
+          "model": "3001",
+          "type": "double_hung",
+          "name": "Double Hung",
+          "description": "Top and bottom tilt-in sashes. Double vent stops, cam action sash locks, double weatherstripping throughout. Full interlocking meeting rail with reinforcing.",
+          "features": ["tilt_sashes", "half_screen_standard", "double_locks_29_plus", "head_expander_no_charge"],
+          "orielNote": "Measurement from top of window (header) to center of meeting rail",
+          "sizeLimitations": {
+            "standard": { "minWidth": 12, "maxWidth": 48, "minHeight": 20, "maxHeight": 84, "maxUI": 126 },
+            "st": { "minWidth": 12, "maxWidth": 52, "minHeight": 20, "maxHeight": 96, "maxUI": 148 }
+          }
+        },
+        {
+          "id": "3002",
+          "model": "3002",
+          "type": "slider_2lite",
+          "name": "2-Lite Sliding Window",
+          "description": "Same features as 3001. Removable lift-out sashes. Nylon-encased tandem brass roller system.",
+          "features": ["lift_out_sashes", "half_screen_standard", "double_locks_29_plus", "head_expander_no_charge"],
+          "viewDirection": "As viewed from the exterior. Left hand sash is interior (primary operating sash).",
+          "sizeLimitations": {
+            "standard": { "minWidth": 18.5, "maxWidth": 72, "minHeight": 11.25, "maxHeight": 56, "maxUI": 128 },
+            "st": { "minWidth": 18.5, "maxWidth": 96, "minHeight": 11.25, "maxHeight": 72, "maxUI": 156 }
+          }
+        },
+        {
+          "id": "3003",
+          "model": "3003",
+          "type": "slider_3lite",
+          "name": "3-Lite Sliding Window",
+          "description": "Same features as 3002. Three sashes, sliding end lites, fixed center lite.",
+          "features": ["vent_screen", "double_locks_29_plus", "head_expander_no_charge"],
+          "sizeLimitations": {
+            "standard": { "minWidth": 47.5, "maxWidth": 108, "minHeight": 11.25, "maxHeight": 56, "maxUI": 164 },
+            "st": { "minWidth": 47.5, "maxWidth": 120, "minHeight": 11.25, "maxHeight": 72, "maxUI": 192 }
+          }
+        },
+        {
+          "id": "3009",
+          "model": "3009",
+          "type": "slider_3lite_equal",
+          "name": "Equal-Lite 3-Lite Sliding Window",
+          "description": "Same features as 3002. Equal lite end vents, sliding end lites, fixed center lite.",
+          "features": ["vent_screen", "double_locks_29_plus", "head_expander_no_charge"],
+          "sizeLimitations": {
+            "standard": { "minWidth": 37.25, "maxWidth": 108, "minHeight": 11.25, "maxHeight": 56, "maxUI": 164 },
+            "st": { "minWidth": 37.25, "maxWidth": 120, "minHeight": 11.25, "maxHeight": 72, "maxUI": 192 }
+          }
+        },
+        {
+          "id": "3004",
+          "model": "3004",
+          "type": "picture",
+          "name": "Picture Window / Transom",
+          "description": "Can be mulled with 3001, 3002, 3003, 3009; or as transom over 3001.",
+          "features": ["fixed", "head_expander_no_charge"],
+          "notes": ["Larger size may require tempered glass"],
+          "sizeLimitations": {
+            "standard": { "minWidth": 9.5, "maxWidth": 112, "minHeight": 9.5, "maxHeight": 112, "maxUI": 154 }
+          }
+        }
+      ]
+    },
+    {
+      "id": "CASEMENT",
+      "name": "Casement Series",
+      "fullName": "Casement Replacement Windows",
+      "description": "High-tech multi-chamber rigid vinyl, welded mainframe, slimline sash, color-coordinating hardware and multi-point single locking system",
+      "sourcePage": 26,
+      "frameProfiles": {
+        "specialShapes": "0504"
+      },
+      "notes": [
+        "Must specify HL or HR when viewed from exterior",
+        "Any mull of two 0971 fitting within 32-72W x 19-79H (max UI 150) must be ordered as 0972",
+        "New construction frame changes to 0171/0151 instead of 0971/0951",
+        "Egress hinge available on 0971 (must specify)"
+      ],
+      "models": [
+        {
+          "id": "0971",
+          "model": "0971",
+          "type": "casement_single",
+          "name": "Single Casement",
+          "description": "Heavy-duty stainless steel multi-directional hinge system. Includes vent screen.",
+          "features": ["vent_screen", "egress_available"],
+          "viewDirection": "As viewed from the exterior.",
+          "sizeLimitations": {
+            "standard": { "minWidth": 16, "maxWidth": 36, "minHeight": 19, "maxHeight": 78, "maxUI": 114 }
+          }
+        },
+        {
+          "id": "0972",
+          "model": "0972",
+          "type": "casement_double",
+          "name": "Double Casement",
+          "description": "Single mainframe double operating sashes. Includes vent screen.",
+          "viewDirection": "As viewed from the exterior.",
+          "sizeLimitations": {
+            "standard": { "minWidth": 32, "maxWidth": 72, "minHeight": 19, "maxHeight": 78, "maxUI": 150 }
+          }
+        },
+        {
+          "id": "0973",
+          "model": "0973",
+          "type": "casement_3lite",
+          "name": "3-Lite Casement",
+          "description": "Same features as 0971. With fixed center sash. End sashes operate. Includes vent screen.",
+          "viewDirection": "As viewed from the exterior.",
+          "sizeLimitations": {
+            "standard": { "minWidth": 64, "maxWidth": 120, "minHeight": 19, "maxHeight": 78, "maxUI": 198 }
+          }
+        },
+        {
+          "id": "0974",
+          "model": "0974",
+          "type": "casement_4lite",
+          "name": "4-Lite Dual Vent Casement",
+          "description": "Factory mulled, end sashes operate. Includes vent screen.",
+          "sizeLimitations": {
+            "standard": { "minWidth": 64, "maxWidth": 120, "minHeight": 19, "maxHeight": 78, "maxUI": 198 }
+          }
+        },
+        {
+          "id": "0975",
+          "model": "0975",
+          "type": "casement_5lite",
+          "name": "5-Lite Dual Vent Casement",
+          "description": "Same features as 0974. Single mainframe, end sashes operate. Includes vent screen.",
+          "sizeLimitations": {
+            "standard": { "minWidth": 80, "maxWidth": 120, "minHeight": 19, "maxHeight": 78, "maxUI": 198 }
+          }
+        },
+        {
+          "id": "0979",
+          "model": "0979",
+          "type": "casement_3lite_equal",
+          "name": "Equal-Lite 3-Lite Casement",
+          "description": "Same features as 0971. With fixed center sash. End sashes operate. Includes vent screen.",
+          "viewDirection": "As viewed from the exterior.",
+          "sizeLimitations": {
+            "standard": { "minWidth": 48, "maxWidth": 108, "minHeight": 19, "maxHeight": 78, "maxUI": 186 }
+          }
+        },
+        {
+          "id": "0970",
+          "model": "0970",
+          "type": "picture_casement",
+          "name": "Picture Transom Casement",
+          "description": "High-tech fully unitized multi-chamber, rigid vinyl, fixed sash. Can be mulled with 0971, 0972, 0973, 0974, 0975 or over all style casements and awnings as transom.",
+          "features": ["fixed"],
+          "notes": ["Larger size may require tempered glass"],
+          "sizeLimitations": {
+            "gold": { "minWidth": 13, "maxWidth": 96, "minHeight": 13, "maxHeight": 96, "maxUI": 154 },
+            "silver": { "minWidth": 13, "maxWidth": 112, "minHeight": 13, "maxHeight": 112, "maxUI": 154 }
+          }
+        }
+      ]
+    },
+    {
+      "id": "AWNING",
+      "name": "Awning Series",
+      "fullName": "Awning Replacement Windows",
+      "description": "High-tech multi-chamber rigid vinyl, welded mainframe and sash frames, heavy duty hinges, slimline sash, color-coordinating hardware and locking handles",
+      "sourcePage": 24,
+      "notes": [
+        "New construction frame changes to 0151 instead of 0951",
+        "Sash cranks outward",
+        "Available up to 48 inches wide and 96 inches high for stacked configurations"
+      ],
+      "models": [
+        {
+          "id": "0951",
+          "model": "0951",
+          "type": "awning",
+          "name": "Vinyl Awning",
+          "description": "Sash cranks outward. Includes vent screen.",
+          "sizeLimitations": {
+            "gold": { "minWidth": 19, "maxWidth": 48, "minHeight": 16, "maxHeight": 48, "maxUI": 96 },
+            "silver": { "minWidth": 19, "maxWidth": 52, "minHeight": 16, "maxHeight": 48, "maxUI": 96 }
+          }
+        },
+        {
+          "id": "0952",
+          "model": "0952",
+          "type": "awning_2lite_equal",
+          "name": "Equal-Lite 2-Lite Awning",
+          "description": "Single mainframe fixed lite over operating equal lite. Includes vent screen.",
+          "sizeLimitations": {
+            "gold": { "minWidth": 19, "maxWidth": 48, "minHeight": 32, "maxHeight": 96, "maxUI": 144 },
+            "silver": { "minWidth": 19, "maxWidth": 52, "minHeight": 32, "maxHeight": 96, "maxUI": 144 }
+          }
+        },
+        {
+          "id": "0953",
+          "model": "0953",
+          "type": "awning_2lite_unequal",
+          "name": "Unequal-Lite 2-Lite Awning",
+          "description": "Single mainframe unequal picture/transom (2/3 - 1/3) over operating bottom sash. Includes vent screen.",
+          "sizeLimitations": {
+            "gold": { "minWidth": 19, "maxWidth": 48, "minHeight": 48, "maxHeight": 96, "maxUI": 144 },
+            "silver": { "minWidth": 19, "maxWidth": 52, "minHeight": 48, "maxHeight": 96, "maxUI": 144 }
+          }
+        },
+        {
+          "id": "0954",
+          "model": "0954",
+          "type": "awning_2lite_top",
+          "name": "2-Lite Single Vent Awning",
+          "description": "Single mainframe equal lite operating top sash. Includes vent screen.",
+          "sizeLimitations": {
+            "gold": { "minWidth": 19, "maxWidth": 48, "minHeight": 32, "maxHeight": 96, "maxUI": 144 },
+            "silver": { "minWidth": 19, "maxWidth": 52, "minHeight": 32, "maxHeight": 96, "maxUI": 144 }
+          }
+        },
+        {
+          "id": "0955",
+          "model": "0955",
+          "type": "awning_2lite_dual",
+          "name": "2-Lite Dual Vent Awning",
+          "description": "Single mainframe equal lite, both sashes operate.",
+          "sizeLimitations": {
+            "gold": { "minWidth": 19, "maxWidth": 48, "minHeight": 32, "maxHeight": 96, "maxUI": 144 },
+            "silver": { "minWidth": 19, "maxWidth": 52, "minHeight": 32, "maxHeight": 96, "maxUI": 144 }
+          }
+        }
+      ]
+    },
+    {
+      "id": "SPECIAL_SHAPE",
+      "name": "Special Shape",
+      "fullName": "Special Shape Windows",
+      "description": "Available in several different extrusion designs. Model number must be specified.",
+      "sourcePage": 33,
+      "frameProfiles": {
+        "L200": "L204",
+        "3000": "3004",
+        "casement_awning": "0504"
+      },
+      "notes": [
+        "All special shapes come standard with foam spacer",
+        "+/- 1/4\" tolerance on all special shapes",
+        "Some shapes may incur additional charges upon review",
+        "Trim must be added on all special shapes (polygon exception)",
+        "Polygon shapes do NOT require special shape trim",
+        "Radius shapes require trim unless integrated nail fins",
+        "Under 24\" wide use 0700 or casement frame",
+        "Over max UI = full price of max UI + $150 adder, no 80% discount",
+        "Nail fins priced by pricing page (not contract $10)",
+        "Special shape trim cannot be discounted"
+      ],
+      "models": [
+        {
+          "id": "S105",
+          "model": "S105",
+          "type": "circle_top",
+          "name": "Circle Top",
+          "description": "Height/radius is exactly half of width (base). Radius (Dim 3) must be above radius limitations.",
+          "requiredDimensions": ["width"],
+          "shapeCategory": "radius",
+          "requiresTrim": true,
+          "sdlPatterns": ["CT-1", "CT-2", "CT-3", "CT-11"],
+          "sizeLimitations": {
+            "mezzo": { "minWidth": 25, "maxWidth": 88, "minHeight": "1/2 Width", "maxHeight": "1/2 Width", "maxUI": 154 },
+            "0700_sheff": { "minWidth": 20, "maxWidth": 95, "minHeight": "1/2 Width", "maxHeight": "1/2 Width", "maxUI": 154 }
+          }
+        },
+        {
+          "id": "S110",
+          "model": "S110",
+          "type": "half_round",
+          "name": "Half Round",
+          "shapeCategory": "radius",
+          "requiresTrim": true,
+          "sizeLimitations": {
+            "mezzo": { "minWidth": 25, "maxWidth": 95.5, "minHeight": 13, "maxHeight": 108, "maxUI": 154 },
+            "0700_sheff": { "minWidth": 20, "maxWidth": 95.5, "minHeight": 11, "maxHeight": 96, "maxUI": 154 }
+          }
+        },
+        {
+          "id": "S111",
+          "model": "S111",
+          "type": "quarter_round",
+          "name": "Quarter Round",
+          "shapeCategory": "radius",
+          "requiresTrim": true,
+          "sizeLimitations": {
+            "mezzo": { "minWidth": 13, "maxWidth": 72, "minHeight": 13, "maxHeight": 72, "maxUI": 154 },
+            "0700_sheff": { "minWidth": 12, "maxWidth": 72, "minHeight": 12, "maxHeight": 72, "maxUI": 154 }
+          }
+        },
+        {
+          "id": "S112",
+          "model": "S112",
+          "type": "full_round",
+          "name": "Full Round",
+          "shapeCategory": "radius",
+          "requiresTrim": true,
+          "sizeLimitations": {
+            "mezzo": { "minWidth": 13, "maxWidth": 112, "minHeight": 11, "maxHeight": 108, "maxUI": 154 },
+            "0700_sheff": { "minWidth": 12, "maxWidth": 72, "minHeight": 13, "maxHeight": 96, "maxUI": 154 }
+          }
+        },
+        {
+          "id": "S113",
+          "model": "S113",
+          "type": "extended_half_round",
+          "name": "Extended Half Round",
+          "shapeCategory": "radius",
+          "requiresTrim": true,
+          "sizeLimitations": {
+            "mezzo": { "minWidth": 25, "maxWidth": 112, "minHeight": 11, "maxHeight": 129, "maxUI": 154 },
+            "0700_sheff": { "minWidth": 20, "maxWidth": 96, "minHeight": 8, "maxHeight": 134, "maxUI": 154 }
+          }
+        },
+        {
+          "id": "S114",
+          "model": "S114",
+          "type": "oval",
+          "name": "Oval",
+          "shapeCategory": "radius",
+          "requiresTrim": true,
+          "sizeLimitations": {
+            "mezzo": { "minWidth": 14, "maxWidth": 112, "minHeight": 29, "maxHeight": 108, "maxUI": 154 },
+            "0700_sheff": { "minWidth": 12, "maxWidth": 96, "minHeight": 24, "maxHeight": 96, "maxUI": 154 }
+          }
+        },
+        {
+          "id": "S115",
+          "model": "S115",
+          "type": "ellipse",
+          "name": "Ellipse",
+          "shapeCategory": "radius",
+          "requiresTrim": true,
+          "sizeLimitations": {
+            "mezzo": { "minWidth": 13, "maxWidth": 112, "minHeight": 11, "maxHeight": 108, "maxUI": 154 },
+            "0700_sheff": { "minWidth": 9, "maxWidth": 96, "minHeight": 10, "maxHeight": 96, "maxUI": 154 }
+          }
+        },
+        {
+          "id": "S116",
+          "model": "S116",
+          "type": "half_ellipse",
+          "name": "Half Ellipse",
+          "shapeCategory": "radius",
+          "requiresTrim": true,
+          "sizeLimitations": {
+            "mezzo": { "minWidth": 11, "maxWidth": 112, "minHeight": 11, "maxHeight": 108, "maxUI": 154 },
+            "0700_sheff": { "minWidth": 8, "maxWidth": 96, "minHeight": 9, "maxHeight": 96, "maxUI": 154 }
+          }
+        },
+        {
+          "id": "S118",
+          "model": "S118",
+          "type": "octagon",
+          "name": "Octagon",
+          "shapeCategory": "polygon",
+          "requiresTrim": false,
+          "sizeLimitations": {
+            "mezzo": { "minWidth": 25, "maxWidth": 76, "minHeight": 25, "maxHeight": 76, "maxUI": 154 },
+            "0700_sheff": { "minWidth": 20, "maxWidth": 76, "minHeight": 25, "maxHeight": 76, "maxUI": 154 }
+          }
+        },
+        {
+          "id": "S120",
+          "model": "S120",
+          "type": "triangle",
+          "name": "Triangle",
+          "shapeCategory": "polygon",
+          "requiresTrim": false,
+          "sizeLimitations": {
+            "mezzo": { "minWidth": 11, "maxWidth": 76, "minHeight": 11, "maxHeight": 76, "maxUI": 154 },
+            "0700_sheff": { "minWidth": 11, "maxWidth": 76, "minHeight": 11, "maxHeight": 76, "maxUI": 154 }
+          }
+        },
+        {
+          "id": "S121",
+          "model": "S121",
+          "type": "pentagon",
+          "name": "Pentagon",
+          "shapeCategory": "polygon",
+          "requiresTrim": false,
+          "sizeLimitations": {
+            "mezzo": { "minWidth": 11, "maxWidth": 112, "minHeight": 11, "maxHeight": 108, "maxUI": 154 },
+            "0700_sheff": { "minWidth": 9, "maxWidth": 96, "minHeight": 8, "maxHeight": 96, "maxUI": 154 }
+          }
+        },
+        {
+          "id": "S122",
+          "model": "S122",
+          "type": "hexagon",
+          "name": "Hexagon",
+          "shapeCategory": "polygon",
+          "requiresTrim": false,
+          "sizeLimitations": {
+            "mezzo": { "minWidth": 15, "maxWidth": 76, "minHeight": 15, "maxHeight": 76, "maxUI": 154 },
+            "0700_sheff": { "minWidth": 15, "maxWidth": 76, "minHeight": 15, "maxHeight": 76, "maxUI": 154 }
+          }
+        },
+        {
+          "id": "S123",
+          "model": "S123",
+          "type": "trapezoid",
+          "name": "Trapezoid",
+          "shapeCategory": "polygon",
+          "requiresTrim": false,
+          "sizeLimitations": {
+            "mezzo": { "minWidth": 15, "maxWidth": 112, "minHeight": 15, "maxHeight": 112, "maxUI": 154 },
+            "0700_sheff": { "minWidth": 15, "maxWidth": 96, "minHeight": 15, "maxHeight": 96, "maxUI": 154 }
+          }
+        },
+        {
+          "id": "S129",
+          "model": "S129",
+          "type": "eyebrow",
+          "name": "Eyebrow",
+          "shapeCategory": "radius",
+          "requiresTrim": true,
+          "sizeLimitations": {
+            "mezzo": { "minWidth": 11, "maxWidth": 112, "minHeight": 12, "maxHeight": 108, "maxUI": 154 },
+            "0700_sheff": { "minWidth": 8, "maxWidth": 96, "minHeight": 9, "maxHeight": 96, "maxUI": 154 }
+          }
+        },
+        {
+          "id": "S140",
+          "model": "S140",
+          "type": "round_top_single_hung",
+          "name": "Round-Top Single-Hung",
+          "description": "Available in 0700, 0700 w/Flange, 03A0 and 0100 (with and without J) profiles. Tilt-in bottom sash only. Metal reinforced and interlocking meeting rail.",
+          "shapeCategory": "radius",
+          "requiresTrim": true,
+          "requiredDimensions": ["width", "height"],
+          "sdlPatterns": ["CTX-1", "CTX-2", "CTX-3", "CTX-12"],
+          "sizeLimitations": {
+            "mezzo": { "minWidth": 25, "maxWidth": 52, "minHeight": 43, "maxHeight": 96, "maxUI": 148 },
+            "0700": { "minWidth": 20, "maxWidth": 52, "minHeight": 43, "maxHeight": 96, "maxUI": 148 }
+          }
+        },
+        {
+          "id": "S144",
+          "model": "S144",
+          "type": "eyebrow_single_hung",
+          "name": "Eyebrow Single-Hung",
+          "description": "Available in 0700, 0700 w/Flange, 03A0 and 0100 profiles. Tilt-in bottom sash only.",
+          "shapeCategory": "radius",
+          "requiresTrim": true,
+          "requiredDimensions": ["width", "height", "legHeight"],
+          "sdlPatterns": ["EBX-17", "EBX-18", "EBX-24", "EBX-25"],
+          "sizeLimitations": {
+            "standard": { "minWidth": 16, "maxWidth": 52, "minHeight": 43, "maxHeight": 96, "maxUI": 134 }
+          }
+        },
+        {
+          "id": "S146",
+          "model": "S146",
+          "type": "half_eyebrow_single_hung",
+          "name": "Half Eyebrow Single-Hung Left & Right",
+          "description": "Available in 0700, 0700 w/Flange, 03A0 and 0100 profiles. Tilt-in bottom sash only.",
+          "shapeCategory": "radius",
+          "requiresTrim": true,
+          "requiredDimensions": ["width", "height", "legHeight"],
+          "sdlPatterns": ["HEX-1"],
+          "sizeLimitations": {
+            "standard": { "minWidth": 16, "maxWidth": 52, "minHeight": 43, "maxHeight": 96, "maxUI": 134 }
+          }
+        }
+      ]
+    },
+    {
+      "id": "GARDEN",
+      "name": "Garden Window",
+      "fullName": "Garden Window",
+      "description": "Fully welded, rigid vinyl frame. Completely assembled with head and seatboard.",
+      "sourcePage": 31,
+      "models": [
+        {
+          "id": "S134",
+          "model": "S134",
+          "type": "garden",
+          "name": "Garden Window",
+          "description": "Base price includes standard glazed unit with birch veneer seat and single glass shelf. 17\" projections.",
+          "features": ["twin_sealing_casements", "multi_point_locking", "constant_35_deg_top_slope"],
+          "colors": ["white", "beige", "white_lt_oak"],
+          "jambs": ["4-9/16\"", "5-1/4\"", "6-9/16\"", "11\""],
+          "seatboards": ["birch_veneer", "oak_veneer", "white_pionite"],
+          "sizeLimitations": {
+            "standard": { "minWidth": 24, "maxWidth": 72, "minHeight": 30, "maxHeight": 63 }
+          },
+          "notes": [
+            "Largest sizes are 72x48 or 60x60",
+            "Woodgrain screens NOT available with woodgrain garden windows",
+            "Hardware and screen bar are color-matched to interior frame color",
+            "Garden window with light oak interior: hardware and screen bar are white"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "BASEMENT",
+      "name": "Basement Hopper",
+      "fullName": "Basement Hopper",
+      "sourcePage": 16,
+      "models": [
+        {
+          "id": "09C7",
+          "model": "09C7",
+          "type": "basement_hopper",
+          "name": "Basement Hopper",
+          "description": "High-tech multi-chamber rigid vinyl, tilt-in from top for venting with locking handle. Full vent screen included. Foam spacer standard.",
+          "features": ["tilt_in_top", "full_vent_screen", "foam_spacer_standard"],
+          "notes": [
+            "Basement application only",
+            "Only available in white and beige",
+            "No grid options available",
+            "Foam spacer and double-strength glass standard"
+          ],
+          "sizeLimitations": {
+            "standard": [
+              { "minWidth": 17, "maxWidth": 36, "minHeight": 12, "maxHeight": 36, "maxUI": 55 },
+              { "minWidth": 12, "maxWidth": 36, "minHeight": 14, "maxHeight": 36, "maxUI": 55 }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "WINCORE_BOB",
+      "name": "Wincore Black on Black",
+      "fullName": "Wincore Black on Black Windows",
+      "sourcePage": 18,
+      "notes": [
+        "Contact pricing for Wincore Black on Black",
+        "Wincore oriel measurement from bottom of window to meeting rail",
+        "$100 adder over 120 UI per contract",
+        "Special shapes priced from non-impact sheet, cannot be discounted",
+        "SDL grids $60 per lite",
+        "Single charge per window/SGD for both inside and outside black"
+      ],
+      "models": [
+        { "id": "8801", "model": "8801", "type": "double_hung", "name": "Double Hung" },
+        { "id": "8802", "model": "8802", "type": "slider_2lite", "name": "2-Lite Slider" },
+        { "id": "8803", "model": "8803", "type": "slider_3lite", "name": "3-Lite Slider" },
+        { "id": "8809", "model": "8809", "type": "slider_3lite_equal", "name": "Equal-Lite 3-Lite Slider" },
+        { "id": "8804", "model": "8804", "type": "picture", "name": "Picture" },
+        { "id": "8851", "model": "8851", "type": "awning", "name": "Awning" },
+        { "id": "8871", "model": "8871", "type": "casement", "name": "Casement" },
+        { "id": "8800", "model": "8800", "type": "special_shape", "name": "Special Shapes" }
+      ]
+    },
+    {
+      "id": "WINCORE_IMPACT",
+      "name": "Wincore Impact",
+      "fullName": "Wincore Impact Windows",
+      "sourcePage": 22,
+      "notes": [
+        "Contact for pricing"
+      ],
+      "models": [
+        { "id": "7700", "model": "7700", "type": "special_shape", "name": "Non-Impact Specialty Window" }
+      ]
+    },
+    {
+      "id": "SGD",
+      "name": "Sliding Glass Doors",
+      "fullName": "S.G.D. Sliding Glass Doors",
+      "description": "6400 Series Sliding Glass Doors",
+      "sourcePage": 62,
+      "notes": [
+        "Operating direction required on all sliding doors (not field reversible)",
+        "XO notation from outside looking in",
+        "3\" sash standard (no charge), 5\" and 7\" (French) charged per panel",
+        "Beige and Clay charged separately per panel",
+        "Internal mini blinds: 6'8\" height ONLY, NOT with exterior color",
+        "Internal mini blinds on 6408/6422 only with 5\" sash",
+        "No additional labor charges for trim/removals/installation (cutback floor acceptable)",
+        "Removals entered as Window Removals (not MISC LABOR)"
+      ],
+      "models": [
+        {
+          "id": "6405",
+          "model": "6405",
+          "type": "sgd_standard",
+          "name": "5' Sliding Glass Door",
+          "panels": 2,
+          "standardWidth": 60,
+          "heightOptions": [80, 96],
+          "sizeCategory": "standard",
+          "pricingNote": "Can be priced from AMI pricing book or same as 6406 contract price"
+        },
+        {
+          "id": "6406",
+          "model": "6406",
+          "type": "sgd_standard",
+          "name": "6' Sliding Glass Door",
+          "panels": 2,
+          "standardWidth": 72,
+          "heightOptions": [80, 96],
+          "sizeCategory": "standard"
+        },
+        {
+          "id": "6408",
+          "model": "6408",
+          "type": "sgd_standard",
+          "name": "8' Sliding Glass Door",
+          "panels": 2,
+          "standardWidth": 96,
+          "heightOptions": [80, 96],
+          "sizeCategory": "standard"
+        },
+        {
+          "id": "6409",
+          "model": "6409",
+          "type": "sgd_standard",
+          "name": "9' Sliding Glass Door",
+          "panels": 3,
+          "standardWidth": 108,
+          "heightOptions": [80, 96],
+          "sizeCategory": "standard"
+        },
+        {
+          "id": "6412",
+          "model": "6412",
+          "type": "sgd_standard",
+          "name": "12' Sliding Glass Door",
+          "panels": 4,
+          "standardWidth": 144,
+          "heightOptions": [80, 96],
+          "sizeCategory": "standard"
+        },
+        {
+          "id": "6422",
+          "model": "6422",
+          "type": "sgd_standard",
+          "name": "22' Sliding Glass Door",
+          "panels": 2,
+          "sizeCategory": "standard",
+          "pricingNote": "Priced using Custom Size Patio Door pricing sheet or same as 6412 on contract"
+        },
+        {
+          "id": "6402",
+          "model": "6402",
+          "type": "sgd_custom",
+          "name": "Custom 2-Panel Sliding Glass Door",
+          "panels": 2,
+          "sizeCategory": "custom",
+          "pricingNote": "Priced off Pricing Sheet by U.I. Always use 3\" white clear glass column."
+        },
+        {
+          "id": "6403",
+          "model": "6403",
+          "type": "sgd_custom",
+          "name": "Custom 3-Panel Sliding Glass Door",
+          "panels": 3,
+          "sizeCategory": "custom"
+        },
+        {
+          "id": "6404",
+          "model": "6404",
+          "type": "sgd_custom",
+          "name": "Custom 4-Panel Sliding Glass Door",
+          "panels": 4,
+          "sizeCategory": "custom"
+        }
+      ],
+      "options": {
+        "sashTypes": [
+          { "size": "3\"", "label": "Standard 3\" Sash", "charge": "no_charge" },
+          { "size": "5\"", "label": "5\" Sash", "charge": "per_panel" },
+          { "size": "7\"", "label": "7\" French Sash", "charge": "per_panel" }
+        ],
+        "internalMiniBlinds": {
+          "heightRestriction": "6'8\" (80\") ONLY",
+          "notWithExteriorColor": true,
+          "sashRestriction": { "models": ["6408", "6422"], "requiredSash": "5\"" },
+          "leOption": {
+            "code": "BBG_ThermD_LT",
+            "label": "LE Internal Blinds",
+            "availability": "BTR only",
+            "pricing": {
+              "6405": 1361.25, "6406": 1361.25, "6408": 1361.25,
+              "6409": 2041.88, "6422": 2041.88,
+              "6412": 2722.50
+            }
+          },
+          "leeOption": {
+            "code": "BBG_ThermD_LTSF",
+            "label": "LEE Internal Blinds",
+            "availability": "Required for Houston and Dallas, Option for BTR",
+            "pricing": {
+              "6405": 1694.00, "6406": 1694.00, "6408": 1694.00,
+              "6409": 2541.00, "6422": 2541.00,
+              "6412": 3388.00
+            }
+          }
+        },
+        "vinylPatioDoorTrim": {
+          "qty1": "Any 2-panel door ≤6' width (6405, 6406, 6402)",
+          "qty2plus": "Any 3+ panel door or 6402 >6' width"
+        },
+        "regionSpecific": {
+          "dallas": { "leePerPanel": 130, "note": "Must add $130 per panel for Low-E" },
+          "houston": { "leeRequired": true, "mustBeCharged": true },
+          "btr": { "leOrLee": "choice" }
+        }
+      }
+    }
+  ],
+  "generalRules": {
+    "tapconCharge": { "amount": 10, "per": "unit", "description": "Tapcon concrete attachment charge" },
+    "smallWindowMinimum": { "maxUI": 83, "price": 285, "appliesTo": "All small sliders and small picture windows", "series": ["L200", "03A0", "3000"] },
+    "headExpander": { "charge": "no_charge", "note": "MUST be ordered with windows" },
+    "allConfigurationsViewedFromExterior": true,
+    "stAutoUpgrade": {
+      "widthThreshold": 48,
+      "heightThreshold": 84,
+      "description": "3000 Series base model auto-upgraded to 3000 Series ST for units >48\" wide and/or >84\" high"
+    },
+    "doubleHungGridRestriction": {
+      "description": "DH windows <24\" wide or <44\" high and picture windows <24\" for either dimension not suitable for double prairie/perimeter grids"
+    }
+  }
+}

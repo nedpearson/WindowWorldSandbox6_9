@@ -1,0 +1,8 @@
+{
+  "1. Login": "PASS",
+  "2. Dashboard - Start Route Button": "FAIL: Button not found",
+  "3. Customer List": "FAIL: [NET FAIL] https://wwassistant.bridgebox.ai/cdn-cgi/rum?",
+  "4. Customer Detail": "FAIL: No customers found",
+  "5. Appointment Detail": "FAIL: No appointments found",
+  "6. Call/Text/Navigate": "FAIL: Buttons not found"
+}

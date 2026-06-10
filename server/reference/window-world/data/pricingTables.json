@@ -1,0 +1,309 @@
+{
+  "sourceDocument": "2026 BTR Pricing Guidelines",
+  "effectiveYear": 2026,
+  "market": "BTR",
+  "pricingNote": "All prices are as published in the 2026 BTR Pricing Guidelines. Pricing tables transcribed from document images.",
+  "casement": {
+    "sourcePage": 28,
+    "models": {
+      "0971": {
+        "name": "Single Casement",
+        "tiers": [
+          { "uiMin": 0, "uiMax": 73, "white": 375.10, "beigeClassicClay": 402.35 },
+          { "uiMin": 74, "uiMax": 83, "white": 402.05, "beigeClassicClay": 432.70 },
+          { "uiMin": 84, "uiMax": 93, "white": 432.05, "beigeClassicClay": 465.25 },
+          { "uiMin": 94, "uiMax": 101, "white": 451.20, "beigeClassicClay": 486.75 },
+          { "uiMin": 102, "uiMax": 108, "white": 470.35, "beigeClassicClay": 507.30 },
+          { "uiMin": 109, "uiMax": 114, "white": 503.15, "beigeClassicClay": 543.55 }
+        ]
+      },
+      "0972": {
+        "name": "Double Casement",
+        "tiers": [
+          { "uiMin": 0, "uiMax": 73, "white": 555.80, "beigeClassicClay": 596.95 },
+          { "uiMin": 74, "uiMax": 83, "white": 596.15, "beigeClassicClay": 641.30 },
+          { "uiMin": 84, "uiMax": 93, "white": 641.30, "beigeClassicClay": 690.35 },
+          { "uiMin": 94, "uiMax": 101, "white": 669.40, "beigeClassicClay": 721.60 },
+          { "uiMin": 102, "uiMax": 108, "white": 697.50, "beigeClassicClay": 752.25 },
+          { "uiMin": 109, "uiMax": 120, "white": 746.00, "beigeClassicClay": 805.50 },
+          { "uiMin": 121, "uiMax": 132, "white": 795.80, "beigeClassicClay": 861.10 },
+          { "uiMin": 133, "uiMax": 144, "white": 844.65, "beigeClassicClay": 915.45 },
+          { "uiMin": 145, "uiMax": 150, "white": 893.90, "beigeClassicClay": 968.70 }
+        ]
+      },
+      "0973": {
+        "name": "3-Lite Casement",
+        "tiers": [
+          { "uiMin": 0, "uiMax": 73, "white": 620.80, "beigeClassicClay": 666.50 },
+          { "uiMin": 74, "uiMax": 83, "white": 666.05, "beigeClassicClay": 716.35 },
+          { "uiMin": 84, "uiMax": 93, "white": 715.85, "beigeClassicClay": 771.15 },
+          { "uiMin": 94, "uiMax": 101, "white": 747.55, "beigeClassicClay": 806.15 },
+          { "uiMin": 102, "uiMax": 108, "white": 779.35, "beigeClassicClay": 840.90 },
+          { "uiMin": 109, "uiMax": 120, "white": 833.45, "beigeClassicClay": 900.20 },
+          { "uiMin": 121, "uiMax": 132, "white": 888.25, "beigeClassicClay": 960.70 },
+          { "uiMin": 133, "uiMax": 144, "white": 942.65, "beigeClassicClay": 1020.55 },
+          { "uiMin": 145, "uiMax": 150, "white": 997.05, "beigeClassicClay": 1080.40 },
+          { "uiMin": 151, "uiMax": 168, "white": 1081.95, "beigeClassicClay": 1187.80 },
+          { "uiMin": 169, "uiMax": 180, "white": 1243.95, "beigeClassicClay": 1357.20 },
+          { "uiMin": 181, "uiMax": 190, "white": 1407.00, "beigeClassicClay": 1536.55 },
+          { "uiMin": 191, "uiMax": 198, "white": 1550.95, "beigeClassicClay": 1694.90 }
+        ]
+      },
+      "0979": {
+        "name": "Equal-Lite 3-Lite Casement",
+        "tiers": [
+          { "uiMin": 0, "uiMax": 73, "white": 620.80, "beigeClassicClay": 666.50 },
+          { "uiMin": 74, "uiMax": 83, "white": 666.05, "beigeClassicClay": 716.35 },
+          { "uiMin": 84, "uiMax": 93, "white": 715.85, "beigeClassicClay": 771.15 },
+          { "uiMin": 94, "uiMax": 101, "white": 747.55, "beigeClassicClay": 806.15 },
+          { "uiMin": 102, "uiMax": 108, "white": 779.35, "beigeClassicClay": 840.90 },
+          { "uiMin": 109, "uiMax": 120, "white": 833.45, "beigeClassicClay": 900.20 },
+          { "uiMin": 121, "uiMax": 132, "white": 888.25, "beigeClassicClay": 960.70 },
+          { "uiMin": 133, "uiMax": 144, "white": 942.65, "beigeClassicClay": 1020.55 },
+          { "uiMin": 145, "uiMax": 150, "white": 997.05, "beigeClassicClay": 1080.40 },
+          { "uiMin": 151, "uiMax": 168, "white": 1081.95, "beigeClassicClay": 1187.80 },
+          { "uiMin": 169, "uiMax": 180, "white": 1243.95, "beigeClassicClay": 1357.20 },
+          { "uiMin": 181, "uiMax": 186, "white": 1407.00, "beigeClassicClay": 1536.55 }
+        ]
+      },
+      "0970": {
+        "name": "Picture Transom Casement",
+        "tiers": [
+          { "uiMin": 0, "uiMax": 73, "white": 375.10, "beigeClassicClay": 402.35 },
+          { "uiMin": 74, "uiMax": 83, "white": 402.05, "beigeClassicClay": 432.70 },
+          { "uiMin": 84, "uiMax": 93, "white": 432.05, "beigeClassicClay": 465.25 },
+          { "uiMin": 94, "uiMax": 101, "white": 451.20, "beigeClassicClay": 486.75 },
+          { "uiMin": 102, "uiMax": 108, "white": 470.35, "beigeClassicClay": 507.30 },
+          { "uiMin": 109, "uiMax": 120, "white": 503.15, "beigeClassicClay": 543.55 },
+          { "uiMin": 121, "uiMax": 132, "white": 536.25, "beigeClassicClay": 580.80 },
+          { "uiMin": 133, "uiMax": 144, "white": 569.35, "beigeClassicClay": 617.40 },
+          { "uiMin": 145, "uiMax": 154, "white": 602.50, "beigeClassicClay": 654.30 }
+        ]
+      }
+    }
+  },
+  "specialShapes": {
+    "sourcePage": 36,
+    "note": "Pricing by UI range. Over max UI = full price of max UI + $150 adder (no 80% discount).",
+    "overMaxUIAdder": 150,
+    "noDiscountOnOverMax": true,
+    "models": {
+      "S105": {
+        "name": "Circle Top",
+        "sourcePage": 38,
+        "tiers": [
+          { "uiRange": "Min-38", "white": 397.00, "beige": 415.88, "lowEArgon": 11.37, "temper": 213.99, "bronzeGrayTint": 11.37, "doubleLowEArgon": 19.90 },
+          { "uiRange": "39-44", "white": 421.99, "beige": 442.07, "lowEArgon": 13.73, "temper": 213.99, "bronzeGrayTint": 13.73, "doubleLowEArgon": 24.02 },
+          { "uiRange": "45-50", "white": 437.90, "beige": 458.83, "lowEArgon": 16.03, "temper": 236.62, "bronzeGrayTint": 16.03, "doubleLowEArgon": 28.07 },
+          { "uiRange": "51-56", "white": 461.43, "beige": 483.58, "lowEArgon": 22.02, "temper": 253.62, "bronzeGrayTint": 22.02, "doubleLowEArgon": 38.54 },
+          { "uiRange": "57-62", "white": 493.08, "beige": 516.73, "lowEArgon": 26.74, "temper": 283.56, "bronzeGrayTint": 26.74, "doubleLowEArgon": 46.77 },
+          { "uiRange": "63-68", "white": 526.17, "beige": 551.52, "lowEArgon": 32.31, "temper": 307.40, "bronzeGrayTint": 32.31, "doubleLowEArgon": 56.51 },
+          { "uiRange": "69-74", "white": 552.73, "beige": 579.41, "lowEArgon": 37.69, "temper": 337.23, "bronzeGrayTint": 37.69, "doubleLowEArgon": 65.95 },
+          { "uiRange": "75-86", "white": 610.81, "beige": 640.39, "lowEArgon": 51.85, "temper": 406.68, "bronzeGrayTint": 51.85, "doubleLowEArgon": 90.75 },
+          { "uiRange": "87-92", "white": 654.13, "beige": 685.83, "lowEArgon": 58.87, "temper": 442.07, "bronzeGrayTint": 58.87, "doubleLowEArgon": 103.03 },
+          { "uiRange": "93-98", "white": 704.70, "beige": 738.95, "lowEArgon": 67.58, "temper": 482.25, "bronzeGrayTint": 67.58, "doubleLowEArgon": 118.28 },
+          { "uiRange": "99-110", "white": 755.89, "beige": 792.73, "lowEArgon": 85.55, "temper": 568.70, "bronzeGrayTint": 85.55, "doubleLowEArgon": 149.68 },
+          { "uiRange": "111-128", "white": 918.27, "beige": 963.22, "lowEArgon": 116.52, "temper": 731.87, "bronzeGrayTint": 116.52, "doubleLowEArgon": 203.89 }
+        ],
+        "options": {
+          "shgcLowEArgon": [18.88, 22.75, 26.62, 36.42, 44.29, 53.48, 62.32, 85.79, 97.41, 111.93, 141.69, 192.87],
+          "tripleLowE2Argon": [66.07, 84.03, 102.06, 144.11, 174.12, 210.18, 246.17, 336.26, 384.30, 438.32, 558.42, 600.46],
+          "colonialSpokes": [61.71, 68.67, 76.53, 85.91, 94.68, 107.99, 121.00, 140.06, 164.26, 184.83, 217.20, 248.96],
+          "sunburst": [143.69, 151.55, 160.93, 171.82, 181.80, 197.23, 212.05, 234.14, 261.97, 285.86, 323.07, 359.98],
+          "doubleSunburst": [241.70, 247.75, 254.71, 263.18, 270.74, 282.84, 294.03, 310.97, 332.45, 350.60, 379.03, 407.47],
+          "tripleSunburstGothic": [289.19, 294.94, 301.59, 309.16, 316.42, 327.61, 338.50, 354.53, 374.50, 391.44, 418.36, 444.98],
+          "sdl_7_8": [897.81, 904.69, 911.88, 918.75, 925.63, 932.81, 939.69, 953.75, 960.63, 967.81, 981.56, 1002.50],
+          "sdl_1_1_4": [999.06, 1009.06, 1019.06, 1029.06, 1039.06, 1049.06, 1059.06, 1079.38, 1089.38, 1099.38, 1119.06, 1148.75]
+        },
+        "nailFin": {
+          "noJ": [18.15, 21.78, 24.20, 27.83, 30.25, 33.88, 36.30, 41.14, 44.77, 48.40, 54.45, 58.08],
+          "withJ": [30.25, 33.88, 36.30, 39.93, 42.35, 45.98, 48.40, 53.24, 56.87, 60.50, 66.55, 70.18]
+        },
+        "woodJambExtensions": {
+          "4_9_16_prm": [339.41, 339.41, 367.84, 379.34, 385.08, 396.58, 407.47, 420.17, 438.63, 443.77, 459.20, 491.87],
+          "4_9_16_pine": [340.62, 340.62, 371.77, 383.87, 389.92, 401.42, 412.31, 429.85, 452.24, 457.08, 490.96, 544.50],
+          "6_9_16_prm": [534.82, 534.82, 544.80, 554.79, 562.35, 576.57, 584.13, 594.72, 617.40, 647.05, 671.55, 732.35],
+          "6_9_16_pine": [535.73, 535.73, 549.95, 560.23, 567.49, 582.31, 589.88, 607.12, 631.92, 662.48, 697.26, 791.95]
+        },
+        "halfDrywallReturn": [11.98, 12.77, 13.49, 15.00, 16.52, 19.48, 20.99, 24.02, 25.53, 26.98, 30.01, 36.00],
+        "colorOptions": {
+          "beigeExtWhiteWoodgrainInt": 108.69,
+          "interiorWoodgrain": 99.31,
+          "exteriorColor": 175.00,
+          "intWoodgrainAndExtColor": 25.00
+        },
+        "gridUpcharge": 62.38,
+        "shapeCustomGridAdd": 156.25,
+        "exteriorGrooveFiller": { "perFoot": 0.88 }
+      },
+      "S140": {
+        "name": "Round-Top Single-Hung",
+        "sourcePage": 46,
+        "tiers": [
+          { "uiRange": "Min-67", "white": 823.10, "beige": 897.52, "colonialSpokes": 100.73, "sunburst": 188.76, "doubleSunburst": 276.18, "tripleSunburst": 321.56, "gothic": 1122.58, "sdl_7_8": 2061.25, "sdl_1_1_4": 2315.00 },
+          { "uiRange": "68-84", "white": 959.83, "beige": 1006.42, "colonialSpokes": 136.73, "sunburst": 230.51, "doubleSunburst": 307.95, "tripleSunburst": 351.51, "gothic": 1168.56, "sdl_7_8": 2102.19, "sdl_1_1_4": 2373.44 },
+          { "uiRange": "85-104", "white": 1115.02, "beige": 1169.47, "colonialSpokes": 198.44, "sunburst": 301.59, "doubleSunburst": 362.70, "tripleSunburst": 402.93, "gothic": 1246.91, "sdl_7_8": 2150.31, "sdl_1_1_4": 2442.81 },
+          { "uiRange": "105-124", "white": 1277.76, "beige": 1340.38, "colonialSpokes": 265.60, "sunburst": 379.03, "doubleSunburst": 421.99, "tripleSunburst": 458.89, "gothic": 1332.21, "sdl_7_8": 2197.50, "sdl_1_1_4": 2510.00 },
+          { "uiRange": "125-134", "white": 1462.89, "beige": 1535.19, "colonialSpokes": 316.72, "sunburst": 438.02, "doubleSunburst": 467.06, "tripleSunburst": 501.24, "gothic": 1396.95, "sdl_7_8": 2220.94, "sdl_1_1_4": 2543.75 }
+        ]
+      },
+      "S144": {
+        "name": "Eyebrow Single-Hung",
+        "sourcePage": 46,
+        "tiers": [
+          { "uiRange": "Min-67", "white": 823.10, "beige": 897.52, "colonialSpokes": 176.66, "sunburst": 373.29, "doubleSunburst": 409.59, "sdl_7_8": 1236.88, "sdl_1_1_4": 1389.06 },
+          { "uiRange": "68-84", "white": 959.83, "beige": 1006.42, "colonialSpokes": 212.96, "sunburst": 415.03, "doubleSunburst": 451.33, "sdl_7_8": 1261.25, "sdl_1_1_4": 1424.06 },
+          { "uiRange": "85-104", "white": 1115.02, "beige": 1169.47, "colonialSpokes": 274.67, "sunburst": 486.42, "doubleSunburst": 522.72, "sdl_7_8": 1290.31, "sdl_1_1_4": 1465.63 },
+          { "uiRange": "105-124", "white": 1277.76, "beige": 1340.38, "colonialSpokes": 341.83, "sunburst": 563.86, "doubleSunburst": 600.16, "sdl_7_8": 1318.44, "sdl_1_1_4": 1506.25 },
+          { "uiRange": "125-134", "white": 1462.89, "beige": 1535.19, "colonialSpokes": 392.65, "sunburst": 622.55, "doubleSunburst": 658.85, "sdl_7_8": 1332.50, "sdl_1_1_4": 1526.25 }
+        ]
+      },
+      "S146": {
+        "name": "Half Eyebrow Single-Hung Left & Right",
+        "sourcePage": 46,
+        "tiers": [
+          { "uiRange": "Min-67", "white": 823.10, "beige": 897.52, "colonialSpokes": 85.31, "sunburst": 274.37, "doubleSunburst": 310.67, "sdl_7_8": 812.81, "sdl_1_1_4": 909.69 },
+          { "uiRange": "68-84", "white": 959.83, "beige": 1006.42, "colonialSpokes": 121.61, "sunburst": 316.11, "doubleSunburst": 352.41, "sdl_7_8": 834.69, "sdl_1_1_4": 940.63 },
+          { "uiRange": "85-104", "white": 1115.02, "beige": 1169.47, "colonialSpokes": 171.82, "sunburst": 374.19, "doubleSunburst": 410.49, "sdl_7_8": 860.31, "sdl_1_1_4": 977.19 },
+          { "uiRange": "105-124", "white": 1277.76, "beige": 1340.38, "colonialSpokes": 250.47, "sunburst": 464.94, "doubleSunburst": 501.24, "sdl_7_8": 885.00, "sdl_1_1_4": 1012.50 },
+          { "uiRange": "125-134", "white": 1462.89, "beige": 1535.19, "colonialSpokes": 301.29, "sunburst": 523.63, "doubleSunburst": 559.93, "sdl_7_8": 897.50, "sdl_1_1_4": 1030.00 }
+        ]
+      }
+    }
+  },
+  "gardenWindow": {
+    "sourcePage": 31,
+    "model": "S134",
+    "basePricing": {
+      "height_32_to_47": {
+        "24_to_37": { "white": 1507.65, "beige": 1656.30 },
+        "37_1_8_to_49": { "white": 1805.65, "beige": 1984.05 },
+        "49_1_8_to_59": { "white": 2108.10, "beige": 2316.80 },
+        "59_1_8_to_72": { "white": 2264.45, "beige": 2488.80 }
+      },
+      "height_47_1_8_to_60": {
+        "24_to_37": { "white": 1900.05, "beige": 2088.00 },
+        "37_1_8_to_49": { "white": 1990.05, "beige": 2186.90 },
+        "49_1_8_to_59": { "white": 2277.90, "beige": 2503.65 },
+        "59_1_8_to_72": { "white": 2488.20, "beige": 2734.90 }
+      }
+    },
+    "options": {
+      "ltOakWoodgrainSeatboards": {
+        "24_to_37": 172.40, "37_1_8_to_49": 172.40, "49_1_8_to_59": 172.40, "59_1_8_to_72": 172.40
+      },
+      "whitePionite": {
+        "24_to_37": 148.20, "37_1_8_to_49": 156.05, "49_1_8_to_59": 165.20, "59_1_8_to_72": 182.30
+      },
+      "oakVeneer": {
+        "24_to_37": 148.20, "37_1_8_to_49": 156.05, "49_1_8_to_59": 165.20, "59_1_8_to_72": 182.30
+      },
+      "glassShelfSecond": {
+        "24_to_37": 150.80, "37_1_8_to_49": 157.35, "49_1_8_to_59": 196.65, "59_1_8_to_72": 216.35
+      },
+      "lowEArgonGlass": {
+        "24_to_37": 97.05, "37_1_8_to_49": 121.95, "49_1_8_to_59": 140.30, "59_1_8_to_72": 157.35
+      },
+      "insulationSeatboard1in": {
+        "24_to_37": 45.90, "37_1_8_to_49": 59.00, "49_1_8_to_59": 78.70, "59_1_8_to_72": 98.35
+      },
+      "jambOver6_9_16": {
+        "24_to_37": 85.25, "37_1_8_to_49": 98.35, "49_1_8_to_59": 111.50, "59_1_8_to_72": 131.15
+      },
+      "edgeBanding": {
+        "24_to_37": 110.00, "37_1_8_to_49": 110.00, "49_1_8_to_59": 110.00, "59_1_8_to_72": 110.00
+      }
+    },
+    "notes": [
+      "Prices are for standard jamb dimensions up to 6-9/16\"",
+      "Woodgrain screens NOT available with woodgrain garden windows",
+      "Edge Banding available in White Pionite only",
+      "Hardware and screen bar are color-matched to interior frame color (except light oak → white)"
+    ]
+  },
+  "wincoreNonImpact": {
+    "sourcePage": 22,
+    "model": "7700",
+    "name": "Wincore Non-Impact Specialty Window",
+    "tiers": [
+      { "uiMin": 0, "uiMax": 73, "price": 985 },
+      { "uiMin": 74, "uiMax": 83, "price": 1015 },
+      { "uiMin": 84, "uiMax": 93, "price": 1056 },
+      { "uiMin": 94, "uiMax": 103, "price": 1087 },
+      { "uiMin": 104, "uiMax": 113, "price": 1118 },
+      { "uiMin": 114, "uiMax": 123, "price": 1141 },
+      { "uiMin": 124, "uiMax": 133, "price": 1180 },
+      { "uiMin": 134, "uiMax": 143, "price": 1300 },
+      { "uiMin": 144, "uiMax": 153, "price": 1581 },
+      { "uiMin": 153, "uiMax": 168, "price": 1754 }
+    ]
+  },
+  "wincoreBlackOnBlack": {
+    "sourcePage": 18,
+    "note": "Contact pricing dated 04-12-2023. $100 adder over 120 UI per contract. SDL $60/lite. Special shapes from non-impact sheet, not discountable.",
+    "adderOver120UI": 100,
+    "sdlPerLite": 60,
+    "specialShapeNotDiscountable": true,
+    "tapcon": 10,
+    "models": {
+      "8801": { "name": "Double Hung" },
+      "8802": { "name": "2-Lite Slider" },
+      "8803": { "name": "3-Lite Slider" },
+      "8809": { "name": "Equal-Lite 3-Lite Slider" },
+      "8804": { "name": "Picture" },
+      "8851": { "name": "Awning" },
+      "8871": { "name": "Casement" },
+      "8800": { "name": "Special Shapes" }
+    }
+  },
+  "laborAndCharges": {
+    "sourcePage": 100,
+    "tapcon": { "amount": 10, "per": "unit", "description": "Concrete attachment" },
+    "clearStory": {
+      "firstWindow": 225,
+      "eachAdditional": 75,
+      "exception": "Small transom over front door ≤8ft: use $10 2nd floor charge instead"
+    },
+    "acSash": {
+      "pricePerUnit": 90,
+      "commission": 0,
+      "notes": ["Need AC unit measurements on order form", "F5 note in Windows Express + Job Instructions"]
+    },
+    "glassPack": {
+      "pricedAs": "small picture window per region",
+      "model": "3004",
+      "notes": ["Needs remake form with specific fields"]
+    },
+    "trim": {
+      "fullPrice": "per pricing schedule",
+      "discountedTo": 25,
+      "note": "Must be fully discounted or full price, no partial",
+      "requiredFor": "inside-set windows",
+      "exception": "wood exterior",
+      "cannotBeDiscounted": false,
+      "windstormException": "Cannot discount in windstorm area"
+    },
+    "headerFlashing": {
+      "sidingExterior": "likely needed",
+      "brickExterior": "question but don't hold in audit"
+    },
+    "windowRemovals": {
+      "note": "Always ask if no charge unless new construction or customer removes",
+      "sgdRemovals": "Enter as Window Removals (not MISC LABOR)"
+    }
+  },
+  "tempering": {
+    "sourcePage": 115,
+    "formula": "Width (rounded up) × Height (rounded up) ÷ 144 = sq ft (round up)",
+    "bottomSashOnly": {
+      "evenSplit": "Divide result by 2",
+      "customOriel": "Subtract oriel height from total height, use new height",
+      "standardOriel60_40": "Height × 0.40 for bottom sash height"
+    },
+    "ircR308_4_2Rules": [
+      "Within 24\" of door + bottom edge <60\" above floor",
+      ">9 sq ft + bottom edge <18\" + top edge >36\" + walking surface within 36\"",
+      "Adjacent to stairway: bottom <36\" above walking surface"
+    ]
+  }
+}

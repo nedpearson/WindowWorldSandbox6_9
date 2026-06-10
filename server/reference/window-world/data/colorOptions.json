@@ -1,0 +1,79 @@
+{
+  "vinylColors": [
+    { "id": "white", "label": "White", "available": true },
+    { "id": "beige", "label": "Beige", "available": true },
+    { "id": "clay", "label": "Clay", "available": true }
+  ],
+  "interiorColors": [
+    { "id": "white", "label": "White" },
+    { "id": "almond", "label": "Almond" },
+    { "id": "clay", "label": "Clay" },
+    { "id": "woodgrain", "label": "Woodgrain" }
+  ],
+  "exteriorColors": [
+    { "id": "white", "label": "White" },
+    { "id": "almond", "label": "Almond" },
+    { "id": "clay", "label": "Clay" },
+    { "id": "bronze", "label": "Bronze" },
+    { "id": "black", "label": "Black" }
+  ],
+  "restrictions": [
+    {
+      "id": "no-clay-L200-0700",
+      "type": "vinyl",
+      "color": "clay",
+      "excludedSeries": ["L200", "0700"],
+      "message": "Clay vinyl not available in L-2000 (FUSION) & 0700 Series",
+      "sourcePage": 71
+    },
+    {
+      "id": "no-ext-color-L200-0700",
+      "type": "exterior",
+      "color": "all",
+      "excludedSeries": ["L200", "0700"],
+      "message": "Exterior color not available in L-2000 (FUSION) / 0700 Series",
+      "sourcePage": 71
+    },
+    {
+      "id": "no-ext-color-clay-vinyl",
+      "type": "exterior",
+      "color": "all",
+      "condition": "vinylColor === 'clay'",
+      "message": "Exterior color not available on Clay vinyl windows",
+      "sourcePage": 71
+    },
+    {
+      "id": "no-int-color-L200",
+      "type": "interior",
+      "color": "all",
+      "excludedSeries": ["L200"],
+      "message": "Interior color not available in L-2000 (FUSION)",
+      "sourcePage": 71
+    },
+    {
+      "id": "no-int-color-03A0-SH",
+      "type": "interior",
+      "color": "all",
+      "excludedModels": ["03A0"],
+      "condition": "productCategory === 'single_hung'",
+      "message": "Interior color not available on 03A0 Single Hung",
+      "sourcePage": 71
+    },
+    {
+      "id": "no-int-color-arch-tops",
+      "type": "interior",
+      "color": "all",
+      "excludedModels": ["S140", "S144", "S146"],
+      "message": "Interior color not available on arch-top windows (S140, S144, S146)",
+      "sourcePage": 71
+    }
+  ],
+  "sgdColors": {
+    "vinyl": ["white", "beige", "clay"],
+    "vinylUpcharge": { "beige": "per_panel", "clay": "per_panel" },
+    "exteriorColor": { "available": true, "pricedFrom": "pricing_sheet", "commission": 10 },
+    "interiorColor": { "available": true, "pricedFrom": "pricing_sheet", "commission": 0, "contractLocation": "door_options_blank_field" }
+  },
+  "gardenWindowColors": ["white", "beige", "white_lt_oak"],
+  "basementHopperColors": ["white", "beige"]
+}
